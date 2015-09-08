@@ -145,6 +145,14 @@
     </When>
   </Choose>
   <ItemGroup>
+    <Reference Include="FlyCap2CameraControl_v100, Version=2.6.3.4, Culture=neutral, PublicKeyToken=5abeeda345e59824, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\x64\Release\FlyCap2CameraControl_v100.dll</HintPath>
+    </Reference>
+    <Reference Include="FlyCapture2Managed_v100, Version=2.6.3.4, Culture=neutral, PublicKeyToken=76c6583b4a4585f4, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\x64\Release\FlyCapture2Managed_v100.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Deployment" />
@@ -199,40 +207,6 @@
   -->
   <PropertyGroup>
     <PostBuildEvent>
-      IF $(Platform)==x86 (
-      GOTO x86
-      ) ELSE IF $(Platform)==x64 (
-      GOTO x64
-      ) ELSE IF $(Platform)==AnyCPU (
-      IF $(anycpuX86)== TRUE (
-      GOTO x86
-      ) ELSE (
-      GOTO x64
-      )
-      )
-      GOTO end
-
-      :x86
-      copy "$(ProjectDir)..\..\bin\libiomp5md.dll" "$(TargetDir)"
-      copy "$(TargetDir)$(TargetFileName)" "$(ProjectDir)..\..\bin\$(TargetName)$(TargetExt)"
-      IF $(ConfigurationName)==Debug (
-      copy "$(ProjectDir)..\..\bin\FlyCapture2d_v100.dll" "$(TargetDir)"
-      ) ELSE (
-      copy "$(ProjectDir)..\..\bin\FlyCapture2_v100.dll" "$(TargetDir)"
-      )
-      GOTO end
-
-      :x64
-      copy "$(ProjectDir)..\..\bin64\libiomp5md.dll" "$(TargetDir)"
-      copy "$(TargetDir)$(TargetFileName)" "$(ProjectDir)..\..\bin64\$(TargetName)$(TargetExt)"
-      IF $(ConfigurationName)==Debug (
-      copy "$(ProjectDir)..\..\bin64\FlyCapture2d_v100.dll" "$(TargetDir)"
-      ) ELSE (
-      copy "$(ProjectDir)..\..\bin64\FlyCapture2_v100.dll" "$(TargetDir)"
-      )
-      GOTO end
-
-      :end
     </PostBuildEvent>
   </PropertyGroup>
 </Project>
