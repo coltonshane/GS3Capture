@@ -78,6 +78,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyName>FlyCapture2SimpleGUI_CSharp</AssemblyName>
+  </PropertyGroup>
   <Choose>
     <When Condition=" ('$(Configuration)|$(Platform)' == 'Release|AnyCPU' And Exists('..\..\bin') And !Exists('..\..\bin64')) Or ('$(Configuration)|$(Platform)' == 'Release|x86' And Exists('..\..\bin'))  ">
       <PropertyGroup>
