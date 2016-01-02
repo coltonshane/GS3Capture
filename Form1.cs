@@ -157,11 +157,12 @@ namespace FlyCapture2SimpleGUI_CSharp
             int[] hist = new int[256];
             int hist_max = 0;
 
+            /*
             buffergfx = picBuffer.CreateGraphics();
             buffergfx.Clear(Color.DimGray);
 
             UpdateStatusBar();
-
+        
             lblRawSize.Text = String.Format("Raw Image Size: {0}", m_rawImage.receivedDataSize);
 
             lblBufferSeconds.Text = String.Format("{0:F2}  seconds", (float)buffersize / m_camera.GetProperty(PropertyType.FrameRate).absValue);
@@ -201,6 +202,7 @@ namespace FlyCapture2SimpleGUI_CSharp
                 btnSave.Enabled = true;
                 btnClear.Enabled = true;
             }
+            */
 
             if (chkAuto30Hz.Checked == true)
             {
@@ -221,6 +223,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             // GDI-based preview image. Disabled in favor of DirectX-rendered preview.
             // pictureBox1.Image = m_processedImage.bitmap;
             // pictureBox1.Invalidate();
+            
 
             renderRaw();
             
@@ -1312,6 +1315,7 @@ namespace FlyCapture2SimpleGUI_CSharp
 
             // context.OutputMerger.SetTargets(renderTarget);
 
+            swapChain.ResizeTarget(new SlimDX.DXGI.ModeDescription(640, 400, new SlimDX.Rational(60, 1), SlimDX.DXGI.Format.R8G8B8A8_UNorm));
 
             // Legacy spot white balance and focus assist. Bring this back in DirectX somehow?
             /*
@@ -1388,11 +1392,6 @@ namespace FlyCapture2SimpleGUI_CSharp
             factory = swapChain.GetParent<SlimDX.DXGI.Factory>();
             factory.SetWindowAssociation(this.Handle, SlimDX.DXGI.WindowAssociationFlags.IgnoreAltEnter);
 
-            viewport = new SlimDX.Direct3D11.Viewport(0.0f, 0.0f, viewport_w, viewport_h);
-            context.Rasterizer.SetViewports(viewport);
-
-            swapChain.ResizeBuffers(1, viewport_w, viewport_h, SlimDX.DXGI.Format.R8G8B8A8_UNorm, SlimDX.DXGI.SwapChainFlags.AllowModeSwitch);
-
             // Render to swapchain on first pass.
             // resource = SlimDX.Direct3D11.Resource.FromSwapChain(Of SlimDX.Direct3D11.Texture2D)(swapChain, 0)
             // renderTarget = New SlimDX.Direct3D11.RenderTargetView(device, resource)
@@ -1414,8 +1413,8 @@ namespace FlyCapture2SimpleGUI_CSharp
             // tex_debayered: The first-pass render target.
             texDesc = new SlimDX.Direct3D11.Texture2DDescription();
             texDesc.SampleDescription = new SlimDX.DXGI.SampleDescription(1, 0);
-            texDesc.Width = viewport_w;
-            texDesc.Height = viewport_h;
+            texDesc.Width = 1920;
+            texDesc.Height = 1200;
             texDesc.MipLevels = 1;
             texDesc.ArraySize = 1;
             texDesc.Format = SlimDX.DXGI.Format.R32G32B32A32_Float;
@@ -1427,8 +1426,8 @@ namespace FlyCapture2SimpleGUI_CSharp
             // tex_convolve: The second-pass input texture, which gets a copy of tex_debayered.
             texDesc = new SlimDX.Direct3D11.Texture2DDescription();
             texDesc.SampleDescription = new SlimDX.DXGI.SampleDescription(1, 0);
-            texDesc.Width = viewport_w;
-            texDesc.Height = viewport_h;
+            texDesc.Width = 1920;
+            texDesc.Height = 1200;
             texDesc.MipLevels = 1;
             texDesc.ArraySize = 1;
             texDesc.Format = SlimDX.DXGI.Format.R32G32B32A32_Float;
@@ -1549,15 +1548,19 @@ namespace FlyCapture2SimpleGUI_CSharp
             // Get a pointer to the start of the raw image data (requires unsafe context).
             ptrRawData = m_rawImage.data;
 
-            if (recformat == PixelFormat.PixelFormatRaw12)
+            if (m_rawImage.pixelFormat == PixelFormat.PixelFormatRaw12)
             {
                 // Load 12-bit raw image.
                 // First, capture the luminance of each raw pixel directly.
-                for (y = 0; y <= recy - 1; y++)
+                for (y = 0; y < recy; y++)
                 {
-                    for (x = 0; x <= recx - 1; x += 2)
+                    for (x = 0; x < recx; x += 2)
                     {
-                        px12 = ((uint)*ptrRawData++ << 16) + ((uint)*ptrRawData++ << 8) + ((uint)*ptrRawData++);
+
+                        px12 = (((uint)*ptrRawData++) << 16);
+                        px12 += (((uint)*ptrRawData++) << 8);
+                        px12 += ((uint)*ptrRawData++);
+
 
                         px1 = (((px12 >> 16) & 0xFF) << 4) + ((px12 >> 8) & 0x0F);
                         px2 = (((px12 >> 0) & 0xFF) << 4) + ((px12 >> 12) & 0x0F);
@@ -1570,7 +1573,7 @@ namespace FlyCapture2SimpleGUI_CSharp
                     }
                 }
             }
-            else if (recformat == PixelFormat.PixelFormatRaw8)
+            else if (m_rawImage.pixelFormat == PixelFormat.PixelFormatRaw8)
             {
                 // Load 8-bit raw image.
                 // First, capture the luminance of each raw pixel directly.
@@ -1585,6 +1588,7 @@ namespace FlyCapture2SimpleGUI_CSharp
 
                     }
                 }
+
             }
             else
             {
@@ -1651,6 +1655,9 @@ namespace FlyCapture2SimpleGUI_CSharp
             renderTarget = new SlimDX.Direct3D11.RenderTargetView(device, tex_debayered);
             context.OutputMerger.SetTargets(renderTarget);
 
+            viewport = new SlimDX.Direct3D11.Viewport(0.0f, 0.0f, 1920, 1200);
+            context.Rasterizer.SetViewports(viewport);
+
             context.Draw(4, 0);
 
             // Pass 2: Convolve
@@ -1670,9 +1677,11 @@ namespace FlyCapture2SimpleGUI_CSharp
             renderTarget = new SlimDX.Direct3D11.RenderTargetView(device, SlimDX.Direct3D11.Resource.FromSwapChain<SlimDX.Direct3D11.Texture2D>(swapChain, 0));
             context.OutputMerger.SetTargets(renderTarget);
 
+            viewport = new SlimDX.Direct3D11.Viewport(0.0f, 0.0f, 1280.0f, 800.0f);
+            context.Rasterizer.SetViewports(viewport);
+
             context.Draw(4, 0);
             swapChain.Present(0, SlimDX.DXGI.PresentFlags.None);
-
 
             bufferdata.Dispose();
             resourceView.Dispose();
