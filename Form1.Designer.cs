@@ -206,9 +206,9 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.toolStripStatusLabelImageSize,
             this.toolStripStatusLabelFrameRate,
             this.toolStripStatusLabelTimestamp});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 660);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 1031);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(1264, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(1904, 22);
             this.statusStrip1.TabIndex = 1;
             this.statusStrip1.Text = "statusStrip1";
             // 
@@ -241,7 +241,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.fileToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1264, 25);
+            this.menuStrip1.Size = new System.Drawing.Size(1904, 25);
             this.menuStrip1.TabIndex = 2;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -278,11 +278,10 @@ namespace FlyCapture2SimpleGUI_CSharp
             // 
             this.pictureBox1.Location = new System.Drawing.Point(12, 54);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(640, 400);
+            this.pictureBox1.Size = new System.Drawing.Size(1280, 800);
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pictureBox1.TabIndex = 5;
             this.pictureBox1.TabStop = false;
-            this.pictureBox1.Click += new System.EventHandler(this.pictureBox1_Click);
             this.pictureBox1.MouseClick += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseClick);
             // 
             // lblRawSize
@@ -1389,7 +1388,8 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Black;
-            this.ClientSize = new System.Drawing.Size(1264, 682);
+            this.ClientSize = new System.Drawing.Size(1904, 1053);
+            this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.btnRedUpUp);
             this.Controls.Add(this.btnRedDownDown);
             this.Controls.Add(this.btnBlueDownDown);
@@ -1466,7 +1466,6 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.Controls.Add(this.lblDD);
             this.Controls.Add(this.nudDD);
             this.Controls.Add(this.cmbFormat);
-            this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.btnSave);
             this.Controls.Add(this.lblFramesBuffered);
             this.Controls.Add(this.btnRec);
