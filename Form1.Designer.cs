@@ -282,6 +282,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pictureBox1.TabIndex = 5;
             this.pictureBox1.TabStop = false;
+            this.pictureBox1.Click += new System.EventHandler(this.pictureBox1_Click);
             this.pictureBox1.MouseClick += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseClick);
             // 
             // lblRawSize
@@ -1243,6 +1244,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.chkWBSpot.TabIndex = 86;
             this.chkWBSpot.Text = "Spot";
             this.chkWBSpot.UseVisualStyleBackColor = false;
+            this.chkWBSpot.CheckedChanged += new System.EventHandler(this.chkWBSpot_CheckedChanged);
             // 
             // picHistFrame
             // 

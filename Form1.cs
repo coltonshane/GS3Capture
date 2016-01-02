@@ -1308,17 +1308,8 @@ namespace FlyCapture2SimpleGUI_CSharp
 
         private void pictureBox1_MouseClick(object sender, MouseEventArgs e)
         {
-            // renderTarget.Dispose();;
-            // swapChain.ResizeBuffers(1, 0, 0, SlimDX.DXGI.Format.R8G8B8A8_UNorm, SlimDX.DXGI.SwapChainFlags.AllowModeSwitch);
-            // resource = SlimDX.Direct3D11.Resource.FromSwapChain<SlimDX.Direct3D11.Texture2D>(swapChain, 0);
-            // renderTarget = new SlimDX.Direct3D11.RenderTargetView(device, resource);
 
-            // context.OutputMerger.SetTargets(renderTarget);
-
-            swapChain.ResizeTarget(new SlimDX.DXGI.ModeDescription(640, 400, new SlimDX.Rational(60, 1), SlimDX.DXGI.Format.R8G8B8A8_UNorm));
-
-            // Legacy spot white balance and focus assist. Bring this back in DirectX somehow?
-            /*
+            // White balance or zoom in.
             if (chkWBSpot.Checked == true)
             {
 
@@ -1329,13 +1320,21 @@ namespace FlyCapture2SimpleGUI_CSharp
                 float wb_redf = (float) wb_red;
                 float wb_bluef = (float) wb_blue;
 
-                Rectangle pictureBoxRect = new Rectangle(0, 0, pictureBox1.Width, pictureBox1.Height);
-                Bitmap wbBitmap = new Bitmap(pictureBox1.Width, pictureBox1.Height);
+                SlimDX.Direct3D11.Texture2D texWB;
+                System.IO.MemoryStream streamWB = new System.IO.MemoryStream();
+                Bitmap bmpWB;
 
-                pictureBox1.DrawToBitmap(wbBitmap, pictureBoxRect);
-                red_error = 255 - wbBitmap.GetPixel(e.X, e.Y).R;
-                green_error = 255 - wbBitmap.GetPixel(e.X, e.Y).G;
-                blue_error = 255 - wbBitmap.GetPixel(e.X, e.Y).B;
+                texWB = SlimDX.Direct3D11.Resource.FromSwapChain<SlimDX.Direct3D11.Texture2D>(swapChain, 0);
+                SlimDX.Direct3D11.Texture2D.ToStream(context, texWB, SlimDX.Direct3D11.ImageFileFormat.Bmp, streamWB);
+                bmpWB = (Bitmap) Bitmap.FromStream(streamWB);    
+
+                red_error = 255 - bmpWB.GetPixel(e.X*3/2, e.Y*3/2).R;
+                green_error = 255 - bmpWB.GetPixel(e.X*3/2, e.Y*3/2).G;
+                blue_error = 255 - bmpWB.GetPixel(e.X*3/2, e.Y*3/2).B;
+
+                streamWB.Dispose();
+                texWB.Dispose();
+                bmpWB.Dispose();
 
                 wb_bluef += 2.0F * ((float)blue_error - 1.0F * (float)green_error);
                 wb_redf += 2.0F * ((float)red_error - 1.0F * (float)green_error);
@@ -1353,16 +1352,16 @@ namespace FlyCapture2SimpleGUI_CSharp
             }
             else
             {
-                if (pictureBox1.SizeMode == PictureBoxSizeMode.Zoom)
+                if (pictureBox1.Width > 640)
                 {
-                    pictureBox1.SizeMode = PictureBoxSizeMode.CenterImage;
+                    swapChain.ResizeTarget(new SlimDX.DXGI.ModeDescription(640, 400, new SlimDX.Rational(60, 1), SlimDX.DXGI.Format.R8G8B8A8_UNorm));
                 }
                 else
                 {
-                    pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
+                    swapChain.ResizeTarget(new SlimDX.DXGI.ModeDescription(960, 600, new SlimDX.Rational(60, 1), SlimDX.DXGI.Format.R8G8B8A8_UNorm));
                 }
             }
-            */
+            
         }
 
         private void configRawInDevice()
@@ -1608,16 +1607,16 @@ namespace FlyCapture2SimpleGUI_CSharp
 
             bufferdata = new DataStream(160, true, true);
             bufferdata.Write(new Vector2(recx, recy));
-            bufferdata.Write<float>(2.0f);              // Gamma
+            bufferdata.Write<float>(1.0f);              // Gamma
             bufferdata.Write<float>(1.0f);              // Brightness
-            bufferdata.Write<float>(1.4f);              //Contrast
+            bufferdata.Write<float>(1.0f);              // Contrast
             bufferdata.Write<float>(0.0f);              // Red White Adjust
             bufferdata.Write<float>(0.0f);              // Green White Adjust
             bufferdata.Write<float>(0.0f);              // Blue White Adjust
             bufferdata.Write<float>(0.0f);              // Red Black Adjust
             bufferdata.Write<float>(0.0f);              // Green Black Adjust
             bufferdata.Write<float>(0.0f);              // Blue Black Adjust
-            bufferdata.Write<float>(2.0f);              // Saturation Adjust
+            bufferdata.Write<float>(1.0f);              // Saturation Adjust
             bufferdata.Write<float>(0.0f);              // Hue Adjust
 
             for(convy = 0; convy <= 4; convy++)
@@ -1677,7 +1676,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             renderTarget = new SlimDX.Direct3D11.RenderTargetView(device, SlimDX.Direct3D11.Resource.FromSwapChain<SlimDX.Direct3D11.Texture2D>(swapChain, 0));
             context.OutputMerger.SetTargets(renderTarget);
 
-            viewport = new SlimDX.Direct3D11.Viewport(0.0f, 0.0f, 1280.0f, 800.0f);
+            viewport = new SlimDX.Direct3D11.Viewport(0.0f, 0.0f, 960.0f, 600.0f);
             context.Rasterizer.SetViewports(viewport);
 
             context.Draw(4, 0);
@@ -1687,6 +1686,16 @@ namespace FlyCapture2SimpleGUI_CSharp
             resourceView.Dispose();
 
             renderBusy = false;
+
+        }
+
+        private void pictureBox1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void chkWBSpot_CheckedChanged(object sender, EventArgs e)
+        {
 
         }
     }
