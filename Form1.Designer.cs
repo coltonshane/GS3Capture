@@ -132,7 +132,8 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.btnBlueDownDown = new System.Windows.Forms.Button();
             this.btnRedDownDown = new System.Windows.Forms.Button();
             this.btnRedUpUp = new System.Windows.Forms.Button();
-            this.lblUITime = new System.Windows.Forms.Label();
+            this.txtDiag = new System.Windows.Forms.TextBox();
+            this.lblDiag = new System.Windows.Forms.Label();
             this.toolStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
@@ -1384,17 +1385,28 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.btnRedUpUp.UseVisualStyleBackColor = false;
             this.btnRedUpUp.Click += new System.EventHandler(this.btnRedUpUp_Click);
             // 
-            // lblUITime
+            // txtDiag
             // 
-            this.lblUITime.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.lblUITime.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblUITime.ForeColor = System.Drawing.Color.White;
-            this.lblUITime.Location = new System.Drawing.Point(1192, 667);
-            this.lblUITime.Name = "lblUITime";
-            this.lblUITime.Size = new System.Drawing.Size(259, 20);
-            this.lblUITime.TabIndex = 99;
-            this.lblUITime.Text = "UI Update Time: 0.000ms";
-            this.lblUITime.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.txtDiag.BackColor = System.Drawing.Color.DimGray;
+            this.txtDiag.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtDiag.ForeColor = System.Drawing.Color.White;
+            this.txtDiag.Location = new System.Drawing.Point(1185, 630);
+            this.txtDiag.Multiline = true;
+            this.txtDiag.Name = "txtDiag";
+            this.txtDiag.Size = new System.Drawing.Size(305, 139);
+            this.txtDiag.TabIndex = 99;
+            // 
+            // lblDiag
+            // 
+            this.lblDiag.AutoSize = true;
+            this.lblDiag.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.lblDiag.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblDiag.ForeColor = System.Drawing.Color.White;
+            this.lblDiag.Location = new System.Drawing.Point(1185, 607);
+            this.lblDiag.Name = "lblDiag";
+            this.lblDiag.Size = new System.Drawing.Size(183, 20);
+            this.lblDiag.TabIndex = 100;
+            this.lblDiag.Text = "Thread Diagnostics [ms]:";
             // 
             // Form1
             // 
@@ -1402,7 +1414,8 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Black;
             this.ClientSize = new System.Drawing.Size(1514, 801);
-            this.Controls.Add(this.lblUITime);
+            this.Controls.Add(this.lblDiag);
+            this.Controls.Add(this.txtDiag);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.btnRedUpUp);
             this.Controls.Add(this.btnRedDownDown);
@@ -1632,7 +1645,8 @@ namespace FlyCapture2SimpleGUI_CSharp
         private System.Windows.Forms.Button btnBlueDownDown;
         private System.Windows.Forms.Button btnRedDownDown;
         private System.Windows.Forms.Button btnRedUpUp;
-        private System.Windows.Forms.Label lblUITime;
+        private System.Windows.Forms.TextBox txtDiag;
+        private System.Windows.Forms.Label lblDiag;
     }
 }
 

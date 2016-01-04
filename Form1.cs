@@ -135,10 +135,23 @@ namespace FlyCapture2SimpleGUI_CSharp
         int viewport_h = 1200;
         bool renderBusy = false;
 
-        // Timing Diagnostics
+        // Thread Timing Diagnostics
         Stopwatch swDiagnostic = new Stopwatch();
         TimeSpan UIStart;
+        TimeSpan UILast;
         TimeSpan UIEnd;
+        float UITime;
+        float UIPeriod;
+        TimeSpan GrabStart;
+        TimeSpan GrabLast;
+        TimeSpan GrabEnd;
+        float GrabTime;
+        float GrabPeriod;
+        TimeSpan SaveStart;
+        TimeSpan SaveLast;
+        TimeSpan SaveEnd;
+        float SaveTime;
+        float SavePeriod;
 
         public Form1()
         {
@@ -162,6 +175,12 @@ namespace FlyCapture2SimpleGUI_CSharp
 
             int[] hist = new int[256];
             int hist_max = 0;
+
+            string threadtiming = "";
+
+            UILast = UIStart;
+            UIStart = swDiagnostic.Elapsed;
+            UIPeriod = (float)(UIStart - UILast).TotalMilliseconds;
 
             Application.DoEvents();
 
@@ -263,8 +282,15 @@ namespace FlyCapture2SimpleGUI_CSharp
             }
             */
 
-            
-            lblUITime.Text = String.Format("{0:F3}", (UIEnd-UIStart).TotalMilliseconds);
+            UIEnd = swDiagnostic.Elapsed;
+            UITime = (float) (UIEnd - UIStart).TotalMilliseconds;
+
+            // Update thread timing diagnostics.
+            threadtiming = String.Format("Capture Period: {0:F3}, Time: {1:F3}\r\n", GrabPeriod, GrabTime);
+            threadtiming += String.Format("Save Period: {0:F3}, Time: {1:F3}\r\n", SavePeriod, SaveTime);
+            threadtiming += String.Format("UI Period: {0:F3}, Time: {1:F3}", UIPeriod, UITime);
+            txtDiag.Text = threadtiming;
+
         }
 
         private void UpdateStatusBar()
@@ -478,6 +504,10 @@ namespace FlyCapture2SimpleGUI_CSharp
                     Debug.WriteLine("Error: " + ex.Message);
                     continue;
                 }
+
+                GrabLast = GrabStart;
+                GrabStart = swDiagnostic.Elapsed;
+                GrabPeriod = (float)(GrabStart - GrabLast).TotalMilliseconds;
                 
                 // I added this to keep track of frame processing speed.
                 framectr++;
@@ -540,6 +570,9 @@ namespace FlyCapture2SimpleGUI_CSharp
                         // Make a preview image that's in Raw16 format for easy memcopy into DirectX texture.
                         m_rawImage.Convert(m_processedImage.pixelFormat, m_processedImage);
                     }
+
+                    GrabEnd = swDiagnostic.Elapsed;
+                    GrabTime = (float)(GrabEnd - GrabStart).TotalMilliseconds;
                     
                     worker.ReportProgress(0);
                 }
@@ -554,6 +587,8 @@ namespace FlyCapture2SimpleGUI_CSharp
 
             while (true)
             {
+                
+
                 if (saving_buffer)
                 {
                     diff = buffer_in_framectr - buffer_out_framectr;
@@ -565,9 +600,16 @@ namespace FlyCapture2SimpleGUI_CSharp
                     {
                         if ((frame_div_ctr % frame_div) == 0)
                         {
+                            SaveLast = SaveStart;
+                            SaveStart = swDiagnostic.Elapsed;
+                            SavePeriod = (float)(SaveStart - SaveLast).TotalMilliseconds;
+
                             // RAW Saving: Fast, no color processing, medium file size.
                             framebuffer[buffer_out_framectr].Convert(m_saveImageCont.pixelFormat, m_saveImageCont);
                             m_saveImageCont.Save(String.Format("c:\\tmp\\clip{0}\\img{1:D5}.raw", tstamp2, buffersize * buffer_rollover + buffer_out_framectr), ImageFileFormat.Raw);
+
+                            SaveEnd = swDiagnostic.Elapsed;
+                            SaveTime = (float)(SaveEnd - SaveStart).TotalMilliseconds;
                         }
                         
                         buffer_out_framectr++;
@@ -1534,8 +1576,6 @@ namespace FlyCapture2SimpleGUI_CSharp
             int convx;
             int convy;
 
-            UIStart = swDiagnostic.Elapsed;
-
             // Don't allow nested calls to renderRaw()
             if (renderBusy == true)
             {
@@ -1715,8 +1755,6 @@ namespace FlyCapture2SimpleGUI_CSharp
             resourceView.Dispose();
 
             renderBusy = false;
-
-            UIEnd = swDiagnostic.Elapsed;
         }
     }
 }
