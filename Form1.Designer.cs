@@ -1258,9 +1258,9 @@ namespace FlyCapture2SimpleGUI_CSharp
             // picHist
             // 
             this.picHist.BackColor = System.Drawing.Color.Black;
-            this.picHist.Location = new System.Drawing.Point(796, 402);
+            this.picHist.Location = new System.Drawing.Point(841, 402);
             this.picHist.Name = "picHist";
-            this.picHist.Size = new System.Drawing.Size(355, 100);
+            this.picHist.Size = new System.Drawing.Size(255, 100);
             this.picHist.TabIndex = 88;
             this.picHist.TabStop = false;
             // 

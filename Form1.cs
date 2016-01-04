@@ -41,8 +41,9 @@ namespace FlyCapture2SimpleGUI_CSharp
         private FlyCapture2Managed.Gui.CameraControlDialog m_camCtlDlg;
         private ManagedCameraBase m_camera = null;
         private ManagedImage m_rawImage;
-        private ManagedImageStatistics m_rawImageStats;
         private ManagedImage m_processedImage;
+        private ManagedImage m_histImage;
+        private ManagedImageStatistics m_histImageStats;
         private bool m_grabImages;
         private AutoResetEvent m_grabThreadExited;
         private AutoResetEvent m_saveThreadExited;
@@ -123,7 +124,6 @@ namespace FlyCapture2SimpleGUI_CSharp
         SlimDX.Direct3D11.Texture2D tex;
         SlimDX.Direct3D11.Texture2D tex_debayered;
         SlimDX.Direct3D11.Texture2D tex_convolve;
-        SlimDX.Direct3D11.Texture2D tex_output;
         SlimDX.Direct3D11.InputElement[] elements = new SlimDX.Direct3D11.InputElement[2];
         SlimDX.Direct3D11.InputLayout layout1;
 
@@ -158,8 +158,9 @@ namespace FlyCapture2SimpleGUI_CSharp
             InitializeComponent();
 
             m_rawImage = new ManagedImage();
-            m_rawImageStats = new ManagedImageStatistics();
-            m_processedImage = new ManagedImage(1920,1200,PixelFormat.PixelFormatRaw8);
+            m_processedImage = new ManagedImage();
+            m_histImage = new ManagedImage();
+            m_histImageStats = new ManagedImageStatistics();
             m_camCtlDlg = new CameraControlDialog();
 
             m_grabThreadExited = new AutoResetEvent(false);
@@ -251,14 +252,15 @@ namespace FlyCapture2SimpleGUI_CSharp
 
             renderRaw();
 
-            // Generate histogram from raw image.
-            // TEST: Temporarily disabled to test DirectX rendering.
-            /*
+            // Generate histogram from processed image.
             if (chkHistOn.Checked == true)
             {
-                m_processedImageStats.EnableAll();
-                m_processedImage.CalculateStatistics(m_processedImageStats);
-                m_processedImageStats.GetHistogram(StatisticsChannel.Lightness, hist);
+                // Create a color-processed histogram image. This is slow, only do it when necessary.
+                m_processedImage.Convert(PixelFormat.PixelFormatBgr, m_histImage);
+
+                m_histImageStats.EnableAll();
+                m_histImage.CalculateStatistics(m_histImageStats);
+                m_histImageStats.GetHistogram(StatisticsChannel.Lightness, hist);
 
                 histgfx = picHist.CreateGraphics();
                 histgfx.Clear(Color.Black);
@@ -280,7 +282,6 @@ namespace FlyCapture2SimpleGUI_CSharp
                 chkHistOn.Checked = false;
                 histgfx.Dispose();
             }
-            */
 
             UIEnd = swDiagnostic.Elapsed;
             UITime = (float) (UIEnd - UIStart).TotalMilliseconds;
@@ -568,7 +569,7 @@ namespace FlyCapture2SimpleGUI_CSharp
                         // m_rawImage.Convert(m_rawImage.pixelFormat, m_processedImage);
 
                         // Make a preview image that's in Raw16 format for easy memcopy into DirectX texture.
-                        m_rawImage.Convert(m_processedImage.pixelFormat, m_processedImage);
+                        m_rawImage.Convert(PixelFormat.PixelFormatRaw8, m_processedImage);
                     }
 
                     GrabEnd = swDiagnostic.Elapsed;
@@ -1610,7 +1611,7 @@ namespace FlyCapture2SimpleGUI_CSharp
                 }
             }
 
-            bufferdata.Write<uint>(0);                  // Show saturation by inverting pixels.
+            bufferdata.Write<uint>(1);                  // Show saturation by inverting pixels.
             bufferdata.Position = 0;
 
             context.PixelShader.SetConstantBuffer(new SlimDX.Direct3D11.Buffer(device, bufferdata, 160, SlimDX.Direct3D11.ResourceUsage.Dynamic, SlimDX.Direct3D11.BindFlags.ConstantBuffer, SlimDX.Direct3D11.CpuAccessFlags.Write, SlimDX.Direct3D11.ResourceOptionFlags.None, 4), 0);
