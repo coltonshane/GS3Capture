@@ -1522,38 +1522,6 @@ namespace FlyCapture2SimpleGUI_CSharp
 
             context.VertexShader.Set(vertexShader);
             context.PixelShader.Set(pixelShader1);
-
-            // Set default convolution matrix to a 3x3 sharpen kernel:
-            float k_sharp = 0.15f;
-            conv[0, 0] = k_sharp * 0.0f;
-            conv[0, 1] = k_sharp * 0.0f;
-            conv[0, 2] = k_sharp * 0.0f;
-            conv[0, 3] = k_sharp * 0.0f;
-            conv[0, 4] = k_sharp * 0.0f;
-
-            conv[1, 0] = k_sharp * 0.0f;
-            conv[1, 1] = k_sharp * -1.0f;
-            conv[1, 2] = k_sharp * -1.0f;
-            conv[1, 3] = k_sharp * -1.0f;
-            conv[1, 4] = k_sharp * 0.0f;
-
-            conv[2, 0] = k_sharp * 0.0f;
-            conv[2, 1] = k_sharp * -1.0f;
-            conv[2, 2] = k_sharp * 8.0f + 1.0f;
-            conv[2, 3] = k_sharp * -1.0f;
-            conv[2, 4] = k_sharp * 0.0f;
-
-            conv[3, 0] = k_sharp * 0.0f;
-            conv[3, 1] = k_sharp * -1.0f;
-            conv[3, 2] = k_sharp * -1.0f;
-            conv[3, 3] = k_sharp * -1.0f;
-            conv[3, 4] = k_sharp * 0.0f;
-
-            conv[4, 0] = k_sharp * 0.0f;
-            conv[4, 1] = k_sharp * 0.0f;
-            conv[4, 2] = k_sharp * 0.0f;
-            conv[4, 3] = k_sharp * 0.0f;
-            conv[4, 4] = k_sharp * 0.0f;
         }
 
         unsafe private void renderRaw()
@@ -1591,19 +1559,72 @@ namespace FlyCapture2SimpleGUI_CSharp
 
             bufferdata = new DataStream(160, true, true);
             bufferdata.Write(new Vector2(1920, 1200));
-            bufferdata.Write<float>(2.0f);              // Gamma
-            bufferdata.Write<float>(1.0f);              // Brightness
-            bufferdata.Write<float>(1.4f);              // Contrast
-            bufferdata.Write<float>(0.0f);              // Red White Adjust
-            bufferdata.Write<float>(0.0f);              // Green White Adjust
-            bufferdata.Write<float>(0.0f);              // Blue White Adjust
-            bufferdata.Write<float>(0.0f);              // Red Black Adjust
-            bufferdata.Write<float>(0.0f);              // Green Black Adjust
-            bufferdata.Write<float>(0.0f);              // Blue Black Adjust
-            bufferdata.Write<float>(1.4f);              // Saturation Adjust
-            bufferdata.Write<float>(0.0f);              // Hue Adjust
 
-            for(convy = 0; convy <= 4; convy++)
+            float k_sharp = 0.0f;
+
+            if (chkRaw.Checked == true)
+            {
+                bufferdata.Write<float>(1.0f);                          // Gamma
+                bufferdata.Write<float>(1.0f);                          // Brightness
+                bufferdata.Write<float>(1.0f);                          // Contrast
+                bufferdata.Write<float>(0.0f);                          // Red White Adjust
+                bufferdata.Write<float>(0.0f);                          // Green White Adjust
+                bufferdata.Write<float>(0.0f);                          // Blue White Adjust
+                bufferdata.Write<float>(0.0f);                          // Red Black Adjust
+                bufferdata.Write<float>(0.0f);                          // Green Black Adjust
+                bufferdata.Write<float>(0.0f);                          // Blue Black Adjust
+                bufferdata.Write<float>(1.0f);                          // Saturation Adjust
+                bufferdata.Write<float>(0.0f);                          // Hue Adjust
+            }
+            else
+            {
+                bufferdata.Write<float>((float)nudGamma.Value);         // Gamma
+                bufferdata.Write<float>((float)nudBrightness.Value);    // Brightness
+                bufferdata.Write<float>((float)nudContrast.Value);      // Contrast
+                bufferdata.Write<float>(0.0f);                          // Red White Adjust
+                bufferdata.Write<float>(0.0f);                          // Green White Adjust
+                bufferdata.Write<float>(0.0f);                          // Blue White Adjust
+                bufferdata.Write<float>(0.0f);                          // Red Black Adjust
+                bufferdata.Write<float>(0.0f);                          // Green Black Adjust
+                bufferdata.Write<float>(0.0f);                          // Blue Black Adjust
+                bufferdata.Write<float>((float)nudSaturation.Value);    // Saturation Adjust
+                bufferdata.Write<float>(0.0f);                          // Hue Adjust
+
+                k_sharp = (float)nudSharpness.Value - 1.0f;
+            }
+
+            // Set default convolution matrix to a 3x3 sharpen kernel:
+            conv[0, 0] = k_sharp * 0.0f;
+            conv[0, 1] = k_sharp * 0.0f;
+            conv[0, 2] = k_sharp * 0.0f;
+            conv[0, 3] = k_sharp * 0.0f;
+            conv[0, 4] = k_sharp * 0.0f;
+
+            conv[1, 0] = k_sharp * 0.0f;
+            conv[1, 1] = k_sharp * -1.0f;
+            conv[1, 2] = k_sharp * -1.0f;
+            conv[1, 3] = k_sharp * -1.0f;
+            conv[1, 4] = k_sharp * 0.0f;
+
+            conv[2, 0] = k_sharp * 0.0f;
+            conv[2, 1] = k_sharp * -1.0f;
+            conv[2, 2] = k_sharp * 8.0f + 1.0f;
+            conv[2, 3] = k_sharp * -1.0f;
+            conv[2, 4] = k_sharp * 0.0f;
+
+            conv[3, 0] = k_sharp * 0.0f;
+            conv[3, 1] = k_sharp * -1.0f;
+            conv[3, 2] = k_sharp * -1.0f;
+            conv[3, 3] = k_sharp * -1.0f;
+            conv[3, 4] = k_sharp * 0.0f;
+
+            conv[4, 0] = k_sharp * 0.0f;
+            conv[4, 1] = k_sharp * 0.0f;
+            conv[4, 2] = k_sharp * 0.0f;
+            conv[4, 3] = k_sharp * 0.0f;
+            conv[4, 4] = k_sharp * 0.0f;
+
+            for (convy = 0; convy <= 4; convy++)
             {
                 for (convx = 0; convx <= 4; convx++)
                 {
@@ -1611,7 +1632,15 @@ namespace FlyCapture2SimpleGUI_CSharp
                 }
             }
 
-            bufferdata.Write<uint>(1);                  // Show saturation by inverting pixels.
+            if(chkClip.Checked == true)
+            {
+                bufferdata.Write<uint>(1);                  // Show saturation by inverting pixels.
+            }
+            else
+            {
+                bufferdata.Write<uint>(0);                  // Don't show saturation by inverting pixels.
+            }
+            
             bufferdata.Position = 0;
 
             context.PixelShader.SetConstantBuffer(new SlimDX.Direct3D11.Buffer(device, bufferdata, 160, SlimDX.Direct3D11.ResourceUsage.Dynamic, SlimDX.Direct3D11.BindFlags.ConstantBuffer, SlimDX.Direct3D11.CpuAccessFlags.Write, SlimDX.Direct3D11.ResourceOptionFlags.None, 4), 0);
@@ -1756,6 +1785,56 @@ namespace FlyCapture2SimpleGUI_CSharp
             resourceView.Dispose();
 
             renderBusy = false;
+        }
+
+        private void btnGammaDown_Click(object sender, EventArgs e)
+        {
+            nudGamma.Value = nudGamma.Value - nudGamma.Increment;
+        }
+
+        private void btnGammaUp_Click(object sender, EventArgs e)
+        {
+            nudGamma.Value = nudGamma.Value + nudGamma.Increment;
+        }
+
+        private void btnBrightnessDown_Click(object sender, EventArgs e)
+        {
+            nudBrightness.Value = nudBrightness.Value - nudBrightness.Increment;
+        }
+
+        private void btnBrightnessUp_Click(object sender, EventArgs e)
+        {
+            nudBrightness.Value = nudBrightness.Value + nudBrightness.Increment;
+        }
+
+        private void btnContrastDown_Click(object sender, EventArgs e)
+        {
+            nudContrast.Value = nudContrast.Value - nudContrast.Increment;
+        }
+
+        private void btnContrastUp_Click(object sender, EventArgs e)
+        {
+            nudContrast.Value = nudContrast.Value + nudContrast.Increment;
+        }
+
+        private void btnSaturationDown_Click(object sender, EventArgs e)
+        {
+            nudSaturation.Value = nudSaturation.Value - nudSaturation.Increment;
+        }
+
+        private void btnSaturationUp_Click(object sender, EventArgs e)
+        {
+            nudSaturation.Value = nudSaturation.Value + nudSaturation.Increment;
+        }
+
+        private void btnSharpnessDown_Click(object sender, EventArgs e)
+        {
+            nudSharpness.Value = nudSharpness.Value - nudSharpness.Increment;
+        }
+
+        private void btnSharpnessUp_Click(object sender, EventArgs e)
+        {
+            nudSharpness.Value = nudSharpness.Value + nudSharpness.Increment;
         }
     }
 }
