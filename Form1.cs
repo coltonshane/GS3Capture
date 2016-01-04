@@ -146,7 +146,7 @@ namespace FlyCapture2SimpleGUI_CSharp
 
             m_rawImage = new ManagedImage();
             m_rawImageStats = new ManagedImageStatistics();
-            m_processedImage = new ManagedImage();
+            m_processedImage = new ManagedImage(1920,1200,PixelFormat.PixelFormatRaw8);
             m_camCtlDlg = new CameraControlDialog();
 
             m_grabThreadExited = new AutoResetEvent(false);
@@ -163,15 +163,17 @@ namespace FlyCapture2SimpleGUI_CSharp
             int[] hist = new int[256];
             int hist_max = 0;
 
+            Application.DoEvents();
+
             buffergfx = picBuffer.CreateGraphics();
             buffergfx.Clear(Color.DimGray);
 
             UpdateStatusBar();
         
-            lblRawSize.Text = String.Format("Raw Image Size: {0}", m_rawImage.receivedDataSize);
+            lblRawSize.Text = String.Format("Raw Image Size: {0}", m_processedImage.receivedDataSize);
 
             lblBufferSeconds.Text = String.Format("{0:F2}  seconds", (float)buffersize / m_camera.GetProperty(PropertyType.FrameRate).absValue);
-            lblBufferGB.Text = String.Format("{0:F2}  GB", (float)m_rawImage.receivedDataSize * buffersize / Math.Pow(2.0, 30));
+            lblBufferGB.Text = String.Format("{0:F2}  GB", (float)m_processedImage.receivedDataSize * buffersize / Math.Pow(2.0, 30));
             lblFramesBuffered.Text = String.Format("Frames: {0}", buffer_in_framectr);
 
             // Update buffer labels based on buffer mode:
@@ -235,9 +237,9 @@ namespace FlyCapture2SimpleGUI_CSharp
             /*
             if (chkHistOn.Checked == true)
             {
-                m_rawImageStats.EnableAll();
-                m_processedImage.CalculateStatistics(m_rawImageStats);
-                m_rawImageStats.GetHistogram(StatisticsChannel.Lightness, hist);
+                m_processedImageStats.EnableAll();
+                m_processedImage.CalculateStatistics(m_processedImageStats);
+                m_processedImageStats.GetHistogram(StatisticsChannel.Lightness, hist);
 
                 histgfx = picHist.CreateGraphics();
                 histgfx.Clear(Color.Black);
@@ -273,8 +275,8 @@ namespace FlyCapture2SimpleGUI_CSharp
 
             statusString = String.Format(
                 "Image size: {0} x {1}",
-                m_rawImage.cols,
-                m_rawImage.rows);
+                m_processedImage.cols,
+                m_processedImage.rows);
 
             toolStripStatusLabelImageSize.Text = statusString;
 
@@ -297,8 +299,8 @@ namespace FlyCapture2SimpleGUI_CSharp
 
             lock (this)
             {
-                timestamp = m_rawImage.timeStamp;
-                frame_count = m_rawImage.imageMetadata.embeddedFrameCounter - (uint) framectr;
+                timestamp = m_processedImage.timeStamp;
+                frame_count = m_processedImage.imageMetadata.embeddedFrameCounter - (uint) framectr;
             }
 
             statusString = String.Format(
@@ -526,12 +528,17 @@ namespace FlyCapture2SimpleGUI_CSharp
                 // Call display update at 1/5th frame rate.
                 if (framectr % frame_mod == 0)
                 {
-
-                    // Test: Disabled in favor of DirectX rendering, triggered in the Progress Handler (Update_UI).
                     
                     lock (this)
                     {
+                        // Make a preview image including pixel format conversion (slow software debayer).
                         // m_rawImage.Convert(PixelFormat.PixelFormatBgr, m_processedImage);
+
+                        // Make a preview image that's just a copy of the raw image.
+                        // m_rawImage.Convert(m_rawImage.pixelFormat, m_processedImage);
+
+                        // Make a preview image that's in Raw16 format for easy memcopy into DirectX texture.
+                        m_rawImage.Convert(m_processedImage.pixelFormat, m_processedImage);
                     }
                     
                     worker.ReportProgress(0);
@@ -1396,7 +1403,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             texDesc.Height = 1200;
             texDesc.MipLevels = 1;
             texDesc.ArraySize = 1;
-            texDesc.Format = SlimDX.DXGI.Format.R16_UNorm;
+            texDesc.Format = SlimDX.DXGI.Format.R8_UNorm;
             texDesc.Usage = SlimDX.Direct3D11.ResourceUsage.Dynamic;
             texDesc.BindFlags = SlimDX.Direct3D11.BindFlags.ShaderResource;
             texDesc.CpuAccessFlags = SlimDX.Direct3D11.CpuAccessFlags.Write;
@@ -1509,7 +1516,7 @@ namespace FlyCapture2SimpleGUI_CSharp
         unsafe private void renderRaw()
         {
             // Direct accelerated preview of raw image from the camera.
-            byte* ptrRawData;
+            IntPtr ptrRawData;
             DataBox texData;
 
             int x = 0;
@@ -1519,8 +1526,8 @@ namespace FlyCapture2SimpleGUI_CSharp
             UInt32 px1;
             UInt32 px2;
 
-            int prevx = (int)m_rawImage.cols;
-            int prevy = (int)m_rawImage.rows;
+            int prevx = (int)m_processedImage.cols;
+            int prevy = (int)m_processedImage.rows;
 
             byte[] lumbyte = new byte[2 * prevx * prevy];
 
@@ -1543,16 +1550,16 @@ namespace FlyCapture2SimpleGUI_CSharp
 
             bufferdata = new DataStream(160, true, true);
             bufferdata.Write(new Vector2(1920, 1200));
-            bufferdata.Write<float>(1.0f);              // Gamma
+            bufferdata.Write<float>(2.0f);              // Gamma
             bufferdata.Write<float>(1.0f);              // Brightness
-            bufferdata.Write<float>(1.0f);              // Contrast
+            bufferdata.Write<float>(1.4f);              // Contrast
             bufferdata.Write<float>(0.0f);              // Red White Adjust
             bufferdata.Write<float>(0.0f);              // Green White Adjust
             bufferdata.Write<float>(0.0f);              // Blue White Adjust
             bufferdata.Write<float>(0.0f);              // Red Black Adjust
             bufferdata.Write<float>(0.0f);              // Green Black Adjust
             bufferdata.Write<float>(0.0f);              // Blue Black Adjust
-            bufferdata.Write<float>(1.0f);              // Saturation Adjust
+            bufferdata.Write<float>(1.4f);              // Saturation Adjust
             bufferdata.Write<float>(0.0f);              // Hue Adjust
 
             for(convy = 0; convy <= 4; convy++)
@@ -1571,7 +1578,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             // Next, load the raw image data into a texture.
 
             // Get a pointer to the start of the raw image data (requires unsafe context).
-            ptrRawData = m_rawImage.data;
+            ptrRawData = (IntPtr) m_processedImage.data;
 
             if(ptrRawData == null)
             {
@@ -1579,8 +1586,11 @@ namespace FlyCapture2SimpleGUI_CSharp
                 return;
             }
 
-            // if (m_rawImage.pixelFormat == PixelFormat.PixelFormatRaw12)
-            if (m_rawImage.pixelFormat == PixelFormat.PixelFormatRaw12)
+            System.Runtime.InteropServices.Marshal.Copy(ptrRawData, lumbyte, 0, (int)(m_processedImage.rows * m_processedImage.cols));
+
+            // Deprecated copy method using unsafe pointer operation.
+            /*
+            if (m_processedImage.pixelFormat == PixelFormat.PixelFormatRaw12)
             {
                 // Load 12-bit raw image.
                 // First, capture the luminance of each raw pixel directly.
@@ -1605,8 +1615,8 @@ namespace FlyCapture2SimpleGUI_CSharp
                     }
                 }
             }
-            // else if (m_rawImage.pixelFormat == PixelFormat.PixelFormatRaw8)
-            else if (m_rawImage.pixelFormat == PixelFormat.PixelFormatRaw8)
+            // else if (m_processedImage.pixelFormat == PixelFormat.PixelFormatRaw8)
+            else if (m_processedImage.pixelFormat == PixelFormat.PixelFormatRaw8)
             {
                 // Load 8-bit raw image.
                 // First, capture the luminance of each raw pixel directly.
@@ -1627,6 +1637,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             {
                 // MessageBox.Show("Pixel fromat not supported for hardware-accelerated preview.");
             }
+            */
 
             resourceView = new SlimDX.Direct3D11.ShaderResourceView(device, tex);
             device.ImmediateContext.PixelShader.SetShaderResource(resourceView, 0);
@@ -1642,7 +1653,7 @@ namespace FlyCapture2SimpleGUI_CSharp
                 for (y = 0; y < prevy; y++)
                 {
                     texData.Data.Seek(y * texData.RowPitch, System.IO.SeekOrigin.Begin);
-                    texData.Data.Write(lumbyte, (int)(y * 2 * prevx),(int)(2 * prevx));
+                    texData.Data.Write(lumbyte, (int)(y * prevx),(int)(prevx));
                 }
             }
             context.UnmapSubresource(tex, 0);
