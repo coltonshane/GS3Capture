@@ -63,10 +63,10 @@ namespace FlyCapture2SimpleGUI_CSharp
         int buffer_in_framectr = 0;
         int buffer_out_framectr = 0;
         int diff = 0;
-        int buffer_rollover = 0;
         bool recording_buffer = false;
         bool saving_buffer = false;
         bool first_time = true;
+        bool new_clip = true;
 
         long tstamp2 = 0;
 
@@ -77,12 +77,10 @@ namespace FlyCapture2SimpleGUI_CSharp
 
         // Saving Modes
         ManagedImage m_saveImageCont;
-        const int NONE = 0;
-        const int CONTINUOUS_DELAYED = 1;
-        int savemode = NONE;
         int fdelay = 3;
         int frame_div = 1;
         int frame_div_ctr = 0;
+        
 
         // Recording Parameters
         uint recx = 1920;
@@ -185,50 +183,18 @@ namespace FlyCapture2SimpleGUI_CSharp
 
             Application.DoEvents();
 
-            buffergfx = picBuffer.CreateGraphics();
-            buffergfx.Clear(Color.DimGray);
+            // buffergfx = picBuffer.CreateGraphics();
+            // buffergfx.Clear(Color.DimGray);
 
             UpdateStatusBar();
         
             lblRawSize.Text = String.Format("Raw Image Size: {0}", m_processedImage.receivedDataSize);
 
             lblBufferSeconds.Text = String.Format("{0:F2}  seconds", (float)buffersize / m_camera.GetProperty(PropertyType.FrameRate).absValue);
-            lblBufferGB.Text = String.Format("{0:F2}  GB", (float)m_processedImage.receivedDataSize * buffersize / Math.Pow(2.0, 30));
-            lblFramesBuffered.Text = String.Format("Frames: {0}", buffer_in_framectr);
+            lblBufferGB.Text = String.Format("{0:F2}  GB", (float)m_rawImage.receivedDataSize * buffersize / Math.Pow(2.0, 30));
+            lblFramesBuffered.Text = String.Format("Frame In: {0}\r\nFrame Out: {1}\r\nFrame Diff: {2}", buffer_in_framectr, buffer_out_framectr, diff);
 
-            // Update buffer labels based on buffer mode:
-            if (savemode == NONE)
-            {
-                lblLeft.Text = "Start:\nF: 0\nT: 0.000s";
-                lblCenter.Text = String.Format("Current:\nF: {0}\nT: {1:F3}s", buffer_in_framectr, (float)buffer_in_framectr / m_camera.GetProperty(PropertyType.FrameRate).absValue);
-                lblRight.Text = String.Format("End:\nF: {0}\nT: {1:F3}s", buffersize - 1, (float)buffersize / m_camera.GetProperty(PropertyType.FrameRate).absValue);
-
-                x1 = (int) (buffer_in_framectr * 300 / buffersize);
-                buffergfx.DrawLine(Pens.Yellow, x1, 0, x1, 29);
-
-            }
-            else if (savemode == CONTINUOUS_DELAYED)
-            {
-                lblLeft.Text = String.Format("Oldest:\nF: {0}\nT: {1:F3}s", -(buffersize - 1), -(float)buffersize / m_camera.GetProperty(PropertyType.FrameRate).absValue);
-                lblCenter.Text = String.Format("Saving:\nF: {0}\nT: {1:F3}s", -diff, -(float)diff / m_camera.GetProperty(PropertyType.FrameRate).absValue);
-                lblRight.Text = "Current:\nF: 0\nT: 0.000s";
-
-                x1 = (int)(300 - fdelay * 300 / buffersize);
-                buffergfx.DrawLine(Pens.Azure, x1, 0, x1, 29);
-
-                x1 = (int)(300 - diff * 300 / buffersize);
-                buffergfx.DrawLine(Pens.Yellow, x1, 0, x1, 29);
-            }
-
-            buffergfx.Dispose();
-
-            // Enabled and disable controls based on recording and saving states:
-            if (recording_buffer == false)
-            {
-                btnRec.Enabled = true;
-                btnSave.Enabled = true;
-                btnClear.Enabled = true;
-            }
+            // buffergfx.Dispose();
 
             if (chkAuto30Hz.Checked == true)
             {
@@ -244,6 +210,13 @@ namespace FlyCapture2SimpleGUI_CSharp
             {
                 nudDD.Enabled = true;
                 frame_mod = (int) nudDD.Value;
+            }
+
+            // Update recording UI based on recording status:
+            if (recording_buffer == false)
+            {
+                btnRec.Text = "START";
+                btnClear.Enabled = true;
             }
 
             // GDI-based preview image. Disabled in favor of DirectX-rendered preview.
@@ -344,7 +317,6 @@ namespace FlyCapture2SimpleGUI_CSharp
         private void Form1_Load(object sender, EventArgs e)
         {
             Show();
-            cmbFormat.SelectedIndex = 2;
 
             CameraSelectionDialog camSlnDlg = new CameraSelectionDialog();
             bool retVal = camSlnDlg.ShowModal();
@@ -519,22 +491,23 @@ namespace FlyCapture2SimpleGUI_CSharp
                 {
                     if (first_time == true)
                     {
-                        framebuffer[buffer_in_framectr] = new ManagedImage(m_rawImage);
+                        framebuffer[buffer_in_framectr % buffersize] = new ManagedImage(m_rawImage);
                     }
                     else
                     {
-                        m_rawImage.Convert(m_rawImage.pixelFormat, framebuffer[buffer_in_framectr]);
+                        m_rawImage.Convert(m_rawImage.pixelFormat, framebuffer[buffer_in_framectr % buffersize]);
                     }
                     buffer_in_framectr++;
                     if (buffer_in_framectr == buffersize)
                     {
-                        if (buffermode == ONESHOT)
+                        if (rdoCont.Checked == false)
                         {
                             recording_buffer = false;
                         }
                         else
                         {
-                            buffer_in_framectr = 0;
+                            // buffer_in_framectr = 0;
+                            // continue counting up, but use already-allocated memory
                             first_time = false;
                         }
                     }
@@ -556,7 +529,7 @@ namespace FlyCapture2SimpleGUI_CSharp
                     seconds_old = timestamp.cycleSeconds;
                 }
 
-                // Call display update at 1/5th frame rate.
+                // Call the UI update at a fraction of the frame rate.
                 if (framectr % frame_mod == 0)
                 {
                     
@@ -584,30 +557,37 @@ namespace FlyCapture2SimpleGUI_CSharp
 
         private void SaveLoop(object sender, DoWorkEventArgs e)
         {
+            // Thread for saving images out of the RAM buffer as fast as possible.
+
             BackgroundWorker worker = sender as BackgroundWorker;
 
             while (true)
             {
-                
-
-                if (saving_buffer)
+                if (chkContSave.Checked)
                 {
                     diff = buffer_in_framectr - buffer_out_framectr;
-                    if (diff < 0)
+
+                    // don't allow the out buffer index to wrap around
+                    if(diff >= buffersize)
                     {
-                        diff += buffersize;
+                        diff = buffersize - 1;
+                        buffer_out_framectr = buffer_in_framectr - diff;
+                        // should probably flag some kind of warning here
                     }
+                    
                     if (diff > fdelay)
                     {
+                        saving_buffer = true;
+
                         if ((frame_div_ctr % frame_div) == 0)
                         {
                             SaveLast = SaveStart;
                             SaveStart = swDiagnostic.Elapsed;
                             SavePeriod = (float)(SaveStart - SaveLast).TotalMilliseconds;
 
-                            // RAW Saving: Fast, no color processing, medium file size.
-                            framebuffer[buffer_out_framectr].Convert(m_saveImageCont.pixelFormat, m_saveImageCont);
-                            m_saveImageCont.Save(String.Format("c:\\tmp\\clip{0}\\img{1:D5}.raw", tstamp2, buffersize * buffer_rollover + buffer_out_framectr), ImageFileFormat.Raw);
+                            // RAW Saving: Fast, no color processing.
+                            framebuffer[buffer_out_framectr % buffersize].Convert(m_saveImageCont.pixelFormat, m_saveImageCont);
+                            m_saveImageCont.Save(String.Format("c:\\tmp\\clip{0}\\img{1:D5}.raw", tstamp2, buffer_out_framectr), ImageFileFormat.Raw);
 
                             SaveEnd = swDiagnostic.Elapsed;
                             SaveTime = (float)(SaveEnd - SaveStart).TotalMilliseconds;
@@ -615,12 +595,18 @@ namespace FlyCapture2SimpleGUI_CSharp
                         
                         buffer_out_framectr++;
                         frame_div_ctr++;
-                        if (buffer_out_framectr == buffersize)
-                        {
-                            buffer_out_framectr = 0;
-                            buffer_rollover++;
-                        }
                     }
+                    else
+                    {
+                        saving_buffer = false;
+                        // Not saving, give the other threads some time back.
+                        Thread.Sleep(10);
+                    }
+                }
+                else
+                {
+                    // wait a bit before checking again to see if saving is on
+                    Thread.Sleep(10);
                 }
             }
 
@@ -691,94 +677,44 @@ namespace FlyCapture2SimpleGUI_CSharp
         {
             buffersize = (int) nudBufferFrames.Value;
             nudDelay.Maximum = (int) buffersize * 2 / 3;
-            nudDelay.Value = (int) buffersize * 1 / 3;
         }
 
         private void btnRec_Click(object sender, EventArgs e)
         {
-            if (buffermode == ONESHOT)
+            if (recording_buffer == false)
             {
-                // Single-sequence trigger starting from frame 0 and ending on frame (buffersize - 1).
-
-                nudBufferFrames.Enabled = false;        // lock buffer size:
-                buffer_in_framectr = 0;                 // this should already be true
-
-                btnRec.Enabled = false;
-                btnClear.Enabled = false;
-                btnSave.Enabled = false;
-
-                rdoOneShot.Enabled = false;
-                rdoCont.Enabled = false;
-                
-                recording_buffer = true;
-            }
-            else if ((buffermode == CONTINUOUS) && (recording_buffer == false))
-            {
-                // Start or restart continuous circular buffer.
-
-                nudBufferFrames.Enabled = false;        // lock buffer size;
-                btnClear.Enabled = false;
-                btnSave.Enabled = false;
-
-                rdoOneShot.Enabled = false;
-                rdoCont.Enabled = false;
-
-                btnRec.Text = "STOP";
-                recording_buffer = true;
-
-                if (savemode == CONTINUOUS)
+                if (new_clip)
                 {
-                    tstamp2 = System.DateTime.Now.Ticks;
+                    nudBufferFrames.Enabled = false;        // lock buffer size
+                    buffer_in_framectr = 0;                 // this should already be true
+                    buffer_out_framectr = 0;                // this should already be true
 
+                    // create new clip directory
+                    tstamp2 = System.DateTime.Now.Ticks;
                     System.IO.Directory.CreateDirectory(String.Format("c:\\tmp\\clip{0}", tstamp2));
 
+                    // create placeholder image for saving
                     recx = m_rawImage.rows;
                     recy = m_rawImage.cols;
                     recformat = m_rawImage.pixelFormat;
                     m_saveImageCont = new ManagedImage(recx, recy, recformat);
 
-                    saving_buffer = true;
-
-                    
-
+                    new_clip = false;
                 }
-                else
-                {
-                    saving_buffer = false;
-                    }
-
-            }
-            else if ((buffermode == CONTINUOUS) && (recording_buffer == true))
-            {
-                // Pause the continuous circular buffer.
-
-                recording_buffer = false;
-                btnClear.Enabled = true;
-                btnSave.Enabled = true;
-                btnRec.Text = "START";
-            }
-
-            /* // OBSOLETE:
-            if (recording_buffer == false)
-            {
-                buffer_in_framectr = 0;
-                buffer_out_framectr = 0;
-                buffer_rollover = 0;
+                btnClear.Enabled = false;
                 recording_buffer = true;
-                // saving_buffer = true;
-
-                tstamp = System.DateTime.Now.Ticks;
-
-                System.IO.Directory.CreateDirectory(String.Format("c:\\tmp\\clip{0}", tstamp));
+                btnRec.Text = "STOP";
             }
             else
             {
                 recording_buffer = false;
-                saving_buffer = false;
+                btnRec.Text = "START";
+                btnClear.Enabled = true;
             }
-            */
         }
 
+        // Deprecated save function. Use the SaveLoop thread instead!
+        /* 
         private void btnSave_Click(object sender, EventArgs e)
         {
             int save_framectr = 0;
@@ -840,58 +776,44 @@ namespace FlyCapture2SimpleGUI_CSharp
             }
             
         }
+        */
 
         private void rdoCont_CheckedChanged(object sender, EventArgs e)
         {
-            if (rdoCont.Checked)
-            {
-                buffermode = CONTINUOUS;
-                chkContSave.Enabled = true;
-            }
+
         }
 
         private void rdoOneShot_CheckedChanged(object sender, EventArgs e)
         {
-            if (rdoOneShot.Checked)
-            {
-                buffermode = ONESHOT;
-                chkContSave.Enabled = false;
-            }
+
         }
 
         private void btnClear_Click(object sender, EventArgs e)
         {
+            if((recording_buffer) || (saving_buffer))
+            {
+                MessageBox.Show("Buffer operation in progress!");
+                return;
+            }
+
+            // Clear the frame buffer to free up its memory. Is this okay?
+            // framebuffer = null;
+            // first_time = true;
+
             // Reset both the input and the output buffer indices to zero.
             buffer_in_framectr = 0;
             buffer_out_framectr = 0;
-            buffer_rollover = 0;
+
             // Enable one-shot mode.
-            rdoOneShot.Enabled = true;
-            rdoCont.Enabled = true;
             nudBufferFrames.Enabled = true;
             frame_div_ctr = 0;
+            new_clip = true;
+            
         }
 
         private void chkContSave_CheckedChanged(object sender, EventArgs e)
         {
-            if (chkContSave.Checked)
-            {
-                savemode = CONTINUOUS_DELAYED;
 
-                // latch target frame delay time (time between current frame and saved frame)
-                nudDelay.Enabled = false;
-                fdelay = (int) nudDelay.Value;
-
-                btnSave.Enabled = false;
-                btnClear.Enabled = false;
-            }
-            else
-            {
-                savemode = NONE;
-                nudDelay.Enabled = true;
-                btnSave.Enabled = true;
-                btnClear.Enabled = true;
-            }
         }
 
         private void nudDiv_ValueChanged(object sender, EventArgs e)
@@ -1709,7 +1631,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             }
             */
 
-            resourceView = new SlimDX.Direct3D11.ShaderResourceView(device, tex);
+        resourceView = new SlimDX.Direct3D11.ShaderResourceView(device, tex);
             device.ImmediateContext.PixelShader.SetShaderResource(resourceView, 0);
             context.PixelShader.SetShaderResource(resourceView, 0);
             context.PixelShader.SetSampler(samplerState, 0);
