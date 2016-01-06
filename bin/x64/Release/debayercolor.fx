@@ -1,6 +1,8 @@
-Texture2D <float> xTexture;
-Texture2D <float4> yTexture;
-sampler TextureSampler;
+Texture2D <float> w8Texture : register(t0);
+Texture2D <uint3> w12Texture : register(t1);
+Texture2D <float> xTexture : register(t2);
+Texture2D <float4> yTexture : register(t3);
+sampler TextureSampler : register(s0);
 
 cbuffer ConstBuffer : register(c0)
 {
@@ -70,6 +72,109 @@ PS_IN vs_main(VS_IN input)
 	output.pos = input.pos;
     output.cords = input.cords;
 	return output;
+}
+
+float ps_8toFloat(PS_IN input) : SV_Target
+{
+	// convert 8-bit unsigned raw pixel data to float raw pixel data
+	float outputcolor;
+	float2 pxcoord;
+	uint2 pxcoord_int;
+
+	pxcoord = float2(input.cords[0], input.cords[1]);
+	pxcoord_int.x = floor(pxcoord.x*resolution.x);
+	pxcoord_int.y = floor(pxcoord.y*resolution.y);
+
+	outputcolor = w8Texture.Sample(TextureSampler, pxcoord);
+
+	return outputcolor;
+}
+
+float ps_12toFloat(PS_IN input) : SV_Target
+{
+	// convert 12-bit unsigned raw pixel data to float raw pixel data
+	// through R32G32B32 unsigned intermediate
+
+	uint outputcolor_12bit = 0;
+	float outputcolor = 0.0f;
+	float2 pxcoord;
+	uint2 pxcoord_int;
+	uint2 pxcoord12_int;
+
+	uint px12 = 0;
+	uint px34 = 0;
+	uint px56 = 0;
+	uint px78 = 0;
+
+	uint3 rawsample;
+
+	uint rem = 0;
+	
+	pxcoord = float2(input.cords[0], input.cords[1]);
+	pxcoord_int.x = floor(pxcoord.x * resolution.x);
+	pxcoord_int.y = floor(pxcoord.y * resolution.y);
+	
+	// pixel coordinates for [12-12-12-12-12-12-12-12] pixels
+	pxcoord12_int.x = floor(pxcoord.x * resolution.x / 8.0f);
+	pxcoord12_int.y = floor(pxcoord.y * resolution.y / 1.0f);
+
+	int3 loadcoord = { pxcoord12_int.x, pxcoord12_int.y, 0 };
+
+	rawsample = w12Texture.Load(loadcoord);
+
+	// split into four groups of two 12-bit pixels;
+	
+	px12 = ((rawsample.r >> 0) & 0xFF) << 16;
+	px12 += ((rawsample.r >> 8) & 0xFF) << 8;
+	px12 += ((rawsample.r >> 16) & 0xFF) << 0;
+
+	px34 = ((rawsample.r >> 24) & 0xFF) << 16;
+	px34 += ((rawsample.g >> 0) & 0xFF) << 8;
+	px34 += ((rawsample.g >> 8) & 0xFF) << 0;
+
+	px56 = ((rawsample.g >> 16) & 0xFF) << 16;
+	px56 += ((rawsample.g >> 24) & 0xFF) << 8;
+	px56 += ((rawsample.b >> 0) & 0xFF) << 0;
+
+	px78 = ((rawsample.b >> 8) & 0xFF) << 16;
+	px78 += ((rawsample.b >> 16) & 0xFF) << 8;
+	px78 += ((rawsample.b >> 24) & 0xFF) << 0;
+	
+	// select the output corresponding to the exact pixel position
+	rem = pxcoord_int.x % 8;
+	switch (rem)
+	{
+	case 0:
+		outputcolor_12bit = (((px12 >> 16) & 0xFF) << 4) + ((px12 >> 12) & 0x0F);
+		break;
+	case 1:
+		outputcolor_12bit = (((px12 >> 0) & 0xFF) << 4) + ((px12 >> 8) & 0x0F);
+		break;
+	case 2:
+		outputcolor_12bit = (((px34 >> 16) & 0xFF) << 4) + ((px34 >> 12) & 0x0F);
+		break;
+	case 3:
+		outputcolor_12bit = (((px34 >> 0) & 0xFF) << 4) + ((px34 >> 8) & 0x0F);
+		break;
+	case 4:
+		outputcolor_12bit = (((px56 >> 16) & 0xFF) << 4) + ((px56 >> 12) & 0x0F);
+		break;
+	case 5:
+		outputcolor_12bit = (((px56 >> 0) & 0xFF) << 4) + ((px56 >> 8) & 0x0F);
+		break;
+	case 6:
+		outputcolor_12bit = (((px78 >> 16) & 0xFF) << 4) + ((px78 >> 12) & 0x0F);
+		break;
+	case 7:
+		outputcolor_12bit = (((px78 >> 0) & 0xFF) << 4) + ((px78 >> 8) & 0x0F);
+		break;
+	default:
+		break;
+	}
+
+	outputcolor = (float)(outputcolor_12bit) / 4095.0f;
+
+	return outputcolor;
 }
 
 float4 ps_debayer(PS_IN input) : SV_Target
@@ -500,5 +605,5 @@ float4 ps_convolve(PS_IN input) : SV_Target
 	// outputcolor.r = 1.0f;
 	outputcolor.a = 1.0f;
 	
-	return   outputcolor;
+	return outputcolor;
 }
