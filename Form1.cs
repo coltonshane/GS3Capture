@@ -156,6 +156,9 @@ namespace FlyCapture2SimpleGUI_CSharp
         float SaveTime;
         float SavePeriod;
 
+        // Globals to avoid unnecessary reinit:
+        byte[] lumbyte = new byte[1920 * 1200 * 3 / 2];
+
         public Form1()
         {
             InitializeComponent();
@@ -192,7 +195,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             // buffergfx.Clear(Color.DimGray);
 
             UpdateStatusBar();
-        
+
             lblRawSize.Text = String.Format("Raw Image Size: {0}", m_processedImage.receivedDataSize);
 
             lblBufferSeconds.Text = String.Format("{0:F2}  seconds", (float)buffersize / m_camera.GetProperty(PropertyType.FrameRate).absValue);
@@ -262,7 +265,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             }
 
             UIEnd = swDiagnostic.Elapsed;
-            UITime = (float) (UIEnd - UIStart).TotalMilliseconds;
+            UITime = (float)(UIEnd - UIStart).TotalMilliseconds;
 
             // Update thread timing diagnostics.
             threadtiming = String.Format("Capture Period: {0:F3}, Time: {1:F3}\r\n", GrabPeriod, GrabTime);
@@ -302,11 +305,10 @@ namespace FlyCapture2SimpleGUI_CSharp
 
             TimeStamp timestamp;
 
-            lock (this)
-            {
-                timestamp = m_processedImage.timeStamp;
-                frame_count = m_processedImage.imageMetadata.embeddedFrameCounter - (uint) framectr;
-            }
+            timestamp = m_processedImage.timeStamp;
+            frame_count = m_processedImage.imageMetadata.embeddedFrameCounter - (uint) framectr;
+
+
 
             statusString = String.Format(
                 "Timestamp: {0:000}.{1:0000}.{2:0000} | Framecount Offset: {3:0000}",
@@ -316,7 +318,9 @@ namespace FlyCapture2SimpleGUI_CSharp
                 frame_count); 
 
             toolStripStatusLabelTimestamp.Text = statusString;
-            statusStrip1.Refresh();
+
+            // statusStrip1.Refresh();      // Too slow!
+            
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -552,6 +556,8 @@ namespace FlyCapture2SimpleGUI_CSharp
                     
                     worker.ReportProgress(0);
                 }
+
+                Thread.Sleep(0);
             }
 
             m_grabThreadExited.Set();
@@ -1511,8 +1517,6 @@ namespace FlyCapture2SimpleGUI_CSharp
             int prevx = (int)m_processedImage.cols;
             int prevy = (int)m_processedImage.rows;
 
-            byte[] lumbyte = new byte[2 * prevx * prevy];
-
             int convx;
             int convy;
 
@@ -1683,13 +1687,12 @@ namespace FlyCapture2SimpleGUI_CSharp
             {
                 System.Runtime.InteropServices.Marshal.Copy(ptrRawData, lumbyte, 0, (int)(m_processedImage.rows * m_processedImage.cols));
                 context.PixelShader.Set(pixelShader0x8);
-
                 resourceView = new SlimDX.Direct3D11.ShaderResourceView(device, tex8);
                 context.PixelShader.SetShaderResource(resourceView, 0);
 
                 // Fill the texture with rgba values:
                 texData = context.MapSubresource(tex8, 0, 0, SlimDX.Direct3D11.MapMode.WriteDiscard, SlimDX.Direct3D11.MapFlags.None);
-
+                
                 if (texData.Data.CanWrite)
                 {
                     // Must scan through row by row since the DataBox rows might be padded.
@@ -1732,9 +1735,9 @@ namespace FlyCapture2SimpleGUI_CSharp
 
             viewport = new SlimDX.Direct3D11.Viewport(0.0f, 0.0f, 1920.0f, 1200.0f);
             context.Rasterizer.SetViewports(viewport);
-
+            
             context.Draw(4, 0);
-
+            
             // Pass 1: Debayer and Color Correction
             context.PixelShader.Set(pixelShader1);
 
@@ -1752,7 +1755,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             context.Rasterizer.SetViewports(viewport);
 
             context.Draw(4, 0);
-
+            
             // Pass 2: Convolve
             context.PixelShader.Set(pixelShader2);
 
@@ -1764,8 +1767,8 @@ namespace FlyCapture2SimpleGUI_CSharp
 
             renderTarget = new SlimDX.Direct3D11.RenderTargetView(device, SlimDX.Direct3D11.Resource.FromSwapChain<SlimDX.Direct3D11.Texture2D>(swapChain, 0));
             context.OutputMerger.SetTargets(renderTarget);
-
-            if(bigPreviewToggle)
+            
+            if (bigPreviewToggle)
             {
                 if(bigPreview)
                 {
@@ -1777,21 +1780,22 @@ namespace FlyCapture2SimpleGUI_CSharp
                     swapChain.ResizeTarget(new SlimDX.DXGI.ModeDescription(1152, 720, new SlimDX.Rational(60, 1), SlimDX.DXGI.Format.R8G8B8A8_UNorm));
                     bigPreview = true;
                 }
-                
+
                 bigPreviewToggle = false;
             }
 
             viewport = new SlimDX.Direct3D11.Viewport(0.0f, 0.0f, 1152.0f* 1920.0f / (float)prevx, 720.0f * 1920.0f / (float)prevx);
             context.Rasterizer.SetViewports(viewport);
-
+            
             context.ClearRenderTargetView(renderTarget, new Color4(0.0f, 0.0f, 0.0f));
             context.Draw(4, 0);
-            swapChain.Present(0, SlimDX.DXGI.PresentFlags.None);
 
+            swapChain.Present(0, SlimDX.DXGI.PresentFlags.None);
             bufferdata.Dispose();
             resourceView.Dispose();
 
             renderBusy = false;
+
         }
 
         private void btnGammaDown_Click(object sender, EventArgs e)
