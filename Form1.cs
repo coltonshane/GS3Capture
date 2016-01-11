@@ -110,10 +110,8 @@ namespace FlyCapture2SimpleGUI_CSharp
         SlimDX.Direct3D11.ShaderResourceView resourceView;
         SlimDX.DataStream vertices;
         SlimDX.Direct3D11.Buffer vertexBuffer;
-        SlimDX.D3DCompiler.ShaderBytecode effectbytecode;
         SlimDX.D3DCompiler.ShaderBytecode vsbytecode;
         SlimDX.D3DCompiler.ShaderBytecode psbytecode;
-        SlimDX.Direct3D11.Effect effect;
         SlimDX.Direct3D11.PixelShader pixelShader0x8;           // 8-bit uint to float raw conversion
         SlimDX.Direct3D11.PixelShader pixelShader0x12;          // 12-bit packed uint to float raw conversion
         SlimDX.Direct3D11.PixelShader pixelShader1;             // debayer and color correct
@@ -158,6 +156,8 @@ namespace FlyCapture2SimpleGUI_CSharp
 
         // Globals to avoid unnecessary reinit:
         byte[] lumbyte = new byte[1920 * 1200 * 3 / 2];
+        DataStream bufferdata = new DataStream(160, true, true);
+        SlimDX.Direct3D11.Buffer constantBuffer;
 
         public Form1()
         {
@@ -1530,10 +1530,8 @@ namespace FlyCapture2SimpleGUI_CSharp
             renderBusy = true;
 
             // First, send constants to the DirectX device for color processing.
-            DataStream bufferdata;
-
-            bufferdata = new DataStream(160, true, true);
-            bufferdata.Write(new Vector2(1920, 1200));
+            bufferdata.Position = 0;
+            bufferdata.Write(new Vector2(1920.0f, 1200.0f));
 
             float k_sharp = 0.0f;
 
@@ -1606,7 +1604,7 @@ namespace FlyCapture2SimpleGUI_CSharp
                     bufferdata.Write<float>(conv[convy, convx]);    // convolution matrix
                 }
             }
-
+            
             if(chkClip.Checked == true)
             {
                 bufferdata.Write<uint>(1);                  // Show saturation by inverting pixels.
@@ -1616,9 +1614,10 @@ namespace FlyCapture2SimpleGUI_CSharp
                 bufferdata.Write<uint>(0);                  // Don't show saturation by inverting pixels.
             }
             
+            
             bufferdata.Position = 0;
-
-            context.PixelShader.SetConstantBuffer(new SlimDX.Direct3D11.Buffer(device, bufferdata, 160, SlimDX.Direct3D11.ResourceUsage.Dynamic, SlimDX.Direct3D11.BindFlags.ConstantBuffer, SlimDX.Direct3D11.CpuAccessFlags.Write, SlimDX.Direct3D11.ResourceOptionFlags.None, 4), 0);
+            constantBuffer = new SlimDX.Direct3D11.Buffer(device, bufferdata, 160, SlimDX.Direct3D11.ResourceUsage.Dynamic, SlimDX.Direct3D11.BindFlags.ConstantBuffer, SlimDX.Direct3D11.CpuAccessFlags.Write, SlimDX.Direct3D11.ResourceOptionFlags.None, 4);
+            context.PixelShader.SetConstantBuffer(constantBuffer, 0);
 
             // Next, load the raw image data into a texture.
 
@@ -1740,6 +1739,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             
             // Pass 1: Debayer and Color Correction
             context.PixelShader.Set(pixelShader1);
+            context.PixelShader.SetSampler(samplerState, 0);
 
             // Is this step really necessary?
             context.CopyResource(tex, tex_debayer);
@@ -1758,6 +1758,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             
             // Pass 2: Convolve
             context.PixelShader.Set(pixelShader2);
+            context.PixelShader.SetSampler(samplerState, 0);
 
             // Is this step really necessary?
             context.CopyResource(tex_debayered, tex_convolve);
@@ -1791,7 +1792,6 @@ namespace FlyCapture2SimpleGUI_CSharp
             context.Draw(4, 0);
 
             swapChain.Present(0, SlimDX.DXGI.PresentFlags.None);
-            bufferdata.Dispose();
             resourceView.Dispose();
 
             renderBusy = false;

@@ -552,7 +552,6 @@ float4 ps_convolve(PS_IN input) : SV_Target
 {
 	float4 outputcolor;
 	float4 tempcolor;
-	float4 sample;	
 	float2 pxcoord;
 	uint2 pxcoord_int;
 	float2 samplecoord;
@@ -561,8 +560,16 @@ float4 ps_convolve(PS_IN input) : SV_Target
 	pxcoord = float2(input.cords[0],input.cords[1]);
 	pxcoord_int.x = floor(pxcoord.x*resolution.x);
 	pxcoord_int.y = floor(pxcoord.y*resolution.y);
-	sample = yTexture.Sample(TextureSampler, pxcoord);
-	dxy = float2(1.0f/resolution.x, 1.0f/resolution.y);
+
+	// If no convolve requested or the cbuffer is effed, short-circuit the sampler to save time.
+	if(1)
+	{ 
+		dxy = 0;
+	}
+	else
+	{
+		dxy = float2(1.0f / resolution.x, 1.0f / resolution.y);
+	}
 	
 	// start at black
 	tempcolor.r = 0.0f;
@@ -581,13 +588,13 @@ float4 ps_convolve(PS_IN input) : SV_Target
 	tempcolor += conv23 * yTexture.Sample(TextureSampler, pxcoord + float2(0.0f, -dxy.y));
 	tempcolor += conv24 * yTexture.Sample(TextureSampler, pxcoord + float2(dxy.x, -dxy.y));
 	tempcolor += conv25 * yTexture.Sample(TextureSampler, pxcoord + float2(2.0f * dxy.x, -dxy.y));
-			
+	
 	tempcolor += conv31 * yTexture.Sample(TextureSampler, pxcoord + float2(-2.0f * dxy.x, 0.0f));
 	tempcolor += conv32 * yTexture.Sample(TextureSampler, pxcoord + float2(-dxy.x, 0.0f));
 	tempcolor += conv33 * yTexture.Sample(TextureSampler, pxcoord + float2(0.0f, 0.0f));
 	tempcolor += conv34 * yTexture.Sample(TextureSampler, pxcoord + float2(dxy.x, 0.0f));
 	tempcolor += conv35 * yTexture.Sample(TextureSampler, pxcoord + float2(2.0f * dxy.x, 0.0f)); 
-			
+	
 	tempcolor += conv41 * yTexture.Sample(TextureSampler, pxcoord + float2(-2.0f * dxy.x, dxy.y));
 	tempcolor += conv42 * yTexture.Sample(TextureSampler, pxcoord + float2(-dxy.x, dxy.y));
 	tempcolor += conv43 * yTexture.Sample(TextureSampler, pxcoord + float2(0.0f, dxy.y));
@@ -599,10 +606,9 @@ float4 ps_convolve(PS_IN input) : SV_Target
 	tempcolor += conv53 * yTexture.Sample(TextureSampler, pxcoord + float2(0.0f, 2.0f * dxy.y));
 	tempcolor += conv54 * yTexture.Sample(TextureSampler, pxcoord + float2(dxy.x, 2.0f * dxy.y));
 	tempcolor += conv55 * yTexture.Sample(TextureSampler, pxcoord + float2(2.0f * dxy.x, 2.0f * dxy.y));
-	
+
 	outputcolor = tempcolor;
-	
-	// outputcolor.r = 1.0f;
+
 	outputcolor.a = 1.0f;
 	
 	return outputcolor;
