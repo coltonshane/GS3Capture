@@ -1509,6 +1509,19 @@ namespace FlyCapture2SimpleGUI_CSharp
             constantBuffer = new SlimDX.Direct3D11.Buffer(device, bufferdata, 160, SlimDX.Direct3D11.ResourceUsage.Dynamic, SlimDX.Direct3D11.BindFlags.ConstantBuffer, SlimDX.Direct3D11.CpuAccessFlags.Write, SlimDX.Direct3D11.ResourceOptionFlags.None, 4);
             context.PixelShader.SetConstantBuffer(constantBuffer, 0);
 
+            // Bind textures to their slots. Only need to do this once. Updates down with CopyResource() or MapSubresource().
+            resourceView = new SlimDX.Direct3D11.ShaderResourceView(device, tex8);
+            context.PixelShader.SetShaderResource(resourceView, 0);
+
+            resourceView = new SlimDX.Direct3D11.ShaderResourceView(device, tex12);
+            context.PixelShader.SetShaderResource(resourceView, 1);
+
+            resourceView = new SlimDX.Direct3D11.ShaderResourceView(device, tex_debayer);
+            context.PixelShader.SetShaderResource(resourceView, 2);
+
+            resourceView = new SlimDX.Direct3D11.ShaderResourceView(device, tex_convolve);
+            context.PixelShader.SetShaderResource(resourceView, 3);
+
         }
 
         unsafe private void renderRaw()
@@ -1692,8 +1705,6 @@ namespace FlyCapture2SimpleGUI_CSharp
             {
                 System.Runtime.InteropServices.Marshal.Copy(ptrRawData, lumbyte, 0, (int)(m_processedImage.rows * m_processedImage.cols));
                 context.PixelShader.Set(pixelShader0x8);
-                resourceView = new SlimDX.Direct3D11.ShaderResourceView(device, tex8);
-                context.PixelShader.SetShaderResource(resourceView, 0);
 
                 // Fill the texture with rgba values:
                 texData = context.MapSubresource(tex8, 0, 0, SlimDX.Direct3D11.MapMode.WriteDiscard, SlimDX.Direct3D11.MapFlags.None);
@@ -1714,9 +1725,6 @@ namespace FlyCapture2SimpleGUI_CSharp
             {
                 System.Runtime.InteropServices.Marshal.Copy(ptrRawData, lumbyte, 0, (int)(m_processedImage.rows * m_processedImage.cols * 3 / 2));
                 context.PixelShader.Set(pixelShader0x12);
-
-                resourceView = new SlimDX.Direct3D11.ShaderResourceView(device, tex12);
-                context.PixelShader.SetShaderResource(resourceView, 1);
 
                 // Fill the texture with rgba values:
                 texData = context.MapSubresource(tex12, 0, 0, SlimDX.Direct3D11.MapMode.WriteDiscard, SlimDX.Direct3D11.MapFlags.None);
@@ -1750,9 +1758,6 @@ namespace FlyCapture2SimpleGUI_CSharp
             // Is this step really necessary?
             context.CopyResource(tex, tex_debayer);
 
-            resourceView = new SlimDX.Direct3D11.ShaderResourceView(device, tex_debayer);
-            context.PixelShader.SetShaderResource(resourceView, 2);
-
             resource = tex_debayered;
             renderTarget = new SlimDX.Direct3D11.RenderTargetView(device, tex_debayered);
             context.OutputMerger.SetTargets(renderTarget);
@@ -1768,9 +1773,6 @@ namespace FlyCapture2SimpleGUI_CSharp
 
             // Is this step really necessary?
             context.CopyResource(tex_debayered, tex_convolve);
-
-            resourceView = new SlimDX.Direct3D11.ShaderResourceView(device, tex_convolve);
-            context.PixelShader.SetShaderResource(resourceView, 3);
 
             renderTarget = new SlimDX.Direct3D11.RenderTargetView(device, SlimDX.Direct3D11.Resource.FromSwapChain<SlimDX.Direct3D11.Texture2D>(swapChain, 0));
             context.OutputMerger.SetTargets(renderTarget);
