@@ -158,6 +158,7 @@ namespace FlyCapture2SimpleGUI_CSharp
         byte[] lumbyte = new byte[1920 * 1200 * 3 / 2];
         DataStream bufferdata = new DataStream(160, true, true);
         SlimDX.Direct3D11.Buffer constantBuffer;
+        DataBox constantBufferData;
 
         public Form1()
         {
@@ -442,6 +443,9 @@ namespace FlyCapture2SimpleGUI_CSharp
                 vertexShader.Dispose();
                 pixelShader1.Dispose();
                 pixelShader2.Dispose();
+
+                constantBuffer.Dispose();
+                constantBufferData.Data.Dispose();
 
             }
             catch (FC2Exception ex)
@@ -1499,6 +1503,12 @@ namespace FlyCapture2SimpleGUI_CSharp
 
             context.VertexShader.Set(vertexShader);
             context.PixelShader.Set(pixelShader1);
+
+            // Set up the (empty) constant buffer structure the first time through.
+            bufferdata.Position = 0;
+            constantBuffer = new SlimDX.Direct3D11.Buffer(device, bufferdata, 160, SlimDX.Direct3D11.ResourceUsage.Dynamic, SlimDX.Direct3D11.BindFlags.ConstantBuffer, SlimDX.Direct3D11.CpuAccessFlags.Write, SlimDX.Direct3D11.ResourceOptionFlags.None, 4);
+            context.PixelShader.SetConstantBuffer(constantBuffer, 0);
+
         }
 
         unsafe private void renderRaw()
@@ -1529,39 +1539,38 @@ namespace FlyCapture2SimpleGUI_CSharp
             // Block calls to renderRaw and clear the renderRaw flag.
             renderBusy = true;
 
-            // First, send constants to the DirectX device for color processing.
-            bufferdata.Position = 0;
-            bufferdata.Write(new Vector2(1920.0f, 1200.0f));
+            constantBufferData = context.MapSubresource(constantBuffer, SlimDX.Direct3D11.MapMode.WriteDiscard, SlimDX.Direct3D11.MapFlags.None);
+            constantBufferData.Data.Write(new Vector2(1920.0f, 1200.0f));
 
             float k_sharp = 0.0f;
 
             if (chkRaw.Checked == true)
             {
-                bufferdata.Write<float>(1.0f);                          // Gamma
-                bufferdata.Write<float>(1.0f);                          // Brightness
-                bufferdata.Write<float>(1.0f);                          // Contrast
-                bufferdata.Write<float>(0.0f);                          // Red White Adjust
-                bufferdata.Write<float>(0.0f);                          // Green White Adjust
-                bufferdata.Write<float>(0.0f);                          // Blue White Adjust
-                bufferdata.Write<float>(0.0f);                          // Red Black Adjust
-                bufferdata.Write<float>(0.0f);                          // Green Black Adjust
-                bufferdata.Write<float>(0.0f);                          // Blue Black Adjust
-                bufferdata.Write<float>(1.0f);                          // Saturation Adjust
-                bufferdata.Write<float>(0.0f);                          // Hue Adjust
+                constantBufferData.Data.Write<float>(1.0f);                          // Gamma
+                constantBufferData.Data.Write<float>(1.0f);                          // Brightness
+                constantBufferData.Data.Write<float>(1.0f);                          // Contrast
+                constantBufferData.Data.Write<float>(0.0f);                          // Red White Adjust
+                constantBufferData.Data.Write<float>(0.0f);                          // Green White Adjust
+                constantBufferData.Data.Write<float>(0.0f);                          // Blue White Adjust
+                constantBufferData.Data.Write<float>(0.0f);                          // Red Black Adjust
+                constantBufferData.Data.Write<float>(0.0f);                          // Green Black Adjust
+                constantBufferData.Data.Write<float>(0.0f);                          // Blue Black Adjust
+                constantBufferData.Data.Write<float>(1.0f);                          // Saturation Adjust
+                constantBufferData.Data.Write<float>(0.0f);                          // Hue Adjust
             }
             else
             {
-                bufferdata.Write<float>((float)nudGamma.Value);         // Gamma
-                bufferdata.Write<float>((float)nudBrightness.Value);    // Brightness
-                bufferdata.Write<float>((float)nudContrast.Value);      // Contrast
-                bufferdata.Write<float>(0.0f);                          // Red White Adjust
-                bufferdata.Write<float>(0.0f);                          // Green White Adjust
-                bufferdata.Write<float>(0.0f);                          // Blue White Adjust
-                bufferdata.Write<float>(0.0f);                          // Red Black Adjust
-                bufferdata.Write<float>(0.0f);                          // Green Black Adjust
-                bufferdata.Write<float>(0.0f);                          // Blue Black Adjust
-                bufferdata.Write<float>((float)nudSaturation.Value);    // Saturation Adjust
-                bufferdata.Write<float>(0.0f);                          // Hue Adjust
+                constantBufferData.Data.Write<float>((float)nudGamma.Value);         // Gamma
+                constantBufferData.Data.Write<float>((float)nudBrightness.Value);    // Brightness
+                constantBufferData.Data.Write<float>((float)nudContrast.Value);      // Contrast
+                constantBufferData.Data.Write<float>(0.0f);                          // Red White Adjust
+                constantBufferData.Data.Write<float>(0.0f);                          // Green White Adjust
+                constantBufferData.Data.Write<float>(0.0f);                          // Blue White Adjust
+                constantBufferData.Data.Write<float>(0.0f);                          // Red Black Adjust
+                constantBufferData.Data.Write<float>(0.0f);                          // Green Black Adjust
+                constantBufferData.Data.Write<float>(0.0f);                          // Blue Black Adjust
+                constantBufferData.Data.Write<float>((float)nudSaturation.Value);    // Saturation Adjust
+                constantBufferData.Data.Write<float>(0.0f);                          // Hue Adjust
 
                 k_sharp = (float)nudSharpness.Value - 1.0f;
             }
@@ -1601,23 +1610,20 @@ namespace FlyCapture2SimpleGUI_CSharp
             {
                 for (convx = 0; convx <= 4; convx++)
                 {
-                    bufferdata.Write<float>(conv[convy, convx]);    // convolution matrix
+                    constantBufferData.Data.Write<float>(conv[convy, convx]);    // convolution matrix
                 }
             }
-            
-            if(chkClip.Checked == true)
+
+            if (chkClip.Checked == true)
             {
-                bufferdata.Write<uint>(1);                  // Show saturation by inverting pixels.
+                constantBufferData.Data.Write<uint>(1);                  // Show saturation by inverting pixels.
             }
             else
             {
-                bufferdata.Write<uint>(0);                  // Don't show saturation by inverting pixels.
+                constantBufferData.Data.Write<uint>(0);                  // Don't show saturation by inverting pixels.
             }
-            
-            
-            bufferdata.Position = 0;
-            constantBuffer = new SlimDX.Direct3D11.Buffer(device, bufferdata, 160, SlimDX.Direct3D11.ResourceUsage.Dynamic, SlimDX.Direct3D11.BindFlags.ConstantBuffer, SlimDX.Direct3D11.CpuAccessFlags.Write, SlimDX.Direct3D11.ResourceOptionFlags.None, 4);
-            context.PixelShader.SetConstantBuffer(constantBuffer, 0);
+
+            context.UnmapSubresource(constantBuffer, 0);
 
             // Next, load the raw image data into a texture.
 
