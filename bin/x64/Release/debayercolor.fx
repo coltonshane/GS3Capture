@@ -145,28 +145,28 @@ float ps_12toFloat(PS_IN input) : SV_Target
 	switch (rem)
 	{
 	case 0:
-		outputcolor_12bit = (((px12 >> 16) & 0xFF) << 4) + ((px12 >> 12) & 0x0F);
+		outputcolor_12bit = (((px12 >> 16) & 0xFF) << 4) + ((px12 >> 8) & 0x0F);
 		break;
 	case 1:
-		outputcolor_12bit = (((px12 >> 0) & 0xFF) << 4) + ((px12 >> 8) & 0x0F);
+		outputcolor_12bit = (((px12 >> 0) & 0xFF) << 4) + ((px12 >> 12) & 0x0F);
 		break;
 	case 2:
-		outputcolor_12bit = (((px34 >> 16) & 0xFF) << 4) + ((px34 >> 12) & 0x0F);
+		outputcolor_12bit = (((px34 >> 16) & 0xFF) << 4) + ((px34 >> 8) & 0x0F);
 		break;
 	case 3:
-		outputcolor_12bit = (((px34 >> 0) & 0xFF) << 4) + ((px34 >> 8) & 0x0F);
+		outputcolor_12bit = (((px34 >> 0) & 0xFF) << 4) + ((px34 >> 12) & 0x0F);
 		break;
 	case 4:
-		outputcolor_12bit = (((px56 >> 16) & 0xFF) << 4) + ((px56 >> 12) & 0x0F);
+		outputcolor_12bit = (((px56 >> 16) & 0xFF) << 4) + ((px56 >> 8) & 0x0F);
 		break;
 	case 5:
-		outputcolor_12bit = (((px56 >> 0) & 0xFF) << 4) + ((px56 >> 8) & 0x0F);
+		outputcolor_12bit = (((px56 >> 0) & 0xFF) << 4) + ((px56 >> 12) & 0x0F);
 		break;
 	case 6:
-		outputcolor_12bit = (((px78 >> 16) & 0xFF) << 4) + ((px78 >> 12) & 0x0F);
+		outputcolor_12bit = (((px78 >> 16) & 0xFF) << 4) + ((px78 >> 8) & 0x0F);
 		break;
 	case 7:
-		outputcolor_12bit = (((px78 >> 0) & 0xFF) << 4) + ((px78 >> 8) & 0x0F);
+		outputcolor_12bit = (((px78 >> 0) & 0xFF) << 4) + ((px78 >> 12) & 0x0F);
 		break;
 	default:
 		break;
