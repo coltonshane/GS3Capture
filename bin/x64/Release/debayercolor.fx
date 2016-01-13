@@ -562,7 +562,7 @@ float4 ps_convolve(PS_IN input) : SV_Target
 	pxcoord_int.y = floor(pxcoord.y*resolution.y);
 
 	// If no convolve requested or the cbuffer is effed, short-circuit the sampler to save time.
-	if(1)
+	if(0)
 	{ 
 		dxy = 0;
 	}
@@ -577,35 +577,39 @@ float4 ps_convolve(PS_IN input) : SV_Target
 	tempcolor.b = 0.0f;
 	
 	// 5x5 convolution matrix
+	// limited to 3x3 matrix here for speed
+	/*
 	tempcolor += conv11 * yTexture.Sample(TextureSampler, pxcoord + float2(-2.0f * dxy.x, -2.0f * dxy.y));
 	tempcolor += conv12 * yTexture.Sample(TextureSampler, pxcoord + float2(-dxy.x, -2.0f * dxy.y));
 	tempcolor += conv13 * yTexture.Sample(TextureSampler, pxcoord + float2(0.0f, -2.0f * dxy.y));
 	tempcolor += conv14 * yTexture.Sample(TextureSampler, pxcoord + float2(dxy.x, -2.0f * dxy.y));
 	tempcolor += conv15 * yTexture.Sample(TextureSampler, pxcoord + float2(2.0f * dxy.x, -2.0f * dxy.y));
+	*/
 	
-	tempcolor += conv21 * yTexture.Sample(TextureSampler, pxcoord + float2(-2.0f * dxy.x, -dxy.y));
+	// tempcolor += conv21 * yTexture.Sample(TextureSampler, pxcoord + float2(-2.0f * dxy.x, -dxy.y));
 	tempcolor += conv22 * yTexture.Sample(TextureSampler, pxcoord + float2(-dxy.x, -dxy.y));
 	tempcolor += conv23 * yTexture.Sample(TextureSampler, pxcoord + float2(0.0f, -dxy.y));
 	tempcolor += conv24 * yTexture.Sample(TextureSampler, pxcoord + float2(dxy.x, -dxy.y));
-	tempcolor += conv25 * yTexture.Sample(TextureSampler, pxcoord + float2(2.0f * dxy.x, -dxy.y));
+	// tempcolor += conv25 * yTexture.Sample(TextureSampler, pxcoord + float2(2.0f * dxy.x, -dxy.y));
 	
-	tempcolor += conv31 * yTexture.Sample(TextureSampler, pxcoord + float2(-2.0f * dxy.x, 0.0f));
+	// tempcolor += conv31 * yTexture.Sample(TextureSampler, pxcoord + float2(-2.0f * dxy.x, 0.0f));
 	tempcolor += conv32 * yTexture.Sample(TextureSampler, pxcoord + float2(-dxy.x, 0.0f));
 	tempcolor += conv33 * yTexture.Sample(TextureSampler, pxcoord + float2(0.0f, 0.0f));
 	tempcolor += conv34 * yTexture.Sample(TextureSampler, pxcoord + float2(dxy.x, 0.0f));
-	tempcolor += conv35 * yTexture.Sample(TextureSampler, pxcoord + float2(2.0f * dxy.x, 0.0f)); 
+	// tempcolor += conv35 * yTexture.Sample(TextureSampler, pxcoord + float2(2.0f * dxy.x, 0.0f)); 
 	
-	tempcolor += conv41 * yTexture.Sample(TextureSampler, pxcoord + float2(-2.0f * dxy.x, dxy.y));
+	// tempcolor += conv41 * yTexture.Sample(TextureSampler, pxcoord + float2(-2.0f * dxy.x, dxy.y));
 	tempcolor += conv42 * yTexture.Sample(TextureSampler, pxcoord + float2(-dxy.x, dxy.y));
 	tempcolor += conv43 * yTexture.Sample(TextureSampler, pxcoord + float2(0.0f, dxy.y));
 	tempcolor += conv44 * yTexture.Sample(TextureSampler, pxcoord + float2(dxy.x, dxy.y));
-	tempcolor += conv45 * yTexture.Sample(TextureSampler, pxcoord + float2(2.0f * dxy.x, dxy.y));
-			
+	// tempcolor += conv45 * yTexture.Sample(TextureSampler, pxcoord + float2(2.0f * dxy.x, dxy.y));
+	/*		
 	tempcolor += conv51 * yTexture.Sample(TextureSampler, pxcoord + float2(-2.0f * dxy.x, 2.0f * dxy.y));
 	tempcolor += conv52 * yTexture.Sample(TextureSampler, pxcoord + float2(-dxy.x, 2.0f * dxy.y));
 	tempcolor += conv53 * yTexture.Sample(TextureSampler, pxcoord + float2(0.0f, 2.0f * dxy.y));
 	tempcolor += conv54 * yTexture.Sample(TextureSampler, pxcoord + float2(dxy.x, 2.0f * dxy.y));
 	tempcolor += conv55 * yTexture.Sample(TextureSampler, pxcoord + float2(2.0f * dxy.x, 2.0f * dxy.y));
+	*/
 
 	outputcolor = tempcolor;
 
