@@ -1522,6 +1522,8 @@ namespace FlyCapture2SimpleGUI_CSharp
             resourceView = new SlimDX.Direct3D11.ShaderResourceView(device, tex_convolve);
             context.PixelShader.SetShaderResource(resourceView, 3);
 
+            resourceView.Dispose();
+
         }
 
         unsafe private void renderRaw()
@@ -1750,36 +1752,11 @@ namespace FlyCapture2SimpleGUI_CSharp
             context.Rasterizer.SetViewports(viewport);
             
             context.Draw(4, 0);
-            
-            // Pass 1: Debayer and Color Correction
-            context.PixelShader.Set(pixelShader1);
-            context.PixelShader.SetSampler(samplerState, 0);
 
-            // Is this step really necessary?
-            context.CopyResource(tex, tex_debayer);
-
-            resource = tex_debayered;
-            renderTarget = new SlimDX.Direct3D11.RenderTargetView(device, tex_debayered);
-            context.OutputMerger.SetTargets(renderTarget);
-
-            viewport = new SlimDX.Direct3D11.Viewport(0.0f, 0.0f, 1920.0f, 1200.0f);
-            context.Rasterizer.SetViewports(viewport);
-
-            context.Draw(4, 0);
-            
-            // Pass 2: Convolve
-            context.PixelShader.Set(pixelShader2);
-            context.PixelShader.SetSampler(samplerState, 0);
-
-            // Is this step really necessary?
-            context.CopyResource(tex_debayered, tex_convolve);
-
-            renderTarget = new SlimDX.Direct3D11.RenderTargetView(device, SlimDX.Direct3D11.Resource.FromSwapChain<SlimDX.Direct3D11.Texture2D>(swapChain, 0));
-            context.OutputMerger.SetTargets(renderTarget);
-            
+            // Adjust the swapchain buffer size if the preview size has been changed:
             if (bigPreviewToggle)
             {
-                if(bigPreview)
+                if (bigPreview)
                 {
                     swapChain.ResizeTarget(new SlimDX.DXGI.ModeDescription(768, 480, new SlimDX.Rational(60, 1), SlimDX.DXGI.Format.R8G8B8A8_UNorm));
                     bigPreview = false;
@@ -1793,14 +1770,54 @@ namespace FlyCapture2SimpleGUI_CSharp
                 bigPreviewToggle = false;
             }
 
-            viewport = new SlimDX.Direct3D11.Viewport(0.0f, 0.0f, 1152.0f* 1920.0f / (float)prevx, 720.0f * 1920.0f / (float)prevx);
-            context.Rasterizer.SetViewports(viewport);
-            
-            context.ClearRenderTargetView(renderTarget, new Color4(0.0f, 0.0f, 0.0f));
-            context.Draw(4, 0);
+            // Pass 1: Debayer and Color Correction
+            context.PixelShader.Set(pixelShader1);
+            context.PixelShader.SetSampler(samplerState, 0);
+
+            // Is this step really necessary?
+            context.CopyResource(tex, tex_debayer);
+
+            if((float)nudSharpness.Value == 1.0f)
+            {
+                // bypass the convolution shader to save time, just draw the debayered and color corrected image to the swapchain.
+                renderTarget = new SlimDX.Direct3D11.RenderTargetView(device, SlimDX.Direct3D11.Resource.FromSwapChain<SlimDX.Direct3D11.Texture2D>(swapChain, 0));
+                context.OutputMerger.SetTargets(renderTarget);
+
+                viewport = new SlimDX.Direct3D11.Viewport(0.0f, 0.0f, 1152.0f * 1920.0f / (float)prevx, 720.0f * 1920.0f / (float)prevx);
+                context.Rasterizer.SetViewports(viewport);
+
+                context.ClearRenderTargetView(renderTarget, new Color4(0.0f, 0.0f, 0.0f));
+                context.Draw(4, 0);
+            }
+            else
+            {
+                // run the convolution shader. note: may not run at 30Hz in 864x480 mode for some reason.
+                resource = tex_debayered;
+                renderTarget = new SlimDX.Direct3D11.RenderTargetView(device, tex_debayered);
+                context.OutputMerger.SetTargets(renderTarget);
+
+                viewport = new SlimDX.Direct3D11.Viewport(0.0f, 0.0f, 1920.0f, 1200.0f);
+                context.Rasterizer.SetViewports(viewport);
+
+                context.Draw(4, 0);
+
+                // Pass 2: Convolve
+                context.PixelShader.Set(pixelShader2);
+                context.PixelShader.SetSampler(samplerState, 0);
+                context.CopyResource(tex_debayered, tex_convolve);
+
+                renderTarget = new SlimDX.Direct3D11.RenderTargetView(device, SlimDX.Direct3D11.Resource.FromSwapChain<SlimDX.Direct3D11.Texture2D>(swapChain, 0));
+                context.OutputMerger.SetTargets(renderTarget);
+
+                viewport = new SlimDX.Direct3D11.Viewport(0.0f, 0.0f, 1152.0f * 1920.0f / (float)prevx, 720.0f * 1920.0f / (float)prevx);
+                context.Rasterizer.SetViewports(viewport);
+
+                context.ClearRenderTargetView(renderTarget, new Color4(0.0f, 0.0f, 0.0f));
+                context.Draw(4, 0);
+
+            }
 
             swapChain.Present(0, SlimDX.DXGI.PresentFlags.None);
-            resourceView.Dispose();
 
             renderBusy = false;
 
