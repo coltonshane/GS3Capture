@@ -46,24 +46,18 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.lblRawSize = new System.Windows.Forms.Label();
             this.nudBufferFrames = new System.Windows.Forms.NumericUpDown();
-            this.lblBufferFrames = new System.Windows.Forms.Label();
             this.lblBufferSize = new System.Windows.Forms.Label();
             this.lblBufferSeconds = new System.Windows.Forms.Label();
             this.lblBufferGB = new System.Windows.Forms.Label();
-            this.btnRec = new System.Windows.Forms.Button();
+            this.btnStart = new System.Windows.Forms.Button();
             this.lblFramesBuffered = new System.Windows.Forms.Label();
             this.nudDD = new System.Windows.Forms.NumericUpDown();
             this.lblDD = new System.Windows.Forms.Label();
             this.chkAuto30Hz = new System.Windows.Forms.CheckBox();
             this.picBuffer = new System.Windows.Forms.PictureBox();
             this.btnClear = new System.Windows.Forms.Button();
-            this.rdoOneShot = new System.Windows.Forms.RadioButton();
-            this.rdoCont = new System.Windows.Forms.RadioButton();
             this.chkContSave = new System.Windows.Forms.CheckBox();
-            this.nudDelay = new System.Windows.Forms.NumericUpDown();
-            this.label1 = new System.Windows.Forms.Label();
             this.nudDiv = new System.Windows.Forms.NumericUpDown();
-            this.btnDiv = new System.Windows.Forms.Button();
             this.btn150fps = new System.Windows.Forms.Button();
             this.btn144fps = new System.Windows.Forms.Button();
             this.btn120fps = new System.Windows.Forms.Button();
@@ -153,6 +147,17 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.btnSharpnessDown = new System.Windows.Forms.Button();
             this.lblSharpness = new System.Windows.Forms.Label();
             this.nudSharpness = new System.Windows.Forms.NumericUpDown();
+            this.lblBufferFrames = new System.Windows.Forms.Label();
+            this.btnTrig = new System.Windows.Forms.Button();
+            this.btnBufferUp = new System.Windows.Forms.Button();
+            this.btnBufferDown = new System.Windows.Forms.Button();
+            this.label1 = new System.Windows.Forms.Label();
+            this.btnBGSaveDivUp = new System.Windows.Forms.Button();
+            this.btnBGSaveDivDn = new System.Windows.Forms.Button();
+            this.btnSave = new System.Windows.Forms.Button();
+            this.trkTrigger = new System.Windows.Forms.TrackBar();
+            this.lblTrigger = new System.Windows.Forms.Label();
+            this.btn3840x2160 = new System.Windows.Forms.Button();
             this.toolStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
@@ -160,7 +165,6 @@ namespace FlyCapture2SimpleGUI_CSharp
             ((System.ComponentModel.ISupportInitialize)(this.nudBufferFrames)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudDD)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picBuffer)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nudDelay)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudDiv)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pbShutter)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
@@ -175,6 +179,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             ((System.ComponentModel.ISupportInitialize)(this.nudContrast)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudSaturation)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudSharpness)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.trkTrigger)).BeginInit();
             this.SuspendLayout();
             // 
             // toolStrip1
@@ -305,10 +310,11 @@ namespace FlyCapture2SimpleGUI_CSharp
             // 
             this.pictureBox1.Location = new System.Drawing.Point(12, 54);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(1152, 720);
+            this.pictureBox1.Size = new System.Drawing.Size(1024, 540);
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pictureBox1.TabIndex = 5;
             this.pictureBox1.TabStop = false;
+            this.pictureBox1.Click += new System.EventHandler(this.pictureBox1_Click);
             this.pictureBox1.MouseClick += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseClick);
             // 
             // lblRawSize
@@ -326,9 +332,9 @@ namespace FlyCapture2SimpleGUI_CSharp
             // nudBufferFrames
             // 
             this.nudBufferFrames.BackColor = System.Drawing.Color.DimGray;
-            this.nudBufferFrames.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.nudBufferFrames.Font = new System.Drawing.Font("Microsoft Sans Serif", 20.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.nudBufferFrames.ForeColor = System.Drawing.Color.White;
-            this.nudBufferFrames.Location = new System.Drawing.Point(1324, 91);
+            this.nudBufferFrames.Location = new System.Drawing.Point(1258, 88);
             this.nudBufferFrames.Maximum = new decimal(new int[] {
             5000,
             0,
@@ -340,7 +346,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             0,
             0});
             this.nudBufferFrames.Name = "nudBufferFrames";
-            this.nudBufferFrames.Size = new System.Drawing.Size(80, 26);
+            this.nudBufferFrames.Size = new System.Drawing.Size(100, 38);
             this.nudBufferFrames.TabIndex = 7;
             this.nudBufferFrames.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.nudBufferFrames.Value = new decimal(new int[] {
@@ -350,40 +356,29 @@ namespace FlyCapture2SimpleGUI_CSharp
             0});
             this.nudBufferFrames.ValueChanged += new System.EventHandler(this.nudBufferFrames_ValueChanged);
             // 
-            // lblBufferFrames
-            // 
-            this.lblBufferFrames.AutoSize = true;
-            this.lblBufferFrames.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.lblBufferFrames.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblBufferFrames.ForeColor = System.Drawing.Color.White;
-            this.lblBufferFrames.Location = new System.Drawing.Point(1410, 93);
-            this.lblBufferFrames.Name = "lblBufferFrames";
-            this.lblBufferFrames.Size = new System.Drawing.Size(58, 20);
-            this.lblBufferFrames.TabIndex = 8;
-            this.lblBufferFrames.Text = "frames";
-            // 
             // lblBufferSize
             // 
             this.lblBufferSize.AutoSize = true;
             this.lblBufferSize.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.lblBufferSize.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblBufferSize.ForeColor = System.Drawing.Color.White;
-            this.lblBufferSize.Location = new System.Drawing.Point(1226, 93);
+            this.lblBufferSize.Location = new System.Drawing.Point(1195, 100);
             this.lblBufferSize.Name = "lblBufferSize";
-            this.lblBufferSize.Size = new System.Drawing.Size(92, 20);
+            this.lblBufferSize.Size = new System.Drawing.Size(57, 20);
             this.lblBufferSize.TabIndex = 9;
-            this.lblBufferSize.Text = "Buffer Size:";
+            this.lblBufferSize.Text = "Buffer:";
+            this.lblBufferSize.Click += new System.EventHandler(this.lblBufferSize_Click);
             // 
             // lblBufferSeconds
             // 
             this.lblBufferSeconds.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.lblBufferSeconds.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblBufferSeconds.ForeColor = System.Drawing.Color.White;
-            this.lblBufferSeconds.Location = new System.Drawing.Point(1320, 153);
+            this.lblBufferSeconds.Location = new System.Drawing.Point(1356, 183);
             this.lblBufferSeconds.Name = "lblBufferSeconds";
-            this.lblBufferSeconds.Size = new System.Drawing.Size(159, 20);
+            this.lblBufferSeconds.Size = new System.Drawing.Size(138, 20);
             this.lblBufferSeconds.TabIndex = 10;
-            this.lblBufferSeconds.Text = "seconds";
+            this.lblBufferSeconds.Text = "[s]";
             this.lblBufferSeconds.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // lblBufferGB
@@ -391,26 +386,26 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.lblBufferGB.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.lblBufferGB.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblBufferGB.ForeColor = System.Drawing.Color.White;
-            this.lblBufferGB.Location = new System.Drawing.Point(1320, 127);
+            this.lblBufferGB.Location = new System.Drawing.Point(1372, 156);
             this.lblBufferGB.Name = "lblBufferGB";
             this.lblBufferGB.Size = new System.Drawing.Size(122, 20);
             this.lblBufferGB.TabIndex = 11;
-            this.lblBufferGB.Text = "GB";
+            this.lblBufferGB.Text = "[GB]";
             this.lblBufferGB.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
-            // btnRec
+            // btnStart
             // 
-            this.btnRec.BackColor = System.Drawing.Color.DarkRed;
-            this.btnRec.FlatAppearance.BorderColor = System.Drawing.Color.White;
-            this.btnRec.Font = new System.Drawing.Font("Microsoft Sans Serif", 24F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnRec.ForeColor = System.Drawing.Color.White;
-            this.btnRec.Location = new System.Drawing.Point(1186, 351);
-            this.btnRec.Name = "btnRec";
-            this.btnRec.Size = new System.Drawing.Size(145, 50);
-            this.btnRec.TabIndex = 12;
-            this.btnRec.Text = "START";
-            this.btnRec.UseVisualStyleBackColor = false;
-            this.btnRec.Click += new System.EventHandler(this.btnRec_Click);
+            this.btnStart.BackColor = System.Drawing.Color.Green;
+            this.btnStart.FlatAppearance.BorderColor = System.Drawing.Color.White;
+            this.btnStart.Font = new System.Drawing.Font("Microsoft Sans Serif", 24F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnStart.ForeColor = System.Drawing.Color.White;
+            this.btnStart.Location = new System.Drawing.Point(1185, 392);
+            this.btnStart.Name = "btnStart";
+            this.btnStart.Size = new System.Drawing.Size(145, 50);
+            this.btnStart.TabIndex = 12;
+            this.btnStart.Text = "START";
+            this.btnStart.UseVisualStyleBackColor = false;
+            this.btnStart.Click += new System.EventHandler(this.btnRec_Click);
             // 
             // lblFramesBuffered
             // 
@@ -418,11 +413,12 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.lblFramesBuffered.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.lblFramesBuffered.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblFramesBuffered.ForeColor = System.Drawing.Color.White;
-            this.lblFramesBuffered.Location = new System.Drawing.Point(1189, 220);
+            this.lblFramesBuffered.Location = new System.Drawing.Point(1388, 251);
             this.lblFramesBuffered.Name = "lblFramesBuffered";
-            this.lblFramesBuffered.Size = new System.Drawing.Size(67, 20);
+            this.lblFramesBuffered.Size = new System.Drawing.Size(102, 60);
             this.lblFramesBuffered.TabIndex = 13;
-            this.lblFramesBuffered.Text = "Frames:";
+            this.lblFramesBuffered.Text = "Frame In: 0\r\nFrame Out: 0\r\nDiff: 0";
+            this.lblFramesBuffered.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // nudDD
             // 
@@ -472,7 +468,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             // picBuffer
             // 
             this.picBuffer.BackColor = System.Drawing.Color.DimGray;
-            this.picBuffer.Location = new System.Drawing.Point(1189, 189);
+            this.picBuffer.Location = new System.Drawing.Point(1189, 218);
             this.picBuffer.Name = "picBuffer";
             this.picBuffer.Size = new System.Drawing.Size(301, 30);
             this.picBuffer.TabIndex = 19;
@@ -480,44 +476,16 @@ namespace FlyCapture2SimpleGUI_CSharp
             // 
             // btnClear
             // 
-            this.btnClear.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnClear.Location = new System.Drawing.Point(1186, 407);
+            this.btnClear.BackColor = System.Drawing.Color.Black;
+            this.btnClear.Font = new System.Drawing.Font("Microsoft Sans Serif", 24F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnClear.ForeColor = System.Drawing.Color.White;
+            this.btnClear.Location = new System.Drawing.Point(1185, 448);
             this.btnClear.Name = "btnClear";
-            this.btnClear.Size = new System.Drawing.Size(145, 36);
+            this.btnClear.Size = new System.Drawing.Size(145, 50);
             this.btnClear.TabIndex = 20;
-            this.btnClear.Text = "Clear Buffer";
-            this.btnClear.UseVisualStyleBackColor = true;
+            this.btnClear.Text = "CLEAR";
+            this.btnClear.UseVisualStyleBackColor = false;
             this.btnClear.Click += new System.EventHandler(this.btnClear_Click);
-            // 
-            // rdoOneShot
-            // 
-            this.rdoOneShot.AutoSize = true;
-            this.rdoOneShot.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.rdoOneShot.Checked = true;
-            this.rdoOneShot.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.rdoOneShot.ForeColor = System.Drawing.Color.White;
-            this.rdoOneShot.Location = new System.Drawing.Point(1189, 316);
-            this.rdoOneShot.Name = "rdoOneShot";
-            this.rdoOneShot.Size = new System.Drawing.Size(120, 29);
-            this.rdoOneShot.TabIndex = 24;
-            this.rdoOneShot.TabStop = true;
-            this.rdoOneShot.Text = "One Shot";
-            this.rdoOneShot.UseVisualStyleBackColor = false;
-            this.rdoOneShot.CheckedChanged += new System.EventHandler(this.rdoOneShot_CheckedChanged);
-            // 
-            // rdoCont
-            // 
-            this.rdoCont.AutoSize = true;
-            this.rdoCont.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.rdoCont.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.rdoCont.ForeColor = System.Drawing.Color.White;
-            this.rdoCont.Location = new System.Drawing.Point(1341, 316);
-            this.rdoCont.Name = "rdoCont";
-            this.rdoCont.Size = new System.Drawing.Size(139, 29);
-            this.rdoCont.TabIndex = 25;
-            this.rdoCont.Text = "Continuous";
-            this.rdoCont.UseVisualStyleBackColor = false;
-            this.rdoCont.CheckedChanged += new System.EventHandler(this.rdoCont_CheckedChanged);
             // 
             // chkContSave
             // 
@@ -525,65 +493,27 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.chkContSave.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.chkContSave.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.chkContSave.ForeColor = System.Drawing.Color.White;
-            this.chkContSave.Location = new System.Drawing.Point(1186, 450);
+            this.chkContSave.Location = new System.Drawing.Point(1185, 518);
             this.chkContSave.Name = "chkContSave";
-            this.chkContSave.Size = new System.Drawing.Size(143, 29);
+            this.chkContSave.Size = new System.Drawing.Size(218, 29);
             this.chkContSave.TabIndex = 26;
-            this.chkContSave.Text = "Save Buffer";
+            this.chkContSave.Text = "Background Saving";
             this.chkContSave.UseVisualStyleBackColor = false;
             this.chkContSave.CheckedChanged += new System.EventHandler(this.chkContSave_CheckedChanged);
-            // 
-            // nudDelay
-            // 
-            this.nudDelay.BackColor = System.Drawing.Color.DimGray;
-            this.nudDelay.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.nudDelay.ForeColor = System.Drawing.Color.White;
-            this.nudDelay.Location = new System.Drawing.Point(1290, 521);
-            this.nudDelay.Maximum = new decimal(new int[] {
-            5000,
-            0,
-            0,
-            0});
-            this.nudDelay.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.nudDelay.Name = "nudDelay";
-            this.nudDelay.Size = new System.Drawing.Size(63, 26);
-            this.nudDelay.TabIndex = 28;
-            this.nudDelay.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.nudDelay.Value = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.ForeColor = System.Drawing.Color.White;
-            this.label1.Location = new System.Drawing.Point(1181, 523);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(103, 20);
-            this.label1.TabIndex = 29;
-            this.label1.Text = "Frame Delay:";
             // 
             // nudDiv
             // 
             this.nudDiv.BackColor = System.Drawing.Color.DimGray;
-            this.nudDiv.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.nudDiv.Font = new System.Drawing.Font("Microsoft Sans Serif", 20.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.nudDiv.ForeColor = System.Drawing.Color.White;
-            this.nudDiv.Location = new System.Drawing.Point(1423, 521);
+            this.nudDiv.Location = new System.Drawing.Point(1295, 555);
             this.nudDiv.Minimum = new decimal(new int[] {
             1,
             0,
             0,
             0});
             this.nudDiv.Name = "nudDiv";
-            this.nudDiv.Size = new System.Drawing.Size(63, 26);
+            this.nudDiv.Size = new System.Drawing.Size(63, 38);
             this.nudDiv.TabIndex = 32;
             this.nudDiv.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.nudDiv.Value = new decimal(new int[] {
@@ -592,18 +522,6 @@ namespace FlyCapture2SimpleGUI_CSharp
             0,
             0});
             this.nudDiv.ValueChanged += new System.EventHandler(this.nudDiv_ValueChanged);
-            // 
-            // btnDiv
-            // 
-            this.btnDiv.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnDiv.ForeColor = System.Drawing.Color.White;
-            this.btnDiv.Location = new System.Drawing.Point(1359, 516);
-            this.btnDiv.Name = "btnDiv";
-            this.btnDiv.Size = new System.Drawing.Size(58, 36);
-            this.btnDiv.TabIndex = 33;
-            this.btnDiv.Text = "DIV";
-            this.btnDiv.UseVisualStyleBackColor = false;
-            this.btnDiv.Click += new System.EventHandler(this.btnDiv_Click);
             // 
             // btn150fps
             // 
@@ -827,7 +745,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.label2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(64)))));
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label2.ForeColor = System.Drawing.Color.White;
-            this.label2.Location = new System.Drawing.Point(586, 712);
+            this.label2.Location = new System.Drawing.Point(723, 712);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(35, 25);
             this.label2.TabIndex = 52;
@@ -1771,12 +1689,149 @@ namespace FlyCapture2SimpleGUI_CSharp
             0,
             131072});
             // 
+            // lblBufferFrames
+            // 
+            this.lblBufferFrames.AutoSize = true;
+            this.lblBufferFrames.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.lblBufferFrames.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblBufferFrames.ForeColor = System.Drawing.Color.White;
+            this.lblBufferFrames.Location = new System.Drawing.Point(1428, 129);
+            this.lblBufferFrames.Name = "lblBufferFrames";
+            this.lblBufferFrames.Size = new System.Drawing.Size(66, 20);
+            this.lblBufferFrames.TabIndex = 8;
+            this.lblBufferFrames.Text = "[frames]";
+            // 
+            // btnTrig
+            // 
+            this.btnTrig.BackColor = System.Drawing.Color.DarkRed;
+            this.btnTrig.FlatAppearance.BorderColor = System.Drawing.Color.White;
+            this.btnTrig.Font = new System.Drawing.Font("Microsoft Sans Serif", 24F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnTrig.ForeColor = System.Drawing.Color.White;
+            this.btnTrig.Location = new System.Drawing.Point(1345, 392);
+            this.btnTrig.Name = "btnTrig";
+            this.btnTrig.Size = new System.Drawing.Size(145, 50);
+            this.btnTrig.TabIndex = 125;
+            this.btnTrig.Text = "TRIG";
+            this.btnTrig.UseVisualStyleBackColor = false;
+            // 
+            // btnBufferUp
+            // 
+            this.btnBufferUp.BackColor = System.Drawing.Color.LightGray;
+            this.btnBufferUp.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnBufferUp.Location = new System.Drawing.Point(1432, 88);
+            this.btnBufferUp.Name = "btnBufferUp";
+            this.btnBufferUp.Size = new System.Drawing.Size(62, 38);
+            this.btnBufferUp.TabIndex = 127;
+            this.btnBufferUp.Text = "+";
+            this.btnBufferUp.UseVisualStyleBackColor = false;
+            // 
+            // btnBufferDown
+            // 
+            this.btnBufferDown.BackColor = System.Drawing.Color.LightGray;
+            this.btnBufferDown.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnBufferDown.Location = new System.Drawing.Point(1364, 88);
+            this.btnBufferDown.Name = "btnBufferDown";
+            this.btnBufferDown.Size = new System.Drawing.Size(62, 38);
+            this.btnBufferDown.TabIndex = 126;
+            this.btnBufferDown.Text = "-";
+            this.btnBufferDown.UseVisualStyleBackColor = false;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.ForeColor = System.Drawing.Color.White;
+            this.label1.Location = new System.Drawing.Point(1228, 567);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(61, 20);
+            this.label1.TabIndex = 128;
+            this.label1.Text = "Divider:";
+            // 
+            // btnBGSaveDivUp
+            // 
+            this.btnBGSaveDivUp.BackColor = System.Drawing.Color.LightGray;
+            this.btnBGSaveDivUp.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnBGSaveDivUp.Location = new System.Drawing.Point(1432, 555);
+            this.btnBGSaveDivUp.Name = "btnBGSaveDivUp";
+            this.btnBGSaveDivUp.Size = new System.Drawing.Size(62, 38);
+            this.btnBGSaveDivUp.TabIndex = 130;
+            this.btnBGSaveDivUp.Text = "+";
+            this.btnBGSaveDivUp.UseVisualStyleBackColor = false;
+            // 
+            // btnBGSaveDivDn
+            // 
+            this.btnBGSaveDivDn.BackColor = System.Drawing.Color.LightGray;
+            this.btnBGSaveDivDn.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnBGSaveDivDn.Location = new System.Drawing.Point(1364, 555);
+            this.btnBGSaveDivDn.Name = "btnBGSaveDivDn";
+            this.btnBGSaveDivDn.Size = new System.Drawing.Size(62, 38);
+            this.btnBGSaveDivDn.TabIndex = 129;
+            this.btnBGSaveDivDn.Text = "-";
+            this.btnBGSaveDivDn.UseVisualStyleBackColor = false;
+            // 
+            // btnSave
+            // 
+            this.btnSave.BackColor = System.Drawing.Color.Blue;
+            this.btnSave.Font = new System.Drawing.Font("Microsoft Sans Serif", 24F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnSave.ForeColor = System.Drawing.Color.White;
+            this.btnSave.Location = new System.Drawing.Point(1345, 448);
+            this.btnSave.Name = "btnSave";
+            this.btnSave.Size = new System.Drawing.Size(145, 50);
+            this.btnSave.TabIndex = 131;
+            this.btnSave.Text = "SAVE";
+            this.btnSave.UseVisualStyleBackColor = false;
+            // 
+            // trkTrigger
+            // 
+            this.trkTrigger.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.trkTrigger.LargeChange = 2;
+            this.trkTrigger.Location = new System.Drawing.Point(1185, 341);
+            this.trkTrigger.Name = "trkTrigger";
+            this.trkTrigger.Size = new System.Drawing.Size(309, 45);
+            this.trkTrigger.TabIndex = 132;
+            this.trkTrigger.Value = 5;
+            // 
+            // lblTrigger
+            // 
+            this.lblTrigger.AutoSize = true;
+            this.lblTrigger.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.lblTrigger.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblTrigger.ForeColor = System.Drawing.Color.White;
+            this.lblTrigger.Location = new System.Drawing.Point(1189, 316);
+            this.lblTrigger.Name = "lblTrigger";
+            this.lblTrigger.Size = new System.Drawing.Size(122, 20);
+            this.lblTrigger.TabIndex = 133;
+            this.lblTrigger.Text = "Trigger Position:";
+            // 
+            // btn3840x2160
+            // 
+            this.btn3840x2160.BackColor = System.Drawing.Color.LightGray;
+            this.btn3840x2160.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btn3840x2160.Location = new System.Drawing.Point(584, 705);
+            this.btn3840x2160.Name = "btn3840x2160";
+            this.btn3840x2160.Size = new System.Drawing.Size(133, 38);
+            this.btn3840x2160.TabIndex = 134;
+            this.btn3840x2160.Text = "3840x2160";
+            this.btn3840x2160.UseVisualStyleBackColor = false;
+            this.btn3840x2160.Click += new System.EventHandler(this.btn3840x2160_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Black;
             this.ClientSize = new System.Drawing.Size(1514, 801);
+            this.Controls.Add(this.btn3840x2160);
+            this.Controls.Add(this.lblTrigger);
+            this.Controls.Add(this.trkTrigger);
+            this.Controls.Add(this.btnSave);
+            this.Controls.Add(this.btnBGSaveDivUp);
+            this.Controls.Add(this.btnBGSaveDivDn);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.btnBufferUp);
+            this.Controls.Add(this.btnBufferDown);
+            this.Controls.Add(this.btnTrig);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.btnSharpnessUp);
             this.Controls.Add(this.btnSharpnessDown);
@@ -1864,20 +1919,15 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.Controls.Add(this.btn120fps);
             this.Controls.Add(this.btn144fps);
             this.Controls.Add(this.btn150fps);
-            this.Controls.Add(this.btnDiv);
             this.Controls.Add(this.nudDiv);
-            this.Controls.Add(this.label1);
-            this.Controls.Add(this.nudDelay);
             this.Controls.Add(this.chkContSave);
-            this.Controls.Add(this.rdoCont);
-            this.Controls.Add(this.rdoOneShot);
             this.Controls.Add(this.btnClear);
             this.Controls.Add(this.picBuffer);
             this.Controls.Add(this.chkAuto30Hz);
             this.Controls.Add(this.lblDD);
             this.Controls.Add(this.nudDD);
             this.Controls.Add(this.lblFramesBuffered);
-            this.Controls.Add(this.btnRec);
+            this.Controls.Add(this.btnStart);
             this.Controls.Add(this.lblBufferGB);
             this.Controls.Add(this.lblBufferSeconds);
             this.Controls.Add(this.lblBufferSize);
@@ -1908,7 +1958,6 @@ namespace FlyCapture2SimpleGUI_CSharp
             ((System.ComponentModel.ISupportInitialize)(this.nudBufferFrames)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudDD)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picBuffer)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nudDelay)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudDiv)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pbShutter)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
@@ -1923,6 +1972,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             ((System.ComponentModel.ISupportInitialize)(this.nudContrast)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudSaturation)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudSharpness)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.trkTrigger)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1947,24 +1997,18 @@ namespace FlyCapture2SimpleGUI_CSharp
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabelFrameRate;
         private System.Windows.Forms.Label lblRawSize;
         private System.Windows.Forms.NumericUpDown nudBufferFrames;
-        private System.Windows.Forms.Label lblBufferFrames;
         private System.Windows.Forms.Label lblBufferSize;
         private System.Windows.Forms.Label lblBufferSeconds;
         private System.Windows.Forms.Label lblBufferGB;
-        private System.Windows.Forms.Button btnRec;
+        private System.Windows.Forms.Button btnStart;
         private System.Windows.Forms.Label lblFramesBuffered;
         private System.Windows.Forms.NumericUpDown nudDD;
         private System.Windows.Forms.Label lblDD;
         private System.Windows.Forms.CheckBox chkAuto30Hz;
         private System.Windows.Forms.PictureBox picBuffer;
         private System.Windows.Forms.Button btnClear;
-        private System.Windows.Forms.RadioButton rdoOneShot;
-        private System.Windows.Forms.RadioButton rdoCont;
         private System.Windows.Forms.CheckBox chkContSave;
-        private System.Windows.Forms.NumericUpDown nudDelay;
-        private System.Windows.Forms.Label label1;
         private System.Windows.Forms.NumericUpDown nudDiv;
-        private System.Windows.Forms.Button btnDiv;
         private System.Windows.Forms.Button btn150fps;
         private System.Windows.Forms.Button btn144fps;
         private System.Windows.Forms.Button btn120fps;
@@ -2054,6 +2098,17 @@ namespace FlyCapture2SimpleGUI_CSharp
         private System.Windows.Forms.Button btnSharpnessDown;
         private System.Windows.Forms.Label lblSharpness;
         private System.Windows.Forms.NumericUpDown nudSharpness;
+        private System.Windows.Forms.Label lblBufferFrames;
+        private System.Windows.Forms.Button btnTrig;
+        private System.Windows.Forms.Button btnBufferUp;
+        private System.Windows.Forms.Button btnBufferDown;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Button btnBGSaveDivUp;
+        private System.Windows.Forms.Button btnBGSaveDivDn;
+        private System.Windows.Forms.Button btnSave;
+        private System.Windows.Forms.TrackBar trkTrigger;
+        private System.Windows.Forms.Label lblTrigger;
+        private System.Windows.Forms.Button btn3840x2160;
     }
 }
 

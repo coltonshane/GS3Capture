@@ -204,7 +204,7 @@ float4 ps_debayer(PS_IN input) : SV_Target
 	tempcolor.g = 0.0f;
 	tempcolor.b = 0.0f;
 	
-	if(pxcoord_int.y % 2 == 0)
+	if(pxcoord_int.y % 2 == 1)
 	{
 		if(pxcoord_int.x % 2 == 0)
 		{
