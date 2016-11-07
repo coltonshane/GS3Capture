@@ -184,6 +184,9 @@ namespace FlyCapture2SimpleGUI_CSharp
             int hx = 0;
 
             int[] hist = new int[256];
+            int[] histR = new int[256];
+            int[] histG = new int[256];
+            int[] histB = new int[256];
             int hist_max = 0;
 
             string threadtiming = "";
@@ -235,7 +238,9 @@ namespace FlyCapture2SimpleGUI_CSharp
 
                 m_histImageStats.EnableAll();
                 m_histImage.CalculateStatistics(m_histImageStats);
-                m_histImageStats.GetHistogram(StatisticsChannel.Lightness, hist);
+                m_histImageStats.GetHistogram(StatisticsChannel.Red, histR);
+                m_histImageStats.GetHistogram(StatisticsChannel.Green, histG);
+                m_histImageStats.GetHistogram(StatisticsChannel.Blue, histB);
 
                 histgfx = picHist.CreateGraphics();
                 histgfx.Clear(Color.Black);
@@ -243,15 +248,25 @@ namespace FlyCapture2SimpleGUI_CSharp
 
                 for(hx = 0; hx <= 255; hx++)
                 {
-                    if(hist[hx] > hist_max)
+                    if(histR[hx] > hist_max)
                     {
-                        hist_max = hist[hx];
+                        hist_max = histR[hx];
+                    }
+                    if (histG[hx] > hist_max)
+                    {
+                        hist_max = histG[hx];
+                    }
+                    if (histB[hx] > hist_max)
+                    {
+                        hist_max = histB[hx];
                     }
                 }
-                for(hx = 0; hx <= 255; hx++)
+                for(hx = 0; hx <= 254; hx++)
                 {
                     
-                    histgfx.DrawLine(Pens.White, hx, 99, hx, 99 - (hist[hx] * 99 / hist_max));
+                    histgfx.DrawLine(Pens.Red, hx, 99 - (histR[hx] * 99 / hist_max), hx+1, 99 - (histR[hx+1] * 99 / hist_max));
+                    histgfx.DrawLine(Pens.Green, hx, 99 - (histG[hx] * 99 / hist_max), hx + 1, 99 - (histG[hx + 1] * 99 / hist_max));
+                    histgfx.DrawLine(Pens.Blue, hx, 99 - (histB[hx] * 99 / hist_max), hx + 1, 99 - (histB[hx + 1] * 99 / hist_max));
                 }
 
                 chkHistOn.Checked = false;
@@ -827,16 +842,6 @@ namespace FlyCapture2SimpleGUI_CSharp
             swapChain.SetFullScreenState(true, null);
         }
 
-        private void btn150fps_Click(object sender, EventArgs e)
-        {
-            setFrameRate(150.0F);
-        }
-
-        private void btn144fps_Click(object sender, EventArgs e)
-        {
-            setFrameRate(144.0F);   
-        }
-
         private void setFrameRate(float fr)
         {
             // Update frame rate.
@@ -921,165 +926,6 @@ namespace FlyCapture2SimpleGUI_CSharp
             chkHistOn.Checked = true;
         }
 
-        private void btn120fps_Click(object sender, EventArgs e)
-        {
-            setFrameRate(120.0F); 
-        }
-
-        private void btn96fps_Click(object sender, EventArgs e)
-        {
-            setFrameRate(96.0F); 
-        }
-
-        private void btn90fps_Click(object sender, EventArgs e)
-        {
-            setFrameRate(90.0F); 
-        }
-
-        private void btn72fps_Click(object sender, EventArgs e)
-        {
-            setFrameRate(72.0F);
-        }
-
-        private void btn60fps_Click(object sender, EventArgs e)
-        {
-            setFrameRate(60.0F);
-        }
-
-        private void btn48fps_Click(object sender, EventArgs e)
-        {
-            setFrameRate(48.0F);
-        }
-
-        private void btn30fps_Click(object sender, EventArgs e)
-        {
-            setFrameRate(30.0F);
-        }
-
-        private void btn24fps_Click(object sender, EventArgs e)
-        {
-            setFrameRate(24.0F);
-        }
-
-        private void btn240fps_Click(object sender, EventArgs e)
-        {
-            setFrameRate(240.0F);
-        }
-
-        private void btn8bit_Click(object sender, EventArgs e)
-        {
-            ManagedCamera local_m_camera = (ManagedCamera) m_camera;
-            Format7ImageSettings f7Settings;
-            f7Settings = new Format7ImageSettings();
-            uint packetsize = 0;
-            float speed = 0.0F;
-            local_m_camera.GetFormat7Configuration(f7Settings, ref packetsize, ref speed);
-            f7Settings.mode = Mode.Mode0;
-            f7Settings.pixelFormat = PixelFormat.PixelFormatRaw8;
-            local_m_camera.SetFormat7Configuration(f7Settings, bus_percent);
-            displayF7Settings();
-        }
-
-        private void btn12bit_Click(object sender, EventArgs e)
-        {
-            ManagedCamera local_m_camera = (ManagedCamera)m_camera;
-            Format7ImageSettings f7Settings;
-            f7Settings = new Format7ImageSettings();
-            uint packetsize = 0;
-            float speed = 0.0F;
-            local_m_camera.GetFormat7Configuration(f7Settings, ref packetsize, ref speed);
-            f7Settings.mode = Mode.Mode7;
-            f7Settings.pixelFormat = PixelFormat.PixelFormatRaw12;
-            local_m_camera.SetFormat7Configuration(f7Settings, bus_percent);
-            displayF7Settings();
-        }
-
-        // GS3-U3-89S6C-C 4K
-        private void btn3840x2160_Click(object sender, EventArgs e)
-        {
-            ManagedCamera local_m_camera = (ManagedCamera)m_camera;
-            Format7ImageSettings f7Settings;
-            f7Settings = new Format7ImageSettings();
-            uint packetsize = 0;
-            float speed = 0.0F;
-            local_m_camera.GetFormat7Configuration(f7Settings, ref packetsize, ref speed);
-            f7Settings.width = 3840;
-            f7Settings.height = 2160;
-            f7Settings.offsetX = 128;
-            f7Settings.offsetY = 0;
-            local_m_camera.SetFormat7Configuration(f7Settings, bus_percent);
-            displayF7Settings();
-        }
-
-        private void btn1920x1200_Click(object sender, EventArgs e)
-        {
-            ManagedCamera local_m_camera = (ManagedCamera)m_camera;
-            Format7ImageSettings f7Settings;
-            f7Settings = new Format7ImageSettings();
-            uint packetsize = 0;
-            float speed = 0.0F;
-            local_m_camera.GetFormat7Configuration(f7Settings, ref packetsize, ref speed);
-            f7Settings.width = 1920;
-            f7Settings.height = 1200;
-            f7Settings.offsetX = 0;
-            f7Settings.offsetY = 0;
-            local_m_camera.SetFormat7Configuration(f7Settings, bus_percent);
-            displayF7Settings();
-        }
-
-        private void btn1920x1080_Click(object sender, EventArgs e)
-        {
-            ManagedCamera local_m_camera = (ManagedCamera)m_camera;
-            Format7ImageSettings f7Settings;
-            f7Settings = new Format7ImageSettings();
-            uint packetsize = 0;
-            float speed = 0.0F;
-            local_m_camera.GetFormat7Configuration(f7Settings, ref packetsize, ref speed);
-            f7Settings.width = 1920;
-            f7Settings.height = 1080;
-            f7Settings.offsetX = 0;
-            f7Settings.offsetY = 60;
-            local_m_camera.SetFormat7Configuration(f7Settings, bus_percent);
-            displayF7Settings();
-        }
-
-        private void btn1280x720_Click(object sender, EventArgs e)
-        {
-            ManagedCamera local_m_camera = (ManagedCamera)m_camera;
-            Format7ImageSettings f7Settings;
-            f7Settings = new Format7ImageSettings();
-            uint packetsize = 0;
-            float speed = 0.0F;
-            local_m_camera.GetFormat7Configuration(f7Settings, ref packetsize, ref speed);
-            f7Settings.width = 1280;
-            f7Settings.height = 720;
-            f7Settings.offsetX = 320;
-            f7Settings.offsetY = 240;
-            local_m_camera.SetFormat7Configuration(f7Settings, bus_percent);
-            displayF7Settings();
-        }
-
-        private void btn854x480_Click(object sender, EventArgs e)
-        {
-            ManagedCamera local_m_camera = (ManagedCamera)m_camera;
-            Format7ImageSettings f7Settings;
-            f7Settings = new Format7ImageSettings();
-            uint packetsize = 0;
-            float speed = 0.0F;
-            local_m_camera.GetFormat7Configuration(f7Settings, ref packetsize, ref speed);
-            f7Settings.width = 864;
-            f7Settings.height = 480;
-            f7Settings.offsetX = 528;
-            f7Settings.offsetY = 360;
-            local_m_camera.SetFormat7Configuration(f7Settings, bus_percent);
-            displayF7Settings();
-        }
-
-        private void btn360fps_Click(object sender, EventArgs e)
-        {
-            setFrameRate(360.0F);
-        }
-
         private void displayF7Settings()
         {
             ManagedCamera local_m_camera = (ManagedCamera)m_camera;
@@ -1087,6 +933,10 @@ namespace FlyCapture2SimpleGUI_CSharp
             f7Settings = new Format7ImageSettings();
             uint packetsize = 0;
             float speed = 0.0F;
+            CameraProperty cpFrameRate;
+            CameraProperty cpGain;
+            CameraProperty cpShutter;
+
             local_m_camera.GetFormat7Configuration(f7Settings, ref packetsize, ref speed);
 
             lblPXd.Text = String.Format("{0:D}x{1:D}", f7Settings.width, f7Settings.height);
@@ -1102,6 +952,33 @@ namespace FlyCapture2SimpleGUI_CSharp
             {
                 lblBITd.Text = "ERROR";
             }
+
+            // Validate and display frame rate.
+            cpFrameRate = m_camera.GetProperty(PropertyType.FrameRate);
+            lblFPSd.Text = String.Format("{0:D}FPS", (uint)cpFrameRate.absValue);
+
+            // Validate and display gain.
+            cpGain = m_camera.GetProperty(PropertyType.Gain);
+            lblGaind.Text = String.Format("+{0:F0}dB", cpGain.absValue);
+
+            // Validate and display shutter.
+            cpShutter = m_camera.GetProperty(PropertyType.Shutter);
+            cpFrameRate = m_camera.GetProperty(PropertyType.FrameRate);
+            if (shutter_mode == SHUTTER_ANGLE)
+            {
+                lblShutterd.Text = String.Format("{0:F1}º", cpShutter.absValue * cpFrameRate.absValue * 0.3600F);
+            }
+            else if (shutter_mode == SHUTTER_TIME)
+            {
+                lblShutterd.Text = String.Format("1/{0:F0}s", cpFrameRate.absValue * shutter_div);
+            }
+
+            // Fire histogram.
+            chkHistOn.Checked = true;
+
+            // Fire histogram.
+            chkHistOn.Checked = true;
+
         }
 
         private void btnBusUp_Click(object sender, EventArgs e)
@@ -1479,7 +1356,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             samplerDescription.AddressU = SlimDX.Direct3D11.TextureAddressMode.Mirror;
             samplerDescription.AddressV = SlimDX.Direct3D11.TextureAddressMode.Mirror;
             samplerDescription.AddressW = SlimDX.Direct3D11.TextureAddressMode.Mirror;
-            samplerDescription.Filter = SlimDX.Direct3D11.Filter.MinMagMipPoint;
+            samplerDescription.Filter = SlimDX.Direct3D11.Filter.MinMagMipLinear;
 
             samplerState = SlimDX.Direct3D11.SamplerState.FromDescription(device, samplerDescription);
 
@@ -1901,6 +1778,70 @@ namespace FlyCapture2SimpleGUI_CSharp
         private void lblBufferSize_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void cmbResolution_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            
+        }
+
+        private void nudFR_ValueChanged(object sender, EventArgs e)
+        {
+            if(rdo24fps.Checked)
+            {
+                setFrameRate(24.0f * (float) nudFR.Value);
+                lblFPS.Text = String.Format("= {0:F0}fps", 24.0f * (float)nudFR.Value);
+            }
+            else
+            {
+                setFrameRate(30.0f * (float)nudFR.Value);
+                lblFPS.Text = String.Format("= {0:F0}fps", 30.0f * (float)nudFR.Value);
+            }
+        }
+
+        private void btnChangeFormat_Click(object sender, EventArgs e)
+        {
+            string strRes = cmbResolution.SelectedItem.ToString();
+            string[] strRes_split = new string[3];
+            char[] char_delim = { 'x', ' ' };
+
+            uint selectedWidth = 0;
+            uint selectedHeight = 0;
+
+            strRes_split = strRes.Split(char_delim, 3);
+
+            uint.TryParse(strRes_split[0], out selectedWidth);
+            uint.TryParse(strRes_split[1], out selectedHeight);
+
+            ManagedCamera local_m_camera = (ManagedCamera)m_camera;
+            Format7ImageSettings f7Settings;
+            f7Settings = new Format7ImageSettings();
+            uint packetsize = 0;
+            float speed = 0.0F;
+            local_m_camera.GetFormat7Configuration(f7Settings, ref packetsize, ref speed);
+            f7Settings.width = selectedWidth;
+            f7Settings.height = selectedHeight;
+            f7Settings.offsetX = (uint)((1920 - selectedWidth) / 8) * 4;
+            f7Settings.offsetY = (uint)((1200 - selectedHeight) / 8) * 4;
+
+            if(rdo8bit.Checked)
+            {
+                f7Settings.mode = Mode.Mode0;
+                f7Settings.pixelFormat = PixelFormat.PixelFormatRaw8;
+            }
+            else
+            {
+                f7Settings.mode = Mode.Mode7;
+                f7Settings.pixelFormat = PixelFormat.PixelFormatRaw12;
+            }
+
+            toolStripButtonStop_Click(null, null);
+
+            local_m_camera.SetFormat7Configuration(f7Settings, bus_percent);
+
+            toolStripButtonStart_Click(null, null);
+
+            displayF7Settings();
         }
     }
 }

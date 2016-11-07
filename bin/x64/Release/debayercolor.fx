@@ -194,11 +194,12 @@ float4 ps_debayer(PS_IN input) : SV_Target
 	float c_hue;
 	float c_sat;
 	
-	pxcoord = float2(input.cords[0],input.cords[1]);
+	dxy = float2(1.0f / resolution.x, 1.0f / resolution.y);
+	pxcoord = float2(input.cords[0], input.cords[1]);
 	pxcoord_int.x = floor(pxcoord.x*resolution.x);
 	pxcoord_int.y = floor(pxcoord.y*resolution.y);
 	sample = xTexture.Sample(TextureSampler, pxcoord);
-	dxy = float2(1.0f/resolution.x, 1.0f/resolution.y);
+	
 	
 	// start at black
 	tempcolor.r = 0.0f;
