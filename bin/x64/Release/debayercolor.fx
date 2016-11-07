@@ -2,6 +2,7 @@ Texture2D <float> w8Texture : register(t0);
 Texture2D <uint3> w12Texture : register(t1);
 Texture2D <float> xTexture : register(t2);
 Texture2D <float4> yTexture : register(t3);
+Texture2D <float4> zTexture : register(t4);
 sampler TextureSampler : register(s0);
 
 cbuffer ConstBuffer : register(c0)
@@ -204,7 +205,7 @@ float4 ps_debayer(PS_IN input) : SV_Target
 	tempcolor.g = 0.0f;
 	tempcolor.b = 0.0f;
 	
-	if(pxcoord_int.y % 2 == 1)
+	if(pxcoord_int.y % 2 == 0)
 	{
 		if(pxcoord_int.x % 2 == 0)
 		{
@@ -553,24 +554,12 @@ float4 ps_convolve(PS_IN input) : SV_Target
 	float4 outputcolor;
 	float4 tempcolor;
 	float2 pxcoord;
-	uint2 pxcoord_int;
-	float2 samplecoord;
 	float2 dxy; 
 	
 	pxcoord = float2(input.cords[0],input.cords[1]);
-	pxcoord_int.x = floor(pxcoord.x*resolution.x);
-	pxcoord_int.y = floor(pxcoord.y*resolution.y);
 
-	// If no convolve requested or the cbuffer is effed, short-circuit the sampler to save time.
-	if(0)
-	{ 
-		dxy = 0;
-	}
-	else
-	{
-		dxy = float2(1.0f / resolution.x, 1.0f / resolution.y);
-	}
-	
+	dxy = float2(1.0f / resolution.x, 1.0f / resolution.y);
+
 	// start at black
 	tempcolor.r = 0.0f;
 	tempcolor.g = 0.0f;
@@ -603,6 +592,7 @@ float4 ps_convolve(PS_IN input) : SV_Target
 	tempcolor += conv43 * yTexture.Sample(TextureSampler, pxcoord + float2(0.0f, dxy.y));
 	tempcolor += conv44 * yTexture.Sample(TextureSampler, pxcoord + float2(dxy.x, dxy.y));
 	// tempcolor += conv45 * yTexture.Sample(TextureSampler, pxcoord + float2(2.0f * dxy.x, dxy.y));
+
 	/*		
 	tempcolor += conv51 * yTexture.Sample(TextureSampler, pxcoord + float2(-2.0f * dxy.x, 2.0f * dxy.y));
 	tempcolor += conv52 * yTexture.Sample(TextureSampler, pxcoord + float2(-dxy.x, 2.0f * dxy.y));
@@ -611,9 +601,26 @@ float4 ps_convolve(PS_IN input) : SV_Target
 	tempcolor += conv55 * yTexture.Sample(TextureSampler, pxcoord + float2(2.0f * dxy.x, 2.0f * dxy.y));
 	*/
 
-	outputcolor = tempcolor;
+	outputcolor = yTexture.Sample(TextureSampler, pxcoord);
 
 	outputcolor.a = 1.0f;
 	
 	return outputcolor;
 }
+
+float4 ps_draw(PS_IN input) : SV_Target
+{
+	float4 outputcolor;
+	float4 tempcolor;
+	float2 pxcoord;
+	float2 dxy;
+
+	pxcoord = float2(input.cords[0],input.cords[1]);
+
+	outputcolor = zTexture.Sample(TextureSampler, pxcoord);
+
+	outputcolor.a = 1.0f;
+
+	return outputcolor;
+}
+

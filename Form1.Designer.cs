@@ -310,7 +310,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             // 
             this.pictureBox1.Location = new System.Drawing.Point(12, 54);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(1024, 540);
+            this.pictureBox1.Size = new System.Drawing.Size(1152, 720);
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pictureBox1.TabIndex = 5;
             this.pictureBox1.TabStop = false;
@@ -1822,6 +1822,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Black;
             this.ClientSize = new System.Drawing.Size(1514, 801);
+            this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.btn3840x2160);
             this.Controls.Add(this.lblTrigger);
             this.Controls.Add(this.trkTrigger);
@@ -1832,7 +1833,6 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.Controls.Add(this.btnBufferUp);
             this.Controls.Add(this.btnBufferDown);
             this.Controls.Add(this.btnTrig);
-            this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.btnSharpnessUp);
             this.Controls.Add(this.btnSharpnessDown);
             this.Controls.Add(this.lblSharpness);
