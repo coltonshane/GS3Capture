@@ -490,6 +490,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             // 
             this.chkContSave.AutoSize = true;
             this.chkContSave.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.chkContSave.Enabled = false;
             this.chkContSave.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.chkContSave.ForeColor = System.Drawing.Color.White;
             this.chkContSave.Location = new System.Drawing.Point(1185, 518);
@@ -503,6 +504,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             // nudDiv
             // 
             this.nudDiv.BackColor = System.Drawing.Color.DimGray;
+            this.nudDiv.Enabled = false;
             this.nudDiv.Font = new System.Drawing.Font("Microsoft Sans Serif", 20.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.nudDiv.ForeColor = System.Drawing.Color.White;
             this.nudDiv.Location = new System.Drawing.Point(1295, 555);
@@ -1527,6 +1529,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             // btnBGSaveDivUp
             // 
             this.btnBGSaveDivUp.BackColor = System.Drawing.Color.LightGray;
+            this.btnBGSaveDivUp.Enabled = false;
             this.btnBGSaveDivUp.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnBGSaveDivUp.Location = new System.Drawing.Point(1432, 555);
             this.btnBGSaveDivUp.Name = "btnBGSaveDivUp";
@@ -1538,6 +1541,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             // btnBGSaveDivDn
             // 
             this.btnBGSaveDivDn.BackColor = System.Drawing.Color.LightGray;
+            this.btnBGSaveDivDn.Enabled = false;
             this.btnBGSaveDivDn.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnBGSaveDivDn.Location = new System.Drawing.Point(1364, 555);
             this.btnBGSaveDivDn.Name = "btnBGSaveDivDn";
@@ -1618,6 +1622,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.btnFRUp.TabIndex = 137;
             this.btnFRUp.Text = "+";
             this.btnFRUp.UseVisualStyleBackColor = false;
+            this.btnFRUp.Click += new System.EventHandler(this.btnFRUp_Click);
             // 
             // btnFRDown
             // 
@@ -1629,6 +1634,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.btnFRDown.TabIndex = 136;
             this.btnFRDown.Text = "-";
             this.btnFRDown.UseVisualStyleBackColor = false;
+            this.btnFRDown.Click += new System.EventHandler(this.btnFRDown_Click);
             // 
             // rdo30fps
             // 
@@ -1672,7 +1678,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.cmbResolution.Name = "cmbResolution";
             this.cmbResolution.Size = new System.Drawing.Size(280, 39);
             this.cmbResolution.TabIndex = 140;
-            this.cmbResolution.Text = "1920x1200 (1.6:1)";
+            this.cmbResolution.Text = "Resolution";
             this.cmbResolution.SelectedIndexChanged += new System.EventHandler(this.cmbResolution_SelectedIndexChanged);
             // 
             // btnResUp
@@ -1685,6 +1691,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.btnResUp.TabIndex = 142;
             this.btnResUp.Text = "+";
             this.btnResUp.UseVisualStyleBackColor = false;
+            this.btnResUp.Click += new System.EventHandler(this.btnResUp_Click);
             // 
             // btnResDown
             // 
@@ -1696,6 +1703,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.btnResDown.TabIndex = 141;
             this.btnResDown.Text = "-";
             this.btnResDown.UseVisualStyleBackColor = false;
+            this.btnResDown.Click += new System.EventHandler(this.btnResDown_Click);
             // 
             // pnlShutter
             // 

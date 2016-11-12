@@ -175,6 +175,8 @@ namespace FlyCapture2SimpleGUI_CSharp
 
             m_grabThreadExited = new AutoResetEvent(false);
             m_saveThreadExited = new AutoResetEvent(false);
+
+            cmbResolution.SelectedIndex = 2;
         }
 
         private void GrabLoop(object sender, DoWorkEventArgs e)
@@ -305,7 +307,7 @@ namespace FlyCapture2SimpleGUI_CSharp
 
                             // RAW Saving: Fast, no color processing.
                             framebuffer[buffer_out_framectr % buffersize].Convert(m_saveImageCont.pixelFormat, m_saveImageCont);
-                            m_saveImageCont.Save(String.Format("c:\\tmp\\clip{0}\\img{1:D5}.raw", tstamp2, buffer_out_framectr), ImageFileFormat.Raw);
+                            m_saveImageCont.Save(String.Format("c:\\tmp\\clip{0}\\img{1:D7}.raw", tstamp2, buffer_out_framectr), ImageFileFormat.Raw);
 
                             SaveEnd = swDiagnostic.Elapsed;
                             SaveTime = (float)(SaveEnd - SaveStart).TotalMilliseconds;
@@ -1865,6 +1867,32 @@ namespace FlyCapture2SimpleGUI_CSharp
         private void btnTrig_Click(object sender, EventArgs e)
         {
             trigger_countdown = (int)((float) buffersize * (10.0f - (float) trkTrigger.Value) / 10.0f);
+        }
+
+        private void btnFRUp_Click(object sender, EventArgs e)
+        {
+            nudFR.UpButton();
+        }
+
+        private void btnFRDown_Click(object sender, EventArgs e)
+        {
+            nudFR.DownButton();
+        }
+
+        private void btnResDown_Click(object sender, EventArgs e)
+        {
+            if (cmbResolution.SelectedIndex < (cmbResolution.Items.Count - 1))
+            {
+                cmbResolution.SelectedIndex = cmbResolution.SelectedIndex + 1;
+            }
+        }
+
+        private void btnResUp_Click(object sender, EventArgs e)
+        {
+            if (cmbResolution.SelectedIndex > 0)
+            {
+                cmbResolution.SelectedIndex = cmbResolution.SelectedIndex - 1;
+            }
         }
     }
 }
