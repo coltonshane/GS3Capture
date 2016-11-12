@@ -409,13 +409,12 @@ namespace FlyCapture2SimpleGUI_CSharp
             // 
             // lblFramesBuffered
             // 
-            this.lblFramesBuffered.AutoSize = true;
             this.lblFramesBuffered.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.lblFramesBuffered.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblFramesBuffered.ForeColor = System.Drawing.Color.White;
-            this.lblFramesBuffered.Location = new System.Drawing.Point(1388, 251);
+            this.lblFramesBuffered.Location = new System.Drawing.Point(1331, 251);
             this.lblFramesBuffered.Name = "lblFramesBuffered";
-            this.lblFramesBuffered.Size = new System.Drawing.Size(102, 60);
+            this.lblFramesBuffered.Size = new System.Drawing.Size(159, 60);
             this.lblFramesBuffered.TabIndex = 13;
             this.lblFramesBuffered.Text = "Frame In: 0\r\nFrame Out: 0\r\nDiff: 0";
             this.lblFramesBuffered.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -1489,6 +1488,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.btnTrig.TabIndex = 125;
             this.btnTrig.Text = "TRIG";
             this.btnTrig.UseVisualStyleBackColor = false;
+            this.btnTrig.Click += new System.EventHandler(this.btnTrig_Click);
             // 
             // btnBufferUp
             // 
@@ -1557,6 +1557,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.btnSave.TabIndex = 131;
             this.btnSave.Text = "SAVE";
             this.btnSave.UseVisualStyleBackColor = false;
+            this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
             // 
             // trkTrigger
             // 

@@ -63,6 +63,7 @@ namespace FlyCapture2SimpleGUI_CSharp
         int buffer_in_framectr = 0;
         int buffer_out_framectr = 0;
         int diff = 0;
+        int trigger_countdown = -1;
         bool recording_buffer = false;
         bool saving_buffer = false;
         bool first_time = true;
@@ -96,7 +97,7 @@ namespace FlyCapture2SimpleGUI_CSharp
         uint shutter_mode = SHUTTER_ANGLE;
         float shutter_div = 2.0F;
         uint wb_red = 512;
-        uint wb_blue = 700;
+        uint wb_blue = 900;
 
         // DirectX Variables, Raw Debayer and Color Processing:
         SlimDX.DXGI.SwapChainDescription description;
@@ -176,6 +177,160 @@ namespace FlyCapture2SimpleGUI_CSharp
             m_saveThreadExited = new AutoResetEvent(false);
         }
 
+        private void GrabLoop(object sender, DoWorkEventArgs e)
+        {
+            BackgroundWorker worker = sender as BackgroundWorker;
+
+            while (m_grabImages)
+            {
+                try
+                {
+                    m_camera.RetrieveBuffer(m_rawImage);
+                }
+                catch (FC2Exception ex)
+                {
+                    Debug.WriteLine("Error: " + ex.Message);
+                    continue;
+                }
+
+                GrabLast = GrabStart;
+                GrabStart = swDiagnostic.Elapsed;
+                GrabPeriod = (float)(GrabStart - GrabLast).TotalMilliseconds;
+
+                // I added this to keep track of frame processing speed.
+                framectr++;
+                TimeStamp timestamp;
+
+                // Buffer Images
+                if (recording_buffer)
+                {
+                    if (first_time == true)
+                    {
+                        framebuffer[buffer_in_framectr % buffersize] = new ManagedImage(m_rawImage);
+                    }
+                    else
+                    {
+                        m_rawImage.Convert(m_rawImage.pixelFormat, framebuffer[buffer_in_framectr % buffersize]);
+                    }
+                    buffer_in_framectr++;
+                    if (buffer_in_framectr >= buffersize)
+                    {
+                        first_time = false;
+                    }
+                    if (trigger_countdown > 0)
+                    {
+                        trigger_countdown--;
+                    }
+                    else if(trigger_countdown == 0)
+                    {
+                        recording_buffer = false;
+                        trigger_countdown = -1;
+                    }
+                }
+
+                lock (this)
+                {
+                    timestamp = m_rawImage.timeStamp;
+                }
+
+                if (timestamp.cycleSeconds != seconds_old)
+                {
+                    // one second has ellapsed, update the processed frame rate
+                    lock (this)
+                    {
+                        framerate_proc = framectr - framectr_old;
+                        framectr_old = framectr;
+                    }
+                    seconds_old = timestamp.cycleSeconds;
+                }
+
+                // Call the UI update at a fraction of the frame rate.
+                if (framectr % frame_mod == 0)
+                {
+
+                    lock (this)
+                    {
+                        // Make a preview image including pixel format conversion (slow software debayer).
+                        // m_rawImage.Convert(PixelFormat.PixelFormatBgr, m_processedImage);
+
+                        // Make a preview image that's just a snapshot copy of the raw image.
+                        m_rawImage.Convert(m_rawImage.pixelFormat, m_processedImage);
+                    }
+
+                    GrabEnd = swDiagnostic.Elapsed;
+                    GrabTime = (float)(GrabEnd - GrabStart).TotalMilliseconds;
+
+                    worker.ReportProgress(0);
+                }
+
+                Thread.Sleep(0);
+            }
+
+            m_grabThreadExited.Set();
+        }
+
+        private void SaveLoop(object sender, DoWorkEventArgs e)
+        {
+            // Thread for saving images out of the RAM buffer as fast as possible.
+
+            BackgroundWorker worker = sender as BackgroundWorker;
+
+            while (true)
+            {
+                if (saving_buffer)
+                {
+                    diff = buffer_in_framectr - buffer_out_framectr;
+
+                    // Allow the buffer to slip.
+                    if (diff > (buffersize - 1))
+                    {
+                        diff = buffersize - 1;
+                        buffer_out_framectr = buffer_in_framectr - diff;
+                    }
+
+
+                    // Give some marging while simultaneously recording, to avoid read/write access conflict.
+                    if (recording_buffer)
+                    { fdelay = 3; }
+                    else
+                    { fdelay = 0; }
+
+                    if (diff > fdelay)
+                    {
+                        if ((frame_div_ctr % frame_div) == 0)
+                        {
+                            SaveLast = SaveStart;
+                            SaveStart = swDiagnostic.Elapsed;
+                            SavePeriod = (float)(SaveStart - SaveLast).TotalMilliseconds;
+
+                            // RAW Saving: Fast, no color processing.
+                            framebuffer[buffer_out_framectr % buffersize].Convert(m_saveImageCont.pixelFormat, m_saveImageCont);
+                            m_saveImageCont.Save(String.Format("c:\\tmp\\clip{0}\\img{1:D5}.raw", tstamp2, buffer_out_framectr), ImageFileFormat.Raw);
+
+                            SaveEnd = swDiagnostic.Elapsed;
+                            SaveTime = (float)(SaveEnd - SaveStart).TotalMilliseconds;
+                        }
+
+                        buffer_out_framectr++;
+                        frame_div_ctr++;
+                    }
+                    else
+                    {
+                        saving_buffer = false;
+                        // Not saving, give the other threads some time back.
+                        Thread.Sleep(10);
+                    }
+                }
+                else
+                {
+                    // wait a bit before checking again to see if saving is on
+                    Thread.Sleep(10);
+                }
+            }
+
+            m_saveThreadExited.Set();
+        }
+
         private void UpdateUI(object sender, ProgressChangedEventArgs e)
         {
             int x1 = 0;
@@ -204,6 +359,11 @@ namespace FlyCapture2SimpleGUI_CSharp
             lblBufferSeconds.Text = String.Format("{0:F2}  seconds", (float)buffersize / m_camera.GetProperty(PropertyType.FrameRate).absValue);
             lblBufferGB.Text = String.Format("{0:F2}  GB", (float)m_rawImage.receivedDataSize * buffersize / Math.Pow(2.0, 30));
             lblFramesBuffered.Text = String.Format("Frame In: {0}\r\nFrame Out: {1}\r\nFrame Diff: {2}", buffer_in_framectr, buffer_out_framectr, diff);
+
+            if(diff > buffersize * 0.9)
+            { lblFramesBuffered.ForeColor = Color.Red; }
+            else
+            { lblFramesBuffered.ForeColor = Color.White; }
 
             if (chkAuto30Hz.Checked == true)
             {
@@ -484,156 +644,6 @@ namespace FlyCapture2SimpleGUI_CSharp
             m_saveThread.RunWorkerAsync();
         }
 
-        private void GrabLoop(object sender, DoWorkEventArgs e)
-        {
-            BackgroundWorker worker = sender as BackgroundWorker;
-
-            while (m_grabImages)
-            {
-                try
-                {
-                    m_camera.RetrieveBuffer(m_rawImage);
-                }
-                catch (FC2Exception ex)
-                {
-                    Debug.WriteLine("Error: " + ex.Message);
-                    continue;
-                }
-
-                GrabLast = GrabStart;
-                GrabStart = swDiagnostic.Elapsed;
-                GrabPeriod = (float)(GrabStart - GrabLast).TotalMilliseconds;
-                
-                // I added this to keep track of frame processing speed.
-                framectr++;
-                TimeStamp timestamp;
-
-                // Buffer Images
-                if (recording_buffer)
-                {
-                    if (first_time == true)
-                    {
-                        framebuffer[buffer_in_framectr % buffersize] = new ManagedImage(m_rawImage);
-                    }
-                    else
-                    {
-                        m_rawImage.Convert(m_rawImage.pixelFormat, framebuffer[buffer_in_framectr % buffersize]);
-                    }
-                    buffer_in_framectr++;
-                    if (buffer_in_framectr == buffersize)
-                    {
-                      /*  if (rdoCont.Checked == false)
-                        {
-                             recording_buffer = false;
-                        }
-                        else
-                        {
-                            // buffer_in_framectr = 0;
-                            // continue counting up, but use already-allocated memory
-                            first_time = false;
-                        }*/
-                    }
-                }
-
-                lock (this)
-                {
-                    timestamp = m_rawImage.timeStamp;
-                }
-
-                if (timestamp.cycleSeconds != seconds_old)
-                {
-                    // one second has ellapsed, update the processed frame rate
-                    lock (this)
-                    {
-                        framerate_proc = framectr - framectr_old;
-                        framectr_old = framectr;
-                    }
-                    seconds_old = timestamp.cycleSeconds;
-                }
-
-                // Call the UI update at a fraction of the frame rate.
-                if (framectr % frame_mod == 0)
-                {
-                    
-                    lock (this)
-                    {
-                        // Make a preview image including pixel format conversion (slow software debayer).
-                        // m_rawImage.Convert(PixelFormat.PixelFormatBgr, m_processedImage);
-
-                        // Make a preview image that's just a snapshot copy of the raw image.
-                        m_rawImage.Convert(m_rawImage.pixelFormat, m_processedImage);
-                    }
-
-                    GrabEnd = swDiagnostic.Elapsed;
-                    GrabTime = (float)(GrabEnd - GrabStart).TotalMilliseconds;
-                    
-                    worker.ReportProgress(0);
-                }
-
-                Thread.Sleep(0);
-            }
-
-            m_grabThreadExited.Set();
-        }
-
-        private void SaveLoop(object sender, DoWorkEventArgs e)
-        {
-            // Thread for saving images out of the RAM buffer as fast as possible.
-
-            BackgroundWorker worker = sender as BackgroundWorker;
-
-            while (true)
-            {
-                if (chkContSave.Checked)
-                {
-                    diff = buffer_in_framectr - buffer_out_framectr;
-
-                    // don't allow the out buffer index to wrap around
-                    if(diff >= buffersize)
-                    {
-                        diff = buffersize - 1;
-                        buffer_out_framectr = buffer_in_framectr - diff;
-                        // should probably flag some kind of warning here
-                    }
-                    
-                    if (diff > fdelay)
-                    {
-                        saving_buffer = true;
-
-                        if ((frame_div_ctr % frame_div) == 0)
-                        {
-                            SaveLast = SaveStart;
-                            SaveStart = swDiagnostic.Elapsed;
-                            SavePeriod = (float)(SaveStart - SaveLast).TotalMilliseconds;
-
-                            // RAW Saving: Fast, no color processing.
-                            framebuffer[buffer_out_framectr % buffersize].Convert(m_saveImageCont.pixelFormat, m_saveImageCont);
-                            m_saveImageCont.Save(String.Format("c:\\tmp\\clip{0}\\img{1:D5}.raw", tstamp2, buffer_out_framectr), ImageFileFormat.Raw);
-
-                            SaveEnd = swDiagnostic.Elapsed;
-                            SaveTime = (float)(SaveEnd - SaveStart).TotalMilliseconds;
-                        }
-                        
-                        buffer_out_framectr++;
-                        frame_div_ctr++;
-                    }
-                    else
-                    {
-                        saving_buffer = false;
-                        // Not saving, give the other threads some time back.
-                        Thread.Sleep(10);
-                    }
-                }
-                else
-                {
-                    // wait a bit before checking again to see if saving is on
-                    Thread.Sleep(10);
-                }
-            }
-
-            m_saveThreadExited.Set();
-        }
-
         private void toolStripButtonStart_Click(object sender, EventArgs e)
         {
             m_camera.StartCapture();
@@ -697,7 +707,6 @@ namespace FlyCapture2SimpleGUI_CSharp
         private void nudBufferFrames_ValueChanged(object sender, EventArgs e)
         {
             buffersize = (int) nudBufferFrames.Value;
-            // nudDelay.Maximum = (int) buffersize * 2 / 3;
         }
 
         private void btnRec_Click(object sender, EventArgs e)
@@ -817,15 +826,19 @@ namespace FlyCapture2SimpleGUI_CSharp
                 return;
             }
 
-            // Clear the frame buffer to free up its memory. Is this okay?
-            // framebuffer = null;
-            // first_time = true;
+            if(buffer_in_framectr > buffer_out_framectr)
+            {
+                DialogResult ok2clear = MessageBox.Show("There is unsaved buffer, are you sure you want to clear?", "Okay to clear?", MessageBoxButtons.OKCancel);
+                if (ok2clear == DialogResult.Cancel)
+                {
+                    return;
+                }
+            }
 
-            // Reset both the input and the output buffer indices to zero.
-            buffer_in_framectr = 0;
-            buffer_out_framectr = 0;
+            // Ditch the unsaved buffer.
+            buffer_out_framectr = buffer_in_framectr;
 
-            // Enable one-shot mode.
+            // Flag a new clip to start next time.
             nudBufferFrames.Enabled = true;
             frame_div_ctr = 0;
             new_clip = true;
@@ -839,7 +852,7 @@ namespace FlyCapture2SimpleGUI_CSharp
 
         private void nudDiv_ValueChanged(object sender, EventArgs e)
         {
-            swapChain.SetFullScreenState(true, null);
+            frame_div = (int) nudDiv.Value;
         }
 
         private void setFrameRate(float fr)
@@ -1842,6 +1855,16 @@ namespace FlyCapture2SimpleGUI_CSharp
             toolStripButtonStart_Click(null, null);
 
             displayF7Settings();
+        }
+
+        private void btnSave_Click(object sender, EventArgs e)
+        {
+            saving_buffer = true;
+        }
+
+        private void btnTrig_Click(object sender, EventArgs e)
+        {
+            trigger_countdown = (int)((float) buffersize * (10.0f - (float) trkTrigger.Value) / 10.0f);
         }
     }
 }
