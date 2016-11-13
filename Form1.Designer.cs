@@ -153,6 +153,8 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.pnlBit = new System.Windows.Forms.Panel();
             this.rdo12bit = new System.Windows.Forms.RadioButton();
             this.rdo8bit = new System.Windows.Forms.RadioButton();
+            this.chkTimestamp = new System.Windows.Forms.CheckBox();
+            this.chkFrameCount = new System.Windows.Forms.CheckBox();
             this.toolStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
@@ -310,7 +312,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             // 
             this.pictureBox1.Location = new System.Drawing.Point(12, 54);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(1152, 720);
+            this.pictureBox1.Size = new System.Drawing.Size(768, 480);
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pictureBox1.TabIndex = 5;
             this.pictureBox1.TabStop = false;
@@ -972,7 +974,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             // 
             this.btnBusUp.BackColor = System.Drawing.Color.LightGray;
             this.btnBusUp.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnBusUp.Location = new System.Drawing.Point(384, 697);
+            this.btnBusUp.Location = new System.Drawing.Point(384, 683);
             this.btnBusUp.Name = "btnBusUp";
             this.btnBusUp.Size = new System.Drawing.Size(62, 38);
             this.btnBusUp.TabIndex = 92;
@@ -984,7 +986,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             // 
             this.btnBusDown.BackColor = System.Drawing.Color.LightGray;
             this.btnBusDown.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnBusDown.Location = new System.Drawing.Point(316, 697);
+            this.btnBusDown.Location = new System.Drawing.Point(316, 683);
             this.btnBusDown.Name = "btnBusDown";
             this.btnBusDown.Size = new System.Drawing.Size(62, 38);
             this.btnBusDown.TabIndex = 93;
@@ -998,7 +1000,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.lblBusd.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(64)))));
             this.lblBusd.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblBusd.ForeColor = System.Drawing.Color.White;
-            this.lblBusd.Location = new System.Drawing.Point(452, 704);
+            this.lblBusd.Location = new System.Drawing.Point(452, 692);
             this.lblBusd.Name = "lblBusd";
             this.lblBusd.Size = new System.Drawing.Size(98, 25);
             this.lblBusd.TabIndex = 94;
@@ -1674,7 +1676,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             "864x240",
             "864x160",
             "864x120"});
-            this.cmbResolution.Location = new System.Drawing.Point(30, 644);
+            this.cmbResolution.Location = new System.Drawing.Point(30, 639);
             this.cmbResolution.Name = "cmbResolution";
             this.cmbResolution.Size = new System.Drawing.Size(280, 39);
             this.cmbResolution.TabIndex = 140;
@@ -1685,7 +1687,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             // 
             this.btnResUp.BackColor = System.Drawing.Color.LightGray;
             this.btnResUp.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnResUp.Location = new System.Drawing.Point(384, 644);
+            this.btnResUp.Location = new System.Drawing.Point(384, 639);
             this.btnResUp.Name = "btnResUp";
             this.btnResUp.Size = new System.Drawing.Size(62, 38);
             this.btnResUp.TabIndex = 142;
@@ -1697,7 +1699,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             // 
             this.btnResDown.BackColor = System.Drawing.Color.LightGray;
             this.btnResDown.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnResDown.Location = new System.Drawing.Point(316, 644);
+            this.btnResDown.Location = new System.Drawing.Point(316, 639);
             this.btnResDown.Name = "btnResDown";
             this.btnResDown.Size = new System.Drawing.Size(62, 38);
             this.btnResDown.TabIndex = 141;
@@ -1710,9 +1712,9 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.pnlShutter.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(64)))));
             this.pnlShutter.Controls.Add(this.rdoShutterTime);
             this.pnlShutter.Controls.Add(this.rdoShutterAngle);
-            this.pnlShutter.Location = new System.Drawing.Point(1042, 53);
+            this.pnlShutter.Location = new System.Drawing.Point(1042, 56);
             this.pnlShutter.Name = "pnlShutter";
-            this.pnlShutter.Size = new System.Drawing.Size(119, 77);
+            this.pnlShutter.Size = new System.Drawing.Size(119, 74);
             this.pnlShutter.TabIndex = 143;
             // 
             // pnlGain
@@ -1765,7 +1767,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.pnlBit.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(64)))));
             this.pnlBit.Controls.Add(this.rdo12bit);
             this.pnlBit.Controls.Add(this.rdo8bit);
-            this.pnlBit.Location = new System.Drawing.Point(19, 697);
+            this.pnlBit.Location = new System.Drawing.Point(19, 684);
             this.pnlBit.Name = "pnlBit";
             this.pnlBit.Size = new System.Drawing.Size(206, 38);
             this.pnlBit.TabIndex = 147;
@@ -1799,12 +1801,46 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.rdo8bit.Text = "8-bit";
             this.rdo8bit.UseVisualStyleBackColor = false;
             // 
+            // chkTimestamp
+            // 
+            this.chkTimestamp.AutoSize = true;
+            this.chkTimestamp.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(64)))));
+            this.chkTimestamp.Checked = true;
+            this.chkTimestamp.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkTimestamp.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.chkTimestamp.ForeColor = System.Drawing.Color.White;
+            this.chkTimestamp.Location = new System.Drawing.Point(19, 728);
+            this.chkTimestamp.Name = "chkTimestamp";
+            this.chkTimestamp.Size = new System.Drawing.Size(136, 29);
+            this.chkTimestamp.TabIndex = 148;
+            this.chkTimestamp.Text = "Timestamp";
+            this.chkTimestamp.UseVisualStyleBackColor = false;
+            this.chkTimestamp.CheckedChanged += new System.EventHandler(this.chkTimestamp_CheckedChanged);
+            // 
+            // chkFrameCount
+            // 
+            this.chkFrameCount.AutoSize = true;
+            this.chkFrameCount.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(64)))));
+            this.chkFrameCount.Checked = true;
+            this.chkFrameCount.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkFrameCount.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.chkFrameCount.ForeColor = System.Drawing.Color.White;
+            this.chkFrameCount.Location = new System.Drawing.Point(155, 728);
+            this.chkFrameCount.Name = "chkFrameCount";
+            this.chkFrameCount.Size = new System.Drawing.Size(155, 29);
+            this.chkFrameCount.TabIndex = 149;
+            this.chkFrameCount.Text = "Frame Count";
+            this.chkFrameCount.UseVisualStyleBackColor = false;
+            this.chkFrameCount.CheckedChanged += new System.EventHandler(this.chkFrameCount_CheckedChanged);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Black;
             this.ClientSize = new System.Drawing.Size(1514, 801);
+            this.Controls.Add(this.chkFrameCount);
+            this.Controls.Add(this.chkTimestamp);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.pnlBit);
             this.Controls.Add(this.btnChangeFormat);
@@ -2083,6 +2119,8 @@ namespace FlyCapture2SimpleGUI_CSharp
         private System.Windows.Forms.Panel pnlBit;
         private System.Windows.Forms.RadioButton rdo12bit;
         private System.Windows.Forms.RadioButton rdo8bit;
+        private System.Windows.Forms.CheckBox chkTimestamp;
+        private System.Windows.Forms.CheckBox chkFrameCount;
     }
 }
 

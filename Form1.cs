@@ -1894,6 +1894,22 @@ namespace FlyCapture2SimpleGUI_CSharp
                 cmbResolution.SelectedIndex = cmbResolution.SelectedIndex - 1;
             }
         }
+
+        private void chkTimestamp_CheckedChanged(object sender, EventArgs e)
+        {
+            // Set embedded timestamp to on
+            EmbeddedImageInfo embeddedInfo = m_camera.GetEmbeddedImageInfo();
+            embeddedInfo.timestamp.onOff = chkTimestamp.Checked;
+            m_camera.SetEmbeddedImageInfo(embeddedInfo);
+        }
+
+        private void chkFrameCount_CheckedChanged(object sender, EventArgs e)
+        {
+            // Set embedded timestamp to on
+            EmbeddedImageInfo embeddedInfo = m_camera.GetEmbeddedImageInfo();
+            embeddedInfo.frameCounter.onOff = chkFrameCount.Checked;
+            m_camera.SetEmbeddedImageInfo(embeddedInfo);
+        }
     }
 }
 
