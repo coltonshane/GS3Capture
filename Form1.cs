@@ -1249,7 +1249,8 @@ namespace FlyCapture2SimpleGUI_CSharp
                 hscale = 480.0f / (float)h;
             }
 
-            // Garbage collect before creating a bunch more objects.
+            // Selective garbage collection, might be useful to speed up resize/reformat.
+            /*
             if (resourceView != null) { resourceView.Dispose(); }
             if (renderTarget != null) { renderTarget.Dispose(); }
             if (swapChain != null) { swapChain.Dispose(); }
@@ -1276,6 +1277,11 @@ namespace FlyCapture2SimpleGUI_CSharp
             if (tex_debayered != null) { tex_debayered.Dispose(); }
             if (tex_convolved != null) { tex_convolved.Dispose(); }
             if (tex_dummy != null) { tex_dummy.Dispose(); }
+            */
+
+            // Nuclear bomb to kill all SlimDX objects.
+            foreach (ComObject co in SlimDX.ObjectTable.Objects)
+            { co.Dispose(); }
 
             pictureBox1.Width = (int)((float) w * Math.Min(wscale, hscale));
             pictureBox1.Height = (int)((float) h * Math.Min(wscale, hscale));
