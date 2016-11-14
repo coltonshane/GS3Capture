@@ -359,7 +359,7 @@ namespace FlyCapture2SimpleGUI_CSharp
 
             if (chkAuto30Hz.Checked == true)
             {
-                frame_mod = (int)(m_camera.GetProperty(PropertyType.FrameRate).absValue / 30.0);
+                // frame_mod = (int)(m_camera.GetProperty(PropertyType.FrameRate).absValue / 30.0);
                 if (frame_mod == 0)
                 {
                     frame_mod = 1;
@@ -601,20 +601,9 @@ namespace FlyCapture2SimpleGUI_CSharp
                 m_camera.Disconnect();
 
                 // DirectX Cleanup:
-                factory.Dispose();
-                context.Dispose();
-                renderTarget.Dispose();
-                swapChain.Dispose();
-                device.Dispose();
-                vertices.Close();
-                vertexBuffer.Dispose();
-                layout1.Dispose();
-                vertexShader.Dispose();
-                pixelShader1.Dispose();
-                pixelShader2.Dispose();
-
-                constantBuffer.Dispose();
-                constantBufferData.Data.Dispose();
+                // Nuclear bomb to kill all SlimDX objects.
+                foreach (ComObject co in SlimDX.ObjectTable.Objects)
+                { co.Dispose(); }
 
             }
             catch (FC2Exception ex)
@@ -1706,7 +1695,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             viewport = new SlimDX.Direct3D11.Viewport(0.0f, 0.0f, w, h);
             context.Rasterizer.SetViewports(viewport);
 
-            context.ClearRenderTargetView(renderTarget, new Color4(0.0f, 0.0f, 0.0f));
+            // context.ClearRenderTargetView(renderTarget, new Color4(0.0f, 0.0f, 0.0f));
             context.Draw(4, 0);
             renderTarget.Dispose();
 
@@ -1715,6 +1704,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             resourceView.Dispose();
 
             // Pass 2: Convolve - somewhat broken
+            /*
             context.PixelShader.Set(pixelShader2);
             context.PixelShader.SetSampler(samplerState, 0);
 
@@ -1735,7 +1725,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             resourceView = new SlimDX.Direct3D11.ShaderResourceView(device, tex_dummy);
             context.PixelShader.SetShaderResource(resourceView, 3);
             resourceView.Dispose();
-            
+            */
 
             // Pass 3: Draw
             context.PixelShader.Set(pixelShader3);
@@ -1751,7 +1741,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             viewport = new SlimDX.Direct3D11.Viewport(0.0f, 0.0f, w, h);
             context.Rasterizer.SetViewports(viewport);
 
-            context.ClearRenderTargetView(renderTarget, new Color4(0.0f, 0.0f, 0.0f));
+            // context.ClearRenderTargetView(renderTarget, new Color4(0.0f, 0.0f, 0.0f));
             context.Draw(4, 0);
             renderTarget.Dispose();
 
@@ -1865,8 +1855,8 @@ namespace FlyCapture2SimpleGUI_CSharp
             local_m_camera.GetFormat7Configuration(f7Settings, ref packetsize, ref speed);
             f7Settings.width = selectedWidth;
             f7Settings.height = selectedHeight;
-            f7Settings.offsetX = (uint)((1920 - selectedWidth) / 8) * 4;
-            f7Settings.offsetY = (uint)((1200 - selectedHeight) / 8) * 4;
+            f7Settings.offsetX = (uint)((max_recx - selectedWidth) / 8) * 4;
+            f7Settings.offsetY = (uint)((max_recy - selectedHeight) / 8) * 4;
 
             if(rdo8bit.Checked)
             {

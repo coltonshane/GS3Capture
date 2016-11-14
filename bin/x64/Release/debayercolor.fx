@@ -602,7 +602,7 @@ float4 ps_convolve(PS_IN input) : SV_Target
 	tempcolor += conv55 * yTexture.Sample(TextureSampler, pxcoord + float2(2.0f * dxy.x, 2.0f * dxy.y));
 	*/
 
-	outputcolor = yTexture.Sample(TextureSampler, pxcoord);
+	outputcolor = tempcolor;
 
 	outputcolor.a = 1.0f;
 	
