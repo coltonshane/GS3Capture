@@ -71,11 +71,6 @@ namespace FlyCapture2SimpleGUI_CSharp
 
         long tstamp2 = 0;
 
-        // Buffering Modes
-        const int ONESHOT = 0;
-        const int CONTINUOUS = 1;
-        int buffermode = ONESHOT;
-
         // Saving Modes
         ManagedImage m_saveImageCont;
         int fdelay = 3;
@@ -107,8 +102,6 @@ namespace FlyCapture2SimpleGUI_CSharp
         SlimDX.DXGI.Factory factory;
         SlimDX.Direct3D11.Viewport viewport;
         SlimDX.Direct3D11.RenderTargetView renderTarget;
-        SlimDX.Direct3D11.Resource resource;
-        SlimDX.Direct3D11.ShaderResourceViewDescription resourceViewDesc;
         SlimDX.Direct3D11.ShaderResourceView resourceView;
         SlimDX.DataStream vertices;
         SlimDX.Direct3D11.Buffer vertexBuffer;
@@ -133,11 +126,9 @@ namespace FlyCapture2SimpleGUI_CSharp
 
         // Display Settings:
         bool bigPreview = true;
-        bool bigPreviewToggle = false;
         float[,] conv = new float[5,5];
-        int viewport_w = (int) max_recx;
-        int viewport_h = (int) max_recy;
         bool renderBusy = false;
+        bool reconfig = false;
 
         // Thread Timing Diagnostics
         Stopwatch swDiagnostic = new Stopwatch();
@@ -335,7 +326,6 @@ namespace FlyCapture2SimpleGUI_CSharp
 
         private void UpdateUI(object sender, ProgressChangedEventArgs e)
         {
-            int x1 = 0;
             Graphics buffergfx;
             Graphics histgfx;
             int hx = 0;
@@ -389,6 +379,14 @@ namespace FlyCapture2SimpleGUI_CSharp
                 btnStart.Text = "START";
                 btnClear.Enabled = true;
             }
+
+            /*
+            if(reconfig)
+            {
+                configRawInDevice((int)m_processedImage.cols, (int)m_processedImage.rows);
+                reconfig = false;
+            }
+            */
 
             renderRaw();
 
@@ -481,11 +479,12 @@ namespace FlyCapture2SimpleGUI_CSharp
 
 
             statusString = String.Format(
-                "Timestamp: {0:000}.{1:0000}.{2:0000} | Framecount Offset: {3:0000}",
+                "Timestamp: {0:000}.{1:0000}.{2:0000} | Framecount Offset: {3:0000} | SlimDX Objects: {4:0000}",
                 timestamp.cycleSeconds,
                 timestamp.cycleCount,
                 timestamp.cycleOffset,
-                frame_count); 
+                frame_count,
+                SlimDX.ObjectTable.Objects.Count); 
 
             toolStripStatusLabelTimestamp.Text = statusString;
 
@@ -544,7 +543,7 @@ namespace FlyCapture2SimpleGUI_CSharp
 
                     m_grabImages = true;
 
-                    configRawInDevice();        // Set up the DirectX rendering device.
+                    btnChangeFormat_Click(null, null);      // set format and configure D3D device
                     swDiagnostic.Start();
 
                     StartGrabLoop();
@@ -607,7 +606,6 @@ namespace FlyCapture2SimpleGUI_CSharp
                 renderTarget.Dispose();
                 swapChain.Dispose();
                 device.Dispose();
-                resource.Dispose();
                 vertices.Close();
                 vertexBuffer.Dispose();
                 layout1.Dispose();
@@ -1226,19 +1224,61 @@ namespace FlyCapture2SimpleGUI_CSharp
             }
             else
             {
-                // Request a switch between big and little preview mode on the next renderRaw().
-                bigPreviewToggle = true;
+                bigPreview = !bigPreview;
+                configRawInDevice((int)m_processedImage.cols, (int)m_processedImage.rows);
+                // reconfig = true;
             }
             
         }
 
-        private void configRawInDevice()
+        private void configRawInDevice(int w, int h)
         {
             // Set up the DirectX rendering device for hardware-accelerated image preview.
+            SlimDX.Direct3D11.Texture2DDescription texDesc;
+            float wscale = 0.0f;
+            float hscale = 0.0f;
 
-            // Set the default input image size.
-            viewport_w = pictureBox1.Width;
-            viewport_h = pictureBox1.Height;
+            if (bigPreview)
+            {
+                wscale = 1152.0f / (float)w;
+                hscale = 720.0f / (float)h;
+            }
+            else
+            {
+                wscale = 768.0f / (float)w;
+                hscale = 480.0f / (float)h;
+            }
+
+            // Garbage collect before creating a bunch more objects.
+            if (resourceView != null) { resourceView.Dispose(); }
+            if (renderTarget != null) { renderTarget.Dispose(); }
+            if (swapChain != null) { swapChain.Dispose(); }
+            if (device != null) { device.Dispose(); }
+            if (context != null) { context.Dispose(); }
+            if (factory != null) { factory.Dispose(); }
+            if (vsbytecode != null) { vsbytecode.Dispose(); }
+            if (psbytecode != null) { psbytecode.Dispose(); }
+            if (vertexShader != null) { vertexShader.Dispose(); }
+            if (pixelShader0x8 != null) { pixelShader0x8.Dispose(); }
+            if (pixelShader0x12 != null) { pixelShader0x12.Dispose(); }
+            if (pixelShader1 != null) { pixelShader1.Dispose(); }
+            if (pixelShader2 != null) { pixelShader2.Dispose(); }
+            if (pixelShader3 != null) { pixelShader3.Dispose(); }
+            if (samplerState != null) { samplerState.Dispose();  }
+            if (layout1 != null) { layout1.Dispose(); }
+            if (constantBuffer != null) { constantBuffer.Dispose(); }
+            if (constantBufferData != null) { constantBufferData.Data.Dispose(); }
+            if (vertices != null) { vertices.Dispose(); }
+            if (vertexBuffer != null) { vertexBuffer.Dispose(); }
+            if (tex8 != null) { tex8.Dispose(); }
+            if (tex12 != null) { tex12.Dispose(); }
+            if (tex != null) { tex.Dispose(); }
+            if (tex_debayered != null) { tex_debayered.Dispose(); }
+            if (tex_convolved != null) { tex_convolved.Dispose(); }
+            if (tex_dummy != null) { tex_dummy.Dispose(); }
+
+            pictureBox1.Width = (int)((float) w * Math.Min(wscale, hscale));
+            pictureBox1.Height = (int)((float) h * Math.Min(wscale, hscale));
 
             // Create a device, swapchain, and viewport for pbRawIn
             description = new SlimDX.DXGI.SwapChainDescription();
@@ -1256,14 +1296,15 @@ namespace FlyCapture2SimpleGUI_CSharp
             factory = swapChain.GetParent<SlimDX.DXGI.Factory>();
             factory.SetWindowAssociation(this.Handle, SlimDX.DXGI.WindowAssociationFlags.IgnoreAltEnter);
 
+            swapChain.ResizeBuffers(1, w, h, SlimDX.DXGI.Format.R8G8B8A8_UNorm, SlimDX.DXGI.SwapChainFlags.AllowModeSwitch);
+
             // Create textures to use for the color processing pipeline:
-            SlimDX.Direct3D11.Texture2DDescription texDesc;
 
             // tex8: Texture for raw 8-bit values from the sensor. Stored in a normal 8 bit per pixel format.
             texDesc = new SlimDX.Direct3D11.Texture2DDescription();
             texDesc.SampleDescription = new SlimDX.DXGI.SampleDescription(1, 0);
-            texDesc.Width = (int) max_recx;
-            texDesc.Height = (int) max_recy;
+            texDesc.Width = w;
+            texDesc.Height = h;
             texDesc.MipLevels = 1;
             texDesc.ArraySize = 1;
             texDesc.Format = SlimDX.DXGI.Format.R8_UNorm;
@@ -1275,8 +1316,8 @@ namespace FlyCapture2SimpleGUI_CSharp
             // tex12: Texture for raw 12-bit values from the sensor. Stored in 8-pixel chunks to be sorted out by the shader.
             texDesc = new SlimDX.Direct3D11.Texture2DDescription();
             texDesc.SampleDescription = new SlimDX.DXGI.SampleDescription(1, 0);
-            texDesc.Width = (int) (max_recx / 8);
-            texDesc.Height = (int) max_recy;
+            texDesc.Width = (w / 8);
+            texDesc.Height = h;
             texDesc.MipLevels = 1;
             texDesc.ArraySize = 1;
             texDesc.Format = SlimDX.DXGI.Format.R32G32B32_UInt;
@@ -1288,21 +1329,8 @@ namespace FlyCapture2SimpleGUI_CSharp
             // tex: The input texture, into which raw (Bayer-masked) luminance values are loaded.
             texDesc = new SlimDX.Direct3D11.Texture2DDescription();
             texDesc.SampleDescription = new SlimDX.DXGI.SampleDescription(1, 0);
-            texDesc.Width = (int) max_recx;
-            texDesc.Height = (int) max_recy;
-            texDesc.MipLevels = 1;
-            texDesc.ArraySize = 1;
-            texDesc.Format = SlimDX.DXGI.Format.R16_UNorm;
-            texDesc.Usage = SlimDX.Direct3D11.ResourceUsage.Default;
-            texDesc.BindFlags = SlimDX.Direct3D11.BindFlags.RenderTarget | SlimDX.Direct3D11.BindFlags.ShaderResource;
-            texDesc.CpuAccessFlags = SlimDX.Direct3D11.CpuAccessFlags.None;
-            tex = new SlimDX.Direct3D11.Texture2D(device, texDesc);
-
-            // tex: The input texture, into which raw (Bayer-masked) luminance values are loaded.
-            texDesc = new SlimDX.Direct3D11.Texture2DDescription();
-            texDesc.SampleDescription = new SlimDX.DXGI.SampleDescription(1, 0);
-            texDesc.Width = (int)max_recx;
-            texDesc.Height = (int)max_recy;
+            texDesc.Width = w;
+            texDesc.Height = h;
             texDesc.MipLevels = 1;
             texDesc.ArraySize = 1;
             texDesc.Format = SlimDX.DXGI.Format.R16_UNorm;
@@ -1314,8 +1342,8 @@ namespace FlyCapture2SimpleGUI_CSharp
             // tex_debayered: The output of the first pixel shader and the input to the second pixel shader.
             texDesc = new SlimDX.Direct3D11.Texture2DDescription();
             texDesc.SampleDescription = new SlimDX.DXGI.SampleDescription(1, 0);
-            texDesc.Width = (int) max_recx;
-            texDesc.Height = (int) max_recy;
+            texDesc.Width = w;
+            texDesc.Height = h;
             texDesc.MipLevels = 1;
             texDesc.ArraySize = 1;
             texDesc.Format = SlimDX.DXGI.Format.R32G32B32A32_Float;
@@ -1327,8 +1355,8 @@ namespace FlyCapture2SimpleGUI_CSharp
             // tex_convolved: The output of the second pixel shader and the input to the third and final pixel shader.
             texDesc = new SlimDX.Direct3D11.Texture2DDescription();
             texDesc.SampleDescription = new SlimDX.DXGI.SampleDescription(1, 0);
-            texDesc.Width = (int)max_recx;
-            texDesc.Height = (int)max_recy;
+            texDesc.Width = w;
+            texDesc.Height = h;
             texDesc.MipLevels = 1;
             texDesc.ArraySize = 1;
             texDesc.Format = SlimDX.DXGI.Format.R32G32B32A32_Float;
@@ -1340,8 +1368,8 @@ namespace FlyCapture2SimpleGUI_CSharp
             // tex_dummy: A dummy texture used to unbind other textures.
             texDesc = new SlimDX.Direct3D11.Texture2DDescription();
             texDesc.SampleDescription = new SlimDX.DXGI.SampleDescription(1, 0);
-            texDesc.Width = (int)max_recx;
-            texDesc.Height = (int)max_recy;
+            texDesc.Width = w;
+            texDesc.Height = h;
             texDesc.MipLevels = 1;
             texDesc.ArraySize = 1;
             texDesc.Format = SlimDX.DXGI.Format.R32G32B32A32_Float;
@@ -1380,22 +1408,28 @@ namespace FlyCapture2SimpleGUI_CSharp
 
             psbytecode = SlimDX.D3DCompiler.ShaderBytecode.CompileFromFile("debayercolor.fx", "ps_8toFloat", "ps_4_0", SlimDX.D3DCompiler.ShaderFlags.None, SlimDX.D3DCompiler.EffectFlags.None);
             pixelShader0x8 = new SlimDX.Direct3D11.PixelShader(device, psbytecode);
+            psbytecode.Dispose();
 
             psbytecode = SlimDX.D3DCompiler.ShaderBytecode.CompileFromFile("debayercolor.fx", "ps_12toFloat", "ps_4_0", SlimDX.D3DCompiler.ShaderFlags.None, SlimDX.D3DCompiler.EffectFlags.None);
             pixelShader0x12 = new SlimDX.Direct3D11.PixelShader(device, psbytecode);
+            psbytecode.Dispose();
 
             psbytecode = SlimDX.D3DCompiler.ShaderBytecode.CompileFromFile("debayercolor.fx", "ps_debayer", "ps_4_0", SlimDX.D3DCompiler.ShaderFlags.None, SlimDX.D3DCompiler.EffectFlags.None);
             pixelShader1 = new SlimDX.Direct3D11.PixelShader(device, psbytecode);
+            psbytecode.Dispose();
 
             psbytecode = SlimDX.D3DCompiler.ShaderBytecode.CompileFromFile("debayercolor.fx", "ps_convolve", "ps_4_0", SlimDX.D3DCompiler.ShaderFlags.None, SlimDX.D3DCompiler.EffectFlags.None);
             pixelShader2 = new SlimDX.Direct3D11.PixelShader(device, psbytecode);
+            psbytecode.Dispose();
 
             psbytecode = SlimDX.D3DCompiler.ShaderBytecode.CompileFromFile("debayercolor.fx", "ps_draw", "ps_4_0", SlimDX.D3DCompiler.ShaderFlags.None, SlimDX.D3DCompiler.EffectFlags.None);
             pixelShader3 = new SlimDX.Direct3D11.PixelShader(device, psbytecode);
+            psbytecode.Dispose();
 
             elements[0] = new SlimDX.Direct3D11.InputElement("POSITION", 0, SlimDX.DXGI.Format.R32G32B32_Float, 0);
             elements[1] = new SlimDX.Direct3D11.InputElement("textcoord", 0, SlimDX.DXGI.Format.R32G32_Float, 12, 0);
             layout1 = new SlimDX.Direct3D11.InputLayout(device, SlimDX.D3DCompiler.ShaderSignature.GetInputSignature(vsbytecode), elements);
+            vsbytecode.Dispose();
 
             context.InputAssembler.InputLayout = layout1;
             context.InputAssembler.PrimitiveTopology = SlimDX.Direct3D11.PrimitiveTopology.TriangleStrip;
@@ -1412,9 +1446,11 @@ namespace FlyCapture2SimpleGUI_CSharp
             // Bind SRV-only textures to their slots. Only need to do this once. Updates MapSubresource().
             resourceView = new SlimDX.Direct3D11.ShaderResourceView(device, tex8);
             context.PixelShader.SetShaderResource(resourceView, 0);
+            resourceView.Dispose();
 
             resourceView = new SlimDX.Direct3D11.ShaderResourceView(device, tex12);
             context.PixelShader.SetShaderResource(resourceView, 1);
+            resourceView.Dispose();
 
             // Don't bind these texture SRVs to their PS yet, so they can be used as RTs first.
 
@@ -1424,8 +1460,6 @@ namespace FlyCapture2SimpleGUI_CSharp
             // resourceView = new SlimDX.Direct3D11.ShaderResourceView(device, tex_debayered);
             // context.PixelShader.SetShaderResource(resourceView, 3);
 
-            resourceView.Dispose();
-
         }
 
         unsafe private void renderRaw()
@@ -1434,15 +1468,10 @@ namespace FlyCapture2SimpleGUI_CSharp
             IntPtr ptrRawData;
             DataBox texData;
 
-            int x = 0;
             int y = 0;
 
-            UInt32 px12;
-            UInt32 px1;
-            UInt32 px2;
-
-            int prevx = (int)m_processedImage.cols;
-            int prevy = (int)m_processedImage.rows;
+            int w = (int)m_processedImage.cols;
+            int h = (int)m_processedImage.rows;
 
             int convx;
             int convy;
@@ -1456,8 +1485,10 @@ namespace FlyCapture2SimpleGUI_CSharp
             // Block calls to renderRaw and clear the renderRaw flag.
             renderBusy = true;
 
+            if(renderTarget != null) { renderTarget.Dispose(); }
+
             constantBufferData = context.MapSubresource(constantBuffer, SlimDX.Direct3D11.MapMode.WriteDiscard, SlimDX.Direct3D11.MapFlags.None);
-            constantBufferData.Data.Write(new Vector2(max_recx, max_recy));
+            constantBufferData.Data.Write(new Vector2(w, h));
 
             float k_sharp = 0.0f;
 
@@ -1607,7 +1638,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             // Pass 0: Convert 8-bit unsigned to float texture.
             if (m_processedImage.pixelFormat == PixelFormat.PixelFormatRaw8)
             {
-                System.Runtime.InteropServices.Marshal.Copy(ptrRawData, lumbyte, 0, (int)(prevx * prevy));
+                System.Runtime.InteropServices.Marshal.Copy(ptrRawData, lumbyte, 0, (int)(w * h));
                 context.PixelShader.Set(pixelShader0x8);
 
                 // Fill the texture with rgba values:
@@ -1616,10 +1647,10 @@ namespace FlyCapture2SimpleGUI_CSharp
                 if (texData.Data.CanWrite)
                 {
                     // Must scan through row by row since the DataBox rows might be padded.
-                    for (y = 0; y < prevy; y++)
+                    for (y = 0; y < h; y++)
                     {
                         texData.Data.Seek(y * texData.RowPitch, System.IO.SeekOrigin.Begin);
-                        texData.Data.Write(lumbyte, (int)(y * prevx), (int)(prevx));
+                        texData.Data.Write(lumbyte, y * w, w);
                     }
                 }
                 context.UnmapSubresource(tex8, 0);
@@ -1627,7 +1658,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             }
             else if (m_processedImage.pixelFormat == PixelFormat.PixelFormatRaw12)
             {
-                System.Runtime.InteropServices.Marshal.Copy(ptrRawData, lumbyte, 0, (int)(prevx * prevy * 3 / 2));
+                System.Runtime.InteropServices.Marshal.Copy(ptrRawData, lumbyte, 0, w * h * 3 / 2);
                 context.PixelShader.Set(pixelShader0x12);
 
                 // Fill the texture with rgba values:
@@ -1636,10 +1667,10 @@ namespace FlyCapture2SimpleGUI_CSharp
                 if (texData.Data.CanWrite)
                 {
                     // Must scan through row by row since the DataBox rows might be padded.
-                    for (y = 0; y < prevy; y++)
+                    for (y = 0; y < h; y++)
                     {
                         texData.Data.Seek(y * texData.RowPitch, System.IO.SeekOrigin.Begin);
-                        texData.Data.Write(lumbyte, (int)(y * prevx * 3 / 2), (int)(prevx * 3 / 2));
+                        texData.Data.Write(lumbyte, y * w * 3 / 2, w * 3 / 2);
                     }
                 }
                 context.UnmapSubresource(tex12, 0);
@@ -1649,27 +1680,11 @@ namespace FlyCapture2SimpleGUI_CSharp
             renderTarget = new SlimDX.Direct3D11.RenderTargetView(device, tex);
             context.OutputMerger.SetTargets(renderTarget);
 
-            viewport = new SlimDX.Direct3D11.Viewport(0.0f, 0.0f, max_recx, max_recy);
+            viewport = new SlimDX.Direct3D11.Viewport(0.0f, 0.0f, w, h);
             context.Rasterizer.SetViewports(viewport);
-            
+
             context.Draw(4, 0);
-
-            // Adjust the swapchain buffer size if the preview size has been changed:
-            if (bigPreviewToggle)
-            {
-                if (bigPreview)
-                {
-                    swapChain.ResizeTarget(new SlimDX.DXGI.ModeDescription(768, 480, new SlimDX.Rational(60, 1), SlimDX.DXGI.Format.R8G8B8A8_UNorm));
-                    bigPreview = false;
-                }
-                else
-                {
-                    swapChain.ResizeTarget(new SlimDX.DXGI.ModeDescription(1152, 720, new SlimDX.Rational(60, 1), SlimDX.DXGI.Format.R8G8B8A8_UNorm));
-                    bigPreview = true;
-                }
-
-                bigPreviewToggle = false;
-            }
+            renderTarget.Dispose();
 
             // Pass 1: Debayer
             context.PixelShader.Set(pixelShader1);
@@ -1680,18 +1695,20 @@ namespace FlyCapture2SimpleGUI_CSharp
 
             resourceView = new SlimDX.Direct3D11.ShaderResourceView(device, tex);
             context.PixelShader.SetShaderResource(resourceView, 2);
+            resourceView.Dispose();
 
-            viewport = new SlimDX.Direct3D11.Viewport(0.0f, 0.0f, max_recx, max_recy);
+            viewport = new SlimDX.Direct3D11.Viewport(0.0f, 0.0f, w, h);
             context.Rasterizer.SetViewports(viewport);
 
             context.ClearRenderTargetView(renderTarget, new Color4(0.0f, 0.0f, 0.0f));
             context.Draw(4, 0);
+            renderTarget.Dispose();
 
             resourceView = new SlimDX.Direct3D11.ShaderResourceView(device, tex_dummy);
             context.PixelShader.SetShaderResource(resourceView, 2);
+            resourceView.Dispose();
 
             // Pass 2: Convolve - somewhat broken
-            /*
             context.PixelShader.Set(pixelShader2);
             context.PixelShader.SetSampler(samplerState, 0);
 
@@ -1700,16 +1717,19 @@ namespace FlyCapture2SimpleGUI_CSharp
 
             resourceView = new SlimDX.Direct3D11.ShaderResourceView(device, tex_debayered);
             context.PixelShader.SetShaderResource(resourceView, 3);
+            resourceView.Dispose();
 
-            viewport = new SlimDX.Direct3D11.Viewport(0.0f, 0.0f, max_recx, max_recy);
+            viewport = new SlimDX.Direct3D11.Viewport(0.0f, 0.0f, w, h);
             context.Rasterizer.SetViewports(viewport);
 
             context.ClearRenderTargetView(renderTarget, new Color4(0.0f, 0.0f, 0.0f));
             context.Draw(4, 0);
+            renderTarget.Dispose();
 
             resourceView = new SlimDX.Direct3D11.ShaderResourceView(device, tex_dummy);
             context.PixelShader.SetShaderResource(resourceView, 3);
-            */
+            resourceView.Dispose();
+            
 
             // Pass 3: Draw
             context.PixelShader.Set(pixelShader3);
@@ -1720,15 +1740,18 @@ namespace FlyCapture2SimpleGUI_CSharp
 
             resourceView = new SlimDX.Direct3D11.ShaderResourceView(device, tex_debayered);
             context.PixelShader.SetShaderResource(resourceView, 4);
+            resourceView.Dispose();
 
-            viewport = new SlimDX.Direct3D11.Viewport(0.0f, 0.0f, 1152.0f * max_recx / prevx, 720.0f * max_recx / prevx);
+            viewport = new SlimDX.Direct3D11.Viewport(0.0f, 0.0f, w, h);
             context.Rasterizer.SetViewports(viewport);
 
             context.ClearRenderTargetView(renderTarget, new Color4(0.0f, 0.0f, 0.0f));
             context.Draw(4, 0);
+            renderTarget.Dispose();
 
             resourceView = new SlimDX.Direct3D11.ShaderResourceView(device, tex_dummy);
             context.PixelShader.SetShaderResource(resourceView, 4);
+            resourceView.Dispose();
 
             swapChain.Present(0, SlimDX.DXGI.PresentFlags.None);
 
@@ -1853,6 +1876,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             toolStripButtonStop_Click(null, null);
 
             local_m_camera.SetFormat7Configuration(f7Settings, bus_percent);
+            configRawInDevice((int) f7Settings.width, (int) f7Settings.height);
 
             toolStripButtonStart_Click(null, null);
 
@@ -1909,6 +1933,11 @@ namespace FlyCapture2SimpleGUI_CSharp
             EmbeddedImageInfo embeddedInfo = m_camera.GetEmbeddedImageInfo();
             embeddedInfo.frameCounter.onOff = chkFrameCount.Checked;
             m_camera.SetEmbeddedImageInfo(embeddedInfo);
+        }
+
+        private void btnBGSaveDivDn_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show(SlimDX.ObjectTable.ReportLeaks());
         }
     }
 }

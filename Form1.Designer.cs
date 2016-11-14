@@ -1543,7 +1543,6 @@ namespace FlyCapture2SimpleGUI_CSharp
             // btnBGSaveDivDn
             // 
             this.btnBGSaveDivDn.BackColor = System.Drawing.Color.LightGray;
-            this.btnBGSaveDivDn.Enabled = false;
             this.btnBGSaveDivDn.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnBGSaveDivDn.Location = new System.Drawing.Point(1364, 555);
             this.btnBGSaveDivDn.Name = "btnBGSaveDivDn";
@@ -1551,6 +1550,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.btnBGSaveDivDn.TabIndex = 129;
             this.btnBGSaveDivDn.Text = "-";
             this.btnBGSaveDivDn.UseVisualStyleBackColor = false;
+            this.btnBGSaveDivDn.Click += new System.EventHandler(this.btnBGSaveDivDn_Click);
             // 
             // btnSave
             // 
@@ -1839,9 +1839,9 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Black;
             this.ClientSize = new System.Drawing.Size(1514, 801);
+            this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.chkFrameCount);
             this.Controls.Add(this.chkTimestamp);
-            this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.pnlBit);
             this.Controls.Add(this.btnChangeFormat);
             this.Controls.Add(this.pnlFR);
