@@ -64,10 +64,12 @@ namespace FlyCapture2SimpleGUI_CSharp
         int buffer_out_framectr = 0;
         int diff = 0;
         int trigger_countdown = -1;
+        int trigger_position = 5;
         bool recording_buffer = false;
         bool saving_buffer = false;
         bool first_time = true;
         bool new_clip = true;
+        bool save_continuous = false;
 
         long tstamp2 = 0;
 
@@ -176,6 +178,7 @@ namespace FlyCapture2SimpleGUI_CSharp
 
             while (m_grabImages)
             {
+
                 try
                 {
                     m_camera.RetrieveBuffer(m_rawImage);
@@ -203,7 +206,10 @@ namespace FlyCapture2SimpleGUI_CSharp
                     }
                     else
                     {
-                        m_rawImage.Convert(m_rawImage.pixelFormat, framebuffer[buffer_in_framectr % buffersize]);
+                        lock (this)
+                        {
+                            m_rawImage.Convert(m_rawImage.pixelFormat, framebuffer[buffer_in_framectr % buffersize]);
+                        }
                     }
                     buffer_in_framectr++;
                     if (buffer_in_framectr >= buffersize)
@@ -265,11 +271,15 @@ namespace FlyCapture2SimpleGUI_CSharp
         private void SaveLoop(object sender, DoWorkEventArgs e)
         {
             // Thread for saving images out of the RAM buffer as fast as possible.
-
             BackgroundWorker worker = sender as BackgroundWorker;
+
+            int frame_div_local = 1;
 
             while (true)
             {
+                if(save_continuous == true)
+                { saving_buffer = true; }
+
                 if (saving_buffer)
                 {
                     diff = buffer_in_framectr - buffer_out_framectr;
@@ -281,16 +291,22 @@ namespace FlyCapture2SimpleGUI_CSharp
                         buffer_out_framectr = buffer_in_framectr - diff;
                     }
 
-
-                    // Give some marging while simultaneously recording, to avoid read/write access conflict.
                     if (recording_buffer)
-                    { fdelay = 3; }
+                    {
+                        // Give margin and apply divider while simultaneously recording and saving to allow for post-triggering.
+                        fdelay = (int)((float)buffersize * ((float)trigger_position) / 10.0f);
+                        frame_div_local = frame_div;
+                    }
                     else
-                    { fdelay = 0; }
+                    {
+                        // No margin (save to end) and no divider when purely saving out the buffer
+                        fdelay = 0;
+                        frame_div_local = 1;
+                    }
 
                     if (diff > fdelay)
                     {
-                        if ((frame_div_ctr % frame_div) == 0)
+                        if ((frame_div_ctr % frame_div_local) == 0)
                         {
                             SaveLast = SaveStart;
                             SaveStart = swDiagnostic.Elapsed;
@@ -309,7 +325,8 @@ namespace FlyCapture2SimpleGUI_CSharp
                     }
                     else
                     {
-                        saving_buffer = false;
+                        if (save_continuous == false)
+                        { saving_buffer = false; }
                         // Not saving, give the other threads some time back.
                         Thread.Sleep(10);
                     }
@@ -349,7 +366,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             lblRawSize.Text = String.Format("Raw Image Size: {0}", m_processedImage.receivedDataSize);
 
             lblBufferSeconds.Text = String.Format("{0:F2}  seconds", (float)buffersize / m_camera.GetProperty(PropertyType.FrameRate).absValue);
-            lblBufferGB.Text = String.Format("{0:F2}  GB", (float)m_rawImage.receivedDataSize * buffersize / Math.Pow(2.0, 30));
+            lblBufferGB.Text = String.Format("{0:F2}  GB", (float)m_processedImage.receivedDataSize * buffersize / Math.Pow(2.0, 30));
             lblFramesBuffered.Text = String.Format("Frame In: {0}\r\nFrame Out: {1}\r\nFrame Diff: {2}", buffer_in_framectr, buffer_out_framectr, diff);
 
             if(diff > buffersize * 0.9)
@@ -713,9 +730,9 @@ namespace FlyCapture2SimpleGUI_CSharp
                     System.IO.Directory.CreateDirectory(String.Format("c:\\tmp\\clip{0}", tstamp2));
 
                     // create placeholder image for saving
-                    recx = m_rawImage.rows;
-                    recy = m_rawImage.cols;
-                    recformat = m_rawImage.pixelFormat;
+                    recx = m_processedImage.rows;
+                    recy = m_processedImage.cols;
+                    recformat = m_processedImage.pixelFormat;
                     m_saveImageCont = new ManagedImage(recx, recy, recformat);
 
                     new_clip = false;
@@ -836,7 +853,23 @@ namespace FlyCapture2SimpleGUI_CSharp
 
         private void chkContSave_CheckedChanged(object sender, EventArgs e)
         {
-
+            if (chkContSave.Checked == true)
+            {
+                if ((trkTrigger.Value > 2) && (trkTrigger.Value < 8))
+                {
+                    save_continuous = true;
+                }
+                else
+                {
+                    chkContSave.Checked = false;
+                    save_continuous = false;
+                    MessageBox.Show("Trigger point must be between 30% and 70% for continuous saving.");
+                }
+            }
+            else
+            {
+                save_continuous = false;
+            }
         }
 
         private void nudDiv_ValueChanged(object sender, EventArgs e)
@@ -1886,7 +1919,10 @@ namespace FlyCapture2SimpleGUI_CSharp
 
         private void btnTrig_Click(object sender, EventArgs e)
         {
-            trigger_countdown = (int)((float) buffersize * (10.0f - (float) trkTrigger.Value) / 10.0f);
+            trigger_countdown = (int)((float) buffersize * (10.0f - (float) trigger_position) / 10.0f);
+            chkContSave.Checked = false;
+            save_continuous = false;
+            saving_buffer = false;
         }
 
         private void btnFRUp_Click(object sender, EventArgs e)
@@ -1933,7 +1969,17 @@ namespace FlyCapture2SimpleGUI_CSharp
 
         private void btnBGSaveDivDn_Click(object sender, EventArgs e)
         {
-            MessageBox.Show(SlimDX.ObjectTable.ReportLeaks());
+            nudDiv.DownButton();
+        }
+
+        private void btnBGSaveDivUp_Click(object sender, EventArgs e)
+        {
+            nudDiv.UpButton();
+        }
+
+        private void trkTrigger_Scroll(object sender, EventArgs e)
+        {
+            trigger_position = trkTrigger.Value;
         }
     }
 }

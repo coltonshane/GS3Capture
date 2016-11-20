@@ -492,7 +492,6 @@ namespace FlyCapture2SimpleGUI_CSharp
             // 
             this.chkContSave.AutoSize = true;
             this.chkContSave.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.chkContSave.Enabled = false;
             this.chkContSave.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.chkContSave.ForeColor = System.Drawing.Color.White;
             this.chkContSave.Location = new System.Drawing.Point(1185, 518);
@@ -506,7 +505,6 @@ namespace FlyCapture2SimpleGUI_CSharp
             // nudDiv
             // 
             this.nudDiv.BackColor = System.Drawing.Color.DimGray;
-            this.nudDiv.Enabled = false;
             this.nudDiv.Font = new System.Drawing.Font("Microsoft Sans Serif", 20.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.nudDiv.ForeColor = System.Drawing.Color.White;
             this.nudDiv.Location = new System.Drawing.Point(1295, 555);
@@ -1531,7 +1529,6 @@ namespace FlyCapture2SimpleGUI_CSharp
             // btnBGSaveDivUp
             // 
             this.btnBGSaveDivUp.BackColor = System.Drawing.Color.LightGray;
-            this.btnBGSaveDivUp.Enabled = false;
             this.btnBGSaveDivUp.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnBGSaveDivUp.Location = new System.Drawing.Point(1432, 555);
             this.btnBGSaveDivUp.Name = "btnBGSaveDivUp";
@@ -1539,6 +1536,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.btnBGSaveDivUp.TabIndex = 130;
             this.btnBGSaveDivUp.Text = "+";
             this.btnBGSaveDivUp.UseVisualStyleBackColor = false;
+            this.btnBGSaveDivUp.Click += new System.EventHandler(this.btnBGSaveDivUp_Click);
             // 
             // btnBGSaveDivDn
             // 
@@ -1574,6 +1572,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.trkTrigger.Size = new System.Drawing.Size(309, 45);
             this.trkTrigger.TabIndex = 132;
             this.trkTrigger.Value = 5;
+            this.trkTrigger.Scroll += new System.EventHandler(this.trkTrigger_Scroll);
             // 
             // lblTrigger
             // 
