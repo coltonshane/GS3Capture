@@ -157,13 +157,11 @@
     </When>
   </Choose>
   <ItemGroup>
-    <Reference Include="FlyCap2CameraControld_v140, Version=2.10.3.169, Culture=neutral, PublicKeyToken=5abeeda345e59824, processorArchitecture=AMD64">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>bin\x64\Release\FlyCap2CameraControld_v140.dll</HintPath>
+    <Reference Include="FlyCap2CameraControl_v100">
+      <HintPath>bin\x64\Release\FlyCap2CameraControl_v100.dll</HintPath>
     </Reference>
-    <Reference Include="FlyCapture2Managedd_v140, Version=2.10.3.169, Culture=neutral, PublicKeyToken=76c6583b4a4585f4, processorArchitecture=AMD64">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>bin\x64\Release\FlyCapture2Managedd_v140.dll</HintPath>
+    <Reference Include="FlyCapture2Managed_v100">
+      <HintPath>bin\x64\Release\FlyCapture2Managed_v100.dll</HintPath>
     </Reference>
     <Reference Include="SlimDX, Version=4.0.13.43, Culture=neutral, PublicKeyToken=b1b0c32fd1ffe4f9, processorArchitecture=AMD64">
       <SpecificVersion>False</SpecificVersion>

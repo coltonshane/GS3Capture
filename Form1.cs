@@ -206,10 +206,7 @@ namespace FlyCapture2SimpleGUI_CSharp
                     }
                     else
                     {
-                        lock (this)
-                        {
-                            m_rawImage.Convert(m_rawImage.pixelFormat, framebuffer[buffer_in_framectr % buffersize]);
-                        }
+                        m_rawImage.Convert(m_rawImage.pixelFormat, framebuffer[buffer_in_framectr % buffersize]);
                     }
                     buffer_in_framectr++;
                     if (buffer_in_framectr >= buffersize)
