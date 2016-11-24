@@ -437,10 +437,18 @@ namespace FlyCapture2SimpleGUI_CSharp
                 }
                 for(hx = 0; hx <= 254; hx++)
                 {
-                    
-                    histgfx.DrawLine(Pens.Red, hx, 99 - (histR[hx] * 99 / hist_max), hx+1, 99 - (histR[hx+1] * 99 / hist_max));
-                    histgfx.DrawLine(Pens.Green, hx, 99 - (histG[hx] * 99 / hist_max), hx + 1, 99 - (histG[hx + 1] * 99 / hist_max));
-                    histgfx.DrawLine(Pens.Blue, hx, 99 - (histB[hx] * 99 / hist_max), hx + 1, 99 - (histB[hx + 1] * 99 / hist_max));
+                    if (chkHistLow.Checked)
+                    {
+                        histgfx.DrawLine(Pens.Red, 4 * hx, 99 - (histR[hx] * 99 / hist_max), 4 * hx + 4, 99 - (histR[hx + 1] * 99 / hist_max));
+                        histgfx.DrawLine(Pens.Green, 4 * hx, 99 - (histG[hx] * 99 / hist_max), 4 * hx + 4, 99 - (histG[hx + 1] * 99 / hist_max));
+                        histgfx.DrawLine(Pens.Blue, 4 * hx, 99 - (histB[hx] * 99 / hist_max), 4 * hx + 4, 99 - (histB[hx + 1] * 99 / hist_max));
+                    }
+                    else
+                    {
+                        histgfx.DrawLine(Pens.Red, hx, 99 - (histR[hx] * 99 / hist_max), hx + 1, 99 - (histR[hx + 1] * 99 / hist_max));
+                        histgfx.DrawLine(Pens.Green, hx, 99 - (histG[hx] * 99 / hist_max), hx + 1, 99 - (histG[hx + 1] * 99 / hist_max));
+                        histgfx.DrawLine(Pens.Blue, hx, 99 - (histB[hx] * 99 / hist_max), hx + 1, 99 - (histB[hx + 1] * 99 / hist_max));
+                    }
                 }
 
                 chkHistOn.Checked = false;
@@ -1911,6 +1919,20 @@ namespace FlyCapture2SimpleGUI_CSharp
 
         private void btnSave_Click(object sender, EventArgs e)
         {
+            System.IO.StreamWriter f_preview_settings;
+            f_preview_settings = new System.IO.StreamWriter(String.Format("c:\\tmp\\clip{0}\\preview_settings.txt", tstamp2));
+
+            // Save preview settings for use in RawView.
+            f_preview_settings.WriteLine("Clip Preview Settings from GS3 Capture");
+            f_preview_settings.WriteLine(String.Format("Gamma: {0:F2}", (float)nudGamma.Value));
+            f_preview_settings.WriteLine(String.Format("Brightness: {0:F2}", (float)nudBrightness.Value));
+            f_preview_settings.WriteLine(String.Format("Contrast: {0:F2}", (float)nudContrast.Value));
+            f_preview_settings.WriteLine(String.Format("Saturation: {0:F2}", (float)nudSaturation.Value));
+            f_preview_settings.WriteLine(String.Format("Sharpness: {0:F2}", (float)nudSharpness.Value));
+            f_preview_settings.Close();
+            f_preview_settings.Dispose();
+
+            // Start saving out the RAM buffer.
             saving_buffer = true;
         }
 
@@ -1977,6 +1999,16 @@ namespace FlyCapture2SimpleGUI_CSharp
         private void trkTrigger_Scroll(object sender, EventArgs e)
         {
             trigger_position = trkTrigger.Value;
+        }
+
+        private void chkHistLow_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void chkHistOn_CheckedChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }
