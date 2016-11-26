@@ -565,7 +565,10 @@ namespace FlyCapture2SimpleGUI_CSharp
 
                     m_grabImages = true;
 
-                    btnChangeFormat_Click(null, null);      // set format and configure D3D device
+                    // Note: Calling btnChangeFormat() here leads to baaad memory issues.
+                    // Using configRawInDevice() directly instead.
+                    configRawInDevice((int) max_recx, (int) max_recy);
+                    // btnChangeFormat_Click(null, null);      // set format and configure D3D device
                     swDiagnostic.Start();
 
                     StartGrabLoop();
