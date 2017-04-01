@@ -1210,6 +1210,12 @@ namespace FlyCapture2SimpleGUI_CSharp
 
         private void pictureBox1_MouseClick(object sender, MouseEventArgs e)
         {
+            // For RMB, just report X/Y pixel location.
+            if (e.Button == MouseButtons.Right)
+            {
+                lblXY.Text = String.Format("{0},{1}", e.X, e.Y);
+                return;
+            }
 
             // White balance or zoom in.
             if ((bigPreview == false) && (chkWBSpot.Checked == true))

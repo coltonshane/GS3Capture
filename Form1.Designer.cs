@@ -156,6 +156,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.chkTimestamp = new System.Windows.Forms.CheckBox();
             this.chkFrameCount = new System.Windows.Forms.CheckBox();
             this.chkHistLow = new System.Windows.Forms.CheckBox();
+            this.lblXY = new System.Windows.Forms.Label();
             this.toolStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
@@ -1848,12 +1849,26 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.chkHistLow.UseVisualStyleBackColor = false;
             this.chkHistLow.CheckedChanged += new System.EventHandler(this.chkHistLow_CheckedChanged);
             // 
+            // lblXY
+            // 
+            this.lblXY.BackColor = System.Drawing.Color.Black;
+            this.lblXY.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.lblXY.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblXY.ForeColor = System.Drawing.Color.White;
+            this.lblXY.Location = new System.Drawing.Point(659, 27);
+            this.lblXY.Name = "lblXY";
+            this.lblXY.Size = new System.Drawing.Size(121, 23);
+            this.lblXY.TabIndex = 151;
+            this.lblXY.Text = "0,0";
+            this.lblXY.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Black;
             this.ClientSize = new System.Drawing.Size(1514, 801);
+            this.Controls.Add(this.lblXY);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.chkHistLow);
             this.Controls.Add(this.chkFrameCount);
@@ -2138,6 +2153,7 @@ namespace FlyCapture2SimpleGUI_CSharp
         private System.Windows.Forms.CheckBox chkTimestamp;
         private System.Windows.Forms.CheckBox chkFrameCount;
         private System.Windows.Forms.CheckBox chkHistLow;
+        private System.Windows.Forms.Label lblXY;
     }
 }
 
