@@ -80,8 +80,8 @@ namespace FlyCapture2SimpleGUI_CSharp
         int frame_div_ctr = 0;
 
         // Recording Parameters
-        const uint max_recx = 1920;
-        const uint max_recy = 1200;
+        const uint max_recx = 4096;     // for IMX255
+        const uint max_recy = 2160;     // for IMX255
         uint recx = 1920;
         uint recy = 1200;
         PixelFormat recformat = PixelFormat.PixelFormatRaw8;
@@ -168,8 +168,6 @@ namespace FlyCapture2SimpleGUI_CSharp
 
             m_grabThreadExited = new AutoResetEvent(false);
             m_saveThreadExited = new AutoResetEvent(false);
-
-            cmbResolution.SelectedIndex = 2;
         }
 
         private void GrabLoop(object sender, DoWorkEventArgs e)
@@ -373,7 +371,7 @@ namespace FlyCapture2SimpleGUI_CSharp
 
             if (chkAuto30Hz.Checked == true)
             {
-                // frame_mod = (int)(m_camera.GetProperty(PropertyType.FrameRate).absValue / 30.0);
+                frame_mod = (int)(m_camera.GetProperty(PropertyType.FrameRate).absValue / 30.0);
                 if (frame_mod == 0)
                 {
                     frame_mod = 1;
@@ -547,6 +545,20 @@ namespace FlyCapture2SimpleGUI_CSharp
                     CameraInfo camInfo = m_camera.GetCameraInfo();
                     UpdateFormCaption(camInfo);
 
+                    if (camInfo.modelName == "Grasshopper3 GS3-U3-89S6C")
+                    {
+                        cmbResolution.SelectedIndex = 1; // UHD 3840x2160 (16:9)
+                    }
+                    else if (camInfo.modelName == "Grasshopper3 GS3-U3-23S6C")
+                    {
+                        cmbResolution.SelectedIndex = 3; // HD 1920x1080 (16:9)
+                    }
+                    else
+                    {
+                        cmbResolution.SelectedIndex = 3; // HD 1920x1080 (16:9)
+                        MessageBox.Show("Camera model not supported by GS3Capture.");
+                    }
+
                     // Set embedded timestamp to on
                     EmbeddedImageInfo embeddedInfo = m_camera.GetEmbeddedImageInfo();
                     embeddedInfo.timestamp.onOff = true;
@@ -565,10 +577,7 @@ namespace FlyCapture2SimpleGUI_CSharp
 
                     m_grabImages = true;
 
-                    // Note: Calling btnChangeFormat() here leads to baaad memory issues.
-                    // Using configRawInDevice() directly instead.
-                    configRawInDevice((int) max_recx, (int) max_recy);
-                    // btnChangeFormat_Click(null, null);      // set format and configure D3D device
+                    changeFormat();             // set the default format for the IMX174 or IMX255
                     swDiagnostic.Start();
 
                     StartGrabLoop();
@@ -577,7 +586,7 @@ namespace FlyCapture2SimpleGUI_CSharp
                     Thread.Sleep(250);
                  
                     setWB();
-                    setFrameRate(150.0F);       // also sets shutter to 180deg.
+                    setFrameRate(30.0F);       // also sets shutter to 180deg.
                     setGain(12.0F);
                     
 
@@ -757,81 +766,6 @@ namespace FlyCapture2SimpleGUI_CSharp
             }
         }
 
-        // Deprecated save function. Use the SaveLoop thread instead!
-        /* 
-        private void btnSave_Click(object sender, EventArgs e)
-        {
-            int save_framectr = 0;
-            int offset_framectr = 0;
-            ManagedImage m_save_image;
-
-            long tstamp = System.DateTime.Now.Ticks;
-
-            System.IO.Directory.CreateDirectory(String.Format("c:\\tmp\\clip{0}", tstamp));
-
-            switch (cmbFormat.SelectedIndex)
-            {
-                case 0:
-                    ManagedImage.defaultColorProcessingAlgorithm = ColorProcessingAlgorithm.IPP;
-
-                    m_save_image = new ManagedImage(recx, recy, PixelFormat.PixelFormatBgr);
-
-                    for (save_framectr = 0; save_framectr < buffersize; save_framectr++)
-                    {
-                        // Calculate the offset frame counter based on the current position in the circular buffer.
-                        offset_framectr = (save_framectr + buffer_in_framectr) % buffersize;
-                        
-                        framebuffer[offset_framectr].Convert(PixelFormat.PixelFormatBgr, m_save_image);
-                        m_save_image.Save(String.Format("c:\\tmp\\clip{0}\\img{1:D4}.jpg", tstamp, save_framectr), ImageFileFormat.Jpeg);
-                        framebuffer[offset_framectr].ReleaseBuffer();
-                    }
-
-                    ManagedImage.defaultColorProcessingAlgorithm = ColorProcessingAlgorithm.NearestNeighbor;
-                    break;
-                case 1:
-                    ManagedImage.defaultColorProcessingAlgorithm = ColorProcessingAlgorithm.IPP;
-
-                    m_save_image = new ManagedImage(recx, recy, PixelFormat.PixelFormatBgr);
-
-                    for (save_framectr = 0; save_framectr < buffersize; save_framectr++)
-                    {
-                        // Calculate the offset frame counter based on the current position in the circular buffer.
-                        offset_framectr = (save_framectr + buffer_in_framectr) % buffersize;
-
-                        framebuffer[offset_framectr].Convert(PixelFormat.PixelFormatBgr, m_save_image);
-                        m_save_image.Save(String.Format("c:\\tmp\\clip{0}\\img{1:D4}.bmp", tstamp, save_framectr), ImageFileFormat.Bmp);
-                        framebuffer[offset_framectr].ReleaseBuffer();
-                    }
-
-                    ManagedImage.defaultColorProcessingAlgorithm = ColorProcessingAlgorithm.NearestNeighbor;
-                    break;
-                case 2:
-                    for (save_framectr = 0; save_framectr < buffersize; save_framectr++)
-                    {
-                        // Calculate the offset frame counter based on the current position in the circular buffer.
-                        offset_framectr = (save_framectr + buffer_in_framectr) % buffersize;
-
-                        framebuffer[offset_framectr].Save(String.Format("c:\\tmp\\clip{0}\\img{1:D4}.raw", tstamp, save_framectr), ImageFileFormat.Raw);
-                        framebuffer[offset_framectr].ReleaseBuffer();
-                    }
-                    break;
-                default:
-                    break;
-            }
-            
-        }
-        */
-
-        private void rdoCont_CheckedChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void rdoOneShot_CheckedChanged(object sender, EventArgs e)
-        {
-
-        }
-
         private void btnClear_Click(object sender, EventArgs e)
         {
             if((recording_buffer) || (saving_buffer))
@@ -967,6 +901,52 @@ namespace FlyCapture2SimpleGUI_CSharp
 
             // Fire histogram.
             chkHistOn.Checked = true;
+        }
+
+        private void changeFormat()
+        {
+            string strRes = cmbResolution.SelectedItem.ToString();
+            string[] strRes_split = new string[3];
+            char[] char_delim = { 'x', ' ' };
+
+            uint selectedWidth = 0;
+            uint selectedHeight = 0;
+
+            strRes_split = strRes.Split(char_delim, 3);
+
+            uint.TryParse(strRes_split[0], out selectedWidth);
+            uint.TryParse(strRes_split[1], out selectedHeight);
+
+            ManagedCamera local_m_camera = (ManagedCamera)m_camera;
+            Format7ImageSettings f7Settings;
+            f7Settings = new Format7ImageSettings();
+            uint packetsize = 0;
+            float speed = 0.0F;
+            local_m_camera.GetFormat7Configuration(f7Settings, ref packetsize, ref speed);
+            f7Settings.width = selectedWidth;
+            f7Settings.height = selectedHeight;
+            f7Settings.offsetX = (uint)((max_recx - selectedWidth) / 8) * 4;
+            f7Settings.offsetY = (uint)((max_recy - selectedHeight) / 8) * 4;
+
+            if (rdo8bit.Checked)
+            {
+                f7Settings.mode = Mode.Mode0;
+                f7Settings.pixelFormat = PixelFormat.PixelFormatRaw8;
+            }
+            else
+            {
+                f7Settings.mode = Mode.Mode7;
+                f7Settings.pixelFormat = PixelFormat.PixelFormatRaw12;
+            }
+
+            toolStripButtonStop_Click(null, null);
+
+            local_m_camera.SetFormat7Configuration(f7Settings, bus_percent);
+            configRawInDevice((int)f7Settings.width, (int)f7Settings.height);
+
+            toolStripButtonStart_Click(null, null);
+
+            displayF7Settings();
         }
 
         private void displayF7Settings()
@@ -1882,48 +1862,7 @@ namespace FlyCapture2SimpleGUI_CSharp
 
         private void btnChangeFormat_Click(object sender, EventArgs e)
         {
-            string strRes = cmbResolution.SelectedItem.ToString();
-            string[] strRes_split = new string[3];
-            char[] char_delim = { 'x', ' ' };
-
-            uint selectedWidth = 0;
-            uint selectedHeight = 0;
-
-            strRes_split = strRes.Split(char_delim, 3);
-
-            uint.TryParse(strRes_split[0], out selectedWidth);
-            uint.TryParse(strRes_split[1], out selectedHeight);
-
-            ManagedCamera local_m_camera = (ManagedCamera)m_camera;
-            Format7ImageSettings f7Settings;
-            f7Settings = new Format7ImageSettings();
-            uint packetsize = 0;
-            float speed = 0.0F;
-            local_m_camera.GetFormat7Configuration(f7Settings, ref packetsize, ref speed);
-            f7Settings.width = selectedWidth;
-            f7Settings.height = selectedHeight;
-            f7Settings.offsetX = (uint)((max_recx - selectedWidth) / 8) * 4;
-            f7Settings.offsetY = (uint)((max_recy - selectedHeight) / 8) * 4;
-
-            if(rdo8bit.Checked)
-            {
-                f7Settings.mode = Mode.Mode0;
-                f7Settings.pixelFormat = PixelFormat.PixelFormatRaw8;
-            }
-            else
-            {
-                f7Settings.mode = Mode.Mode7;
-                f7Settings.pixelFormat = PixelFormat.PixelFormatRaw12;
-            }
-
-            toolStripButtonStop_Click(null, null);
-
-            local_m_camera.SetFormat7Configuration(f7Settings, bus_percent);
-            configRawInDevice((int) f7Settings.width, (int) f7Settings.height);
-
-            toolStripButtonStart_Click(null, null);
-
-            displayF7Settings();
+            changeFormat();
         }
 
         private void btnSave_Click(object sender, EventArgs e)
@@ -2018,6 +1957,18 @@ namespace FlyCapture2SimpleGUI_CSharp
         private void chkHistOn_CheckedChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void rdo24fps_CheckedChanged(object sender, EventArgs e)
+        {
+            setFrameRate(24.0f * (float)nudFR.Value);
+            lblFPS.Text = String.Format("= {0:F0}fps", 24.0f * (float)nudFR.Value);
+        }
+
+        private void rdo30fps_CheckedChanged(object sender, EventArgs e)
+        {
+            setFrameRate(30.0f * (float)nudFR.Value);
+            lblFPS.Text = String.Format("= {0:F0}fps", 24.0f * (float)nudFR.Value);
         }
     }
 }
