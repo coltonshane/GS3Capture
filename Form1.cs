@@ -84,6 +84,8 @@ namespace FlyCapture2SimpleGUI_CSharp
         const uint max_recy = 2160;     // for IMX255
         uint recx = 1920;
         uint recy = 1200;
+        uint sensor_x = 1920;
+        uint sensor_y = 1080;
         PixelFormat recformat = PixelFormat.PixelFormatRaw8;
 
         // Camera Control Variables
@@ -548,14 +550,21 @@ namespace FlyCapture2SimpleGUI_CSharp
                     if (camInfo.modelName == "Grasshopper3 GS3-U3-89S6C")
                     {
                         cmbResolution.SelectedIndex = 1; // UHD 3840x2160 (16:9)
+                        sensor_x = 4096;
+                        sensor_y = 2160;
+                        
                     }
                     else if (camInfo.modelName == "Grasshopper3 GS3-U3-23S6C")
                     {
                         cmbResolution.SelectedIndex = 3; // HD 1920x1080 (16:9)
+                        sensor_x = 1920;
+                        sensor_y = 1200;
                     }
                     else
                     {
                         cmbResolution.SelectedIndex = 3; // HD 1920x1080 (16:9)
+                        sensor_x = 1920;
+                        sensor_y = 1200;
                         MessageBox.Show("Camera model not supported by GS3Capture.");
                     }
 
@@ -584,7 +593,7 @@ namespace FlyCapture2SimpleGUI_CSharp
                     StartSaveLoop();
 
                     Thread.Sleep(250);
-                 
+
                     setWB();
                     setFrameRate(30.0F);       // also sets shutter to 180deg.
                     setGain(12.0F);
@@ -925,8 +934,8 @@ namespace FlyCapture2SimpleGUI_CSharp
             local_m_camera.GetFormat7Configuration(f7Settings, ref packetsize, ref speed);
             f7Settings.width = selectedWidth;
             f7Settings.height = selectedHeight;
-            f7Settings.offsetX = (uint)((max_recx - selectedWidth) / 8) * 4;
-            f7Settings.offsetY = (uint)((max_recy - selectedHeight) / 8) * 4;
+            f7Settings.offsetX = (uint)((sensor_x - selectedWidth) / 8) * 4;
+            f7Settings.offsetY = (uint)((sensor_y - selectedHeight) / 8) * 4;
 
             if (rdo8bit.Checked)
             {
