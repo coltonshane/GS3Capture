@@ -90,13 +90,13 @@ namespace FlyCapture2SimpleGUI_CSharp
 
         // Camera Control Variables
         float bus_percent = 95.0F;
-        float gain = 12.0F;
+        float gain = 0.0F;
         const uint SHUTTER_ANGLE = 0;
         const uint SHUTTER_TIME = 1;
         uint shutter_mode = SHUTTER_ANGLE;
         float shutter_div = 2.0F;
         uint wb_red = 512;
-        uint wb_blue = 900;
+        uint wb_blue = 512;
 
         // DirectX Variables, Raw Debayer and Color Processing:
         SlimDX.DXGI.SwapChainDescription description;
@@ -596,7 +596,7 @@ namespace FlyCapture2SimpleGUI_CSharp
 
                     setWB();
                     setFrameRate(30.0F);       // also sets shutter to 180deg.
-                    setGain(12.0F);
+                    setGain(0.0F);
                     
 
                 }
@@ -1525,6 +1525,7 @@ namespace FlyCapture2SimpleGUI_CSharp
 
             if (chkRaw.Checked == true)
             {
+                constantBufferData.Data.Write<float>(0.0f);                          // Black Level
                 constantBufferData.Data.Write<float>(1.0f);                          // Gamma
                 constantBufferData.Data.Write<float>(1.0f);                          // Brightness
                 constantBufferData.Data.Write<float>(1.0f);                          // Contrast
@@ -1539,6 +1540,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             }
             else
             {
+                constantBufferData.Data.Write<float>((float)nudBlackLevel.Value);    // Black Level
                 constantBufferData.Data.Write<float>((float)nudGamma.Value);         // Gamma
                 constantBufferData.Data.Write<float>((float)nudBrightness.Value);    // Brightness
                 constantBufferData.Data.Write<float>((float)nudContrast.Value);      // Contrast
@@ -1551,7 +1553,7 @@ namespace FlyCapture2SimpleGUI_CSharp
                 constantBufferData.Data.Write<float>((float)nudSaturation.Value);    // Saturation Adjust
                 constantBufferData.Data.Write<float>(0.0f);                          // Hue Adjust
 
-                k_sharp = (float)nudSharpness.Value - 1.0f;
+                k_sharp = (float)nudBlackLevel.Value - 1.0f;
             }
 
             // Set default convolution matrix to a 3x3 sharpen kernel:
@@ -1830,14 +1832,14 @@ namespace FlyCapture2SimpleGUI_CSharp
             nudSaturation.Value = nudSaturation.Value + nudSaturation.Increment;
         }
 
-        private void btnSharpnessDown_Click(object sender, EventArgs e)
+        private void btnBlackLevelDown_Click(object sender, EventArgs e)
         {
-            nudSharpness.Value = nudSharpness.Value - nudSharpness.Increment;
+            nudBlackLevel.Value = nudBlackLevel.Value - nudBlackLevel.Increment;
         }
 
-        private void btnSharpnessUp_Click(object sender, EventArgs e)
+        private void btnBlackLevelUp_Click(object sender, EventArgs e)
         {
-            nudSharpness.Value = nudSharpness.Value + nudSharpness.Increment;
+            nudBlackLevel.Value = nudBlackLevel.Value + nudBlackLevel.Increment;
         }
 
         private void pictureBox1_Click(object sender, EventArgs e)
@@ -1881,11 +1883,11 @@ namespace FlyCapture2SimpleGUI_CSharp
 
             // Save preview settings for use in RawView.
             f_preview_settings.WriteLine("Clip Preview Settings from GS3 Capture");
+            f_preview_settings.WriteLine(String.Format("Black Level: {0:F2}", (float)nudBlackLevel.Value));
             f_preview_settings.WriteLine(String.Format("Gamma: {0:F2}", (float)nudGamma.Value));
             f_preview_settings.WriteLine(String.Format("Brightness: {0:F2}", (float)nudBrightness.Value));
             f_preview_settings.WriteLine(String.Format("Contrast: {0:F2}", (float)nudContrast.Value));
             f_preview_settings.WriteLine(String.Format("Saturation: {0:F2}", (float)nudSaturation.Value));
-            f_preview_settings.WriteLine(String.Format("Sharpness: {0:F2}", (float)nudSharpness.Value));
             f_preview_settings.Close();
             f_preview_settings.Dispose();
 

@@ -8,6 +8,7 @@ sampler TextureSampler : register(s0);
 cbuffer ConstBuffer : register(c0)
 {
 	float2 resolution;				// 8
+	float black_level;				// 4
 	float gamma;					// 4
 	float brightness;				// 4
 	float contrast;					// 4
@@ -52,7 +53,7 @@ cbuffer ConstBuffer : register(c0)
 	
 	uint showclipped;			    // 4	
 	
-									// 156 Total
+									// 160 Total
 }
 
 struct VS_IN
@@ -87,6 +88,8 @@ float ps_8toFloat(PS_IN input) : SV_Target
 	pxcoord_int.y = floor(pxcoord.y*resolution.y);
 
 	outputcolor = w8Texture.Sample(TextureSampler, pxcoord);
+
+	outputcolor = outputcolor - black_level / 4095.0f;
 
 	return outputcolor;
 }
@@ -173,7 +176,7 @@ float ps_12toFloat(PS_IN input) : SV_Target
 		break;
 	}
 
-	outputcolor = (float)(outputcolor_12bit) / 4095.0f;
+	outputcolor = (float)((int)outputcolor_12bit - (int)black_level) / (4095.0f - black_level);
 
 	return outputcolor;
 }
@@ -193,20 +196,30 @@ float4 ps_debayer(PS_IN input) : SV_Target
 	float c_gamma;
 	float c_hue;
 	float c_sat;
+	uint bayer_pattern;
 	
+	// Choose bayer pattern based on horizontal resolution (IMX174 vs. IMX255).
+	if (resolution.x > 2000.0f)
+	{
+		bayer_pattern = 1;
+	}
+	else
+	{
+		bayer_pattern = 0;
+	}
+
 	dxy = float2(1.0f / resolution.x, 1.0f / resolution.y);
 	pxcoord = float2(input.cords[0], input.cords[1]);
 	pxcoord_int.x = floor(pxcoord.x*resolution.x);
 	pxcoord_int.y = floor(pxcoord.y*resolution.y);
 	sample = xTexture.Sample(TextureSampler, pxcoord);
 	
-	
 	// start at black
 	tempcolor.r = 0.0f;
 	tempcolor.g = 0.0f;
 	tempcolor.b = 0.0f;
 	
-	if(pxcoord_int.y % 2 == 0)
+	if(pxcoord_int.y % 2 == bayer_pattern)
 	{
 		if(pxcoord_int.x % 2 == 0)
 		{
