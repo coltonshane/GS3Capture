@@ -89,6 +89,7 @@ float ps_8toFloat(PS_IN input) : SV_Target
 
 	outputcolor = w8Texture.Sample(TextureSampler, pxcoord);
 
+	// Black level shift and clamp.
 	outputcolor = outputcolor - black_level / 4095.0f;
 
 	return outputcolor;
@@ -176,6 +177,7 @@ float ps_12toFloat(PS_IN input) : SV_Target
 		break;
 	}
 
+	// Black level shift and clamp.
 	outputcolor = (float)((int)outputcolor_12bit - (int)black_level) / (4095.0f - black_level);
 
 	return outputcolor;

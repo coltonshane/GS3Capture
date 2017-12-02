@@ -95,8 +95,10 @@ namespace FlyCapture2SimpleGUI_CSharp
         const uint SHUTTER_TIME = 1;
         uint shutter_mode = SHUTTER_ANGLE;
         float shutter_div = 2.0F;
-        uint wb_red = 512;
-        uint wb_blue = 512;
+
+        // Measured at 4700K.
+        uint wb_red = 650;
+        uint wb_blue = 906;
 
         // DirectX Variables, Raw Debayer and Color Processing:
         SlimDX.DXGI.SwapChainDescription description;
@@ -595,7 +597,7 @@ namespace FlyCapture2SimpleGUI_CSharp
                     Thread.Sleep(250);
 
                     setWB();
-                    setFrameRate(30.0F);       // also sets shutter to 180deg.
+                    setFrameRate(24.0F);       // also sets shutter to 180deg.
                     setGain(0.0F);
                     
 

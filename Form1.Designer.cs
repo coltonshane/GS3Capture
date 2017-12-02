@@ -453,7 +453,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.nudDD.Size = new System.Drawing.Size(96, 44);
             this.nudDD.TabIndex = 16;
             this.nudDD.Value = new decimal(new int[] {
-            5,
+            1,
             0,
             0,
             0});
@@ -556,9 +556,9 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.lblFPS.Location = new System.Drawing.Point(904, 1160);
             this.lblFPS.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.lblFPS.Name = "lblFPS";
-            this.lblFPS.Size = new System.Drawing.Size(192, 48);
+            this.lblFPS.Size = new System.Drawing.Size(169, 48);
             this.lblFPS.TabIndex = 43;
-            this.lblFPS.Text = "= 150 fps";
+            this.lblFPS.Text = "= 24 fps";
             // 
             // label2
             // 
@@ -1172,8 +1172,6 @@ namespace FlyCapture2SimpleGUI_CSharp
             // 
             this.chkRaw.AutoSize = true;
             this.chkRaw.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(64)))));
-            this.chkRaw.Checked = true;
-            this.chkRaw.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkRaw.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.chkRaw.ForeColor = System.Drawing.Color.White;
             this.chkRaw.Location = new System.Drawing.Point(1580, 977);
@@ -1411,7 +1409,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.nudContrast.TabIndex = 113;
             this.nudContrast.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.nudContrast.Value = new decimal(new int[] {
-            135,
+            100,
             0,
             0,
             131072});
@@ -1483,10 +1481,10 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.nudSaturation.TabIndex = 117;
             this.nudSaturation.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.nudSaturation.Value = new decimal(new int[] {
-            15,
+            100,
             0,
             0,
-            65536});
+            131072});
             // 
             // btnBlackLevelUp
             // 
@@ -1544,7 +1542,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.nudBlackLevel.TabIndex = 121;
             this.nudBlackLevel.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.nudBlackLevel.Value = new decimal(new int[] {
-            85,
+            225,
             0,
             0,
             0});
@@ -1701,7 +1699,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.nudFR.TabIndex = 135;
             this.nudFR.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.nudFR.Value = new decimal(new int[] {
-            5,
+            1,
             0,
             0,
             0});
@@ -1737,7 +1735,6 @@ namespace FlyCapture2SimpleGUI_CSharp
             // 
             this.rdo30fps.AutoSize = true;
             this.rdo30fps.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(64)))));
-            this.rdo30fps.Checked = true;
             this.rdo30fps.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.rdo30fps.ForeColor = System.Drawing.Color.White;
             this.rdo30fps.Location = new System.Drawing.Point(200, 12);
@@ -1745,7 +1742,6 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.rdo30fps.Name = "rdo30fps";
             this.rdo30fps.Size = new System.Drawing.Size(185, 52);
             this.rdo30fps.TabIndex = 139;
-            this.rdo30fps.TabStop = true;
             this.rdo30fps.Text = "30fps x";
             this.rdo30fps.UseVisualStyleBackColor = false;
             // 
@@ -1832,6 +1828,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             // 
             this.rdo24fps.AutoSize = true;
             this.rdo24fps.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(64)))));
+            this.rdo24fps.Checked = true;
             this.rdo24fps.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.rdo24fps.ForeColor = System.Drawing.Color.White;
             this.rdo24fps.Location = new System.Drawing.Point(22, 12);
@@ -1839,6 +1836,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.rdo24fps.Name = "rdo24fps";
             this.rdo24fps.Size = new System.Drawing.Size(153, 52);
             this.rdo24fps.TabIndex = 138;
+            this.rdo24fps.TabStop = true;
             this.rdo24fps.Text = "24fps";
             this.rdo24fps.UseVisualStyleBackColor = false;
             // 
@@ -1881,6 +1879,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             // 
             this.rdo12bit.AutoSize = true;
             this.rdo12bit.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(64)))));
+            this.rdo12bit.Checked = true;
             this.rdo12bit.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.rdo12bit.ForeColor = System.Drawing.Color.White;
             this.rdo12bit.Location = new System.Drawing.Point(200, 12);
@@ -1888,6 +1887,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.rdo12bit.Name = "rdo12bit";
             this.rdo12bit.Size = new System.Drawing.Size(156, 52);
             this.rdo12bit.TabIndex = 139;
+            this.rdo12bit.TabStop = true;
             this.rdo12bit.Text = "12-bit";
             this.rdo12bit.UseVisualStyleBackColor = false;
             // 
@@ -1896,7 +1896,6 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.rdo8bit.AllowDrop = true;
             this.rdo8bit.AutoSize = true;
             this.rdo8bit.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(64)))));
-            this.rdo8bit.Checked = true;
             this.rdo8bit.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.rdo8bit.ForeColor = System.Drawing.Color.White;
             this.rdo8bit.Location = new System.Drawing.Point(22, 12);
@@ -1904,7 +1903,6 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.rdo8bit.Name = "rdo8bit";
             this.rdo8bit.Size = new System.Drawing.Size(133, 52);
             this.rdo8bit.TabIndex = 138;
-            this.rdo8bit.TabStop = true;
             this.rdo8bit.Text = "8-bit";
             this.rdo8bit.UseVisualStyleBackColor = false;
             // 
