@@ -1210,7 +1210,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.nudGamma.TabIndex = 104;
             this.nudGamma.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.nudGamma.Value = new decimal(new int[] {
-            44,
+            40,
             0,
             0,
             65536});
@@ -2091,6 +2091,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.MinimumSize = new System.Drawing.Size(1254, 858);
             this.Name = "Form1";
             this.Text = "FlyCapture2SimpleGUI_CSharp";
+            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.toolStrip1.ResumeLayout(false);

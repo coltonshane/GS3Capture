@@ -94,7 +94,11 @@ namespace FlyCapture2SimpleGUI_CSharp
         const uint SHUTTER_ANGLE = 0;
         const uint SHUTTER_TIME = 1;
         uint shutter_mode = SHUTTER_ANGLE;
-        float shutter_div = 2.0F;
+
+        float[] shutter_angles = {360.0f, 270.0f, 180.0f, 135.0f, 90.0f, 67.5f, 45.0f, 33.75f, 22.5f, 16.875f, 11.25f, 8.4375f, 5.625f, 4.21875f, 2.8125f, 2.109375f};
+        int shutter_angle = 2;
+        const int SHUTTER_ANGLE_MAX = 15;
+        const int SHUTTER_ANGLE_MIN = 0;
 
         // Measured at 4700K.
         uint wb_red = 650;
@@ -845,7 +849,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             lblFPSd.Text = String.Format("{0:D}FPS", (uint)cpFrameRate.absValue);
 
             // Set shutter.
-            setShutter(shutter_div);
+            setShutter(shutter_angle);
 
         }
 
@@ -876,7 +880,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             cpFrameRate = m_camera.GetProperty(PropertyType.FrameRate);
             cpShutter.absControl = true;
             cpShutter.autoManualMode = false;
-            cpShutter.absValue = 1000.0F / (shutter_div * cpFrameRate.absValue);
+            cpShutter.absValue = 1000.0F / ((360.0F / shutter_angles[shutter_angle]) * cpFrameRate.absValue);
             m_camera.SetProperty(cpShutter);
 
             // Validate and display shutter.
@@ -888,7 +892,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             }
             else if (shutter_mode == SHUTTER_TIME)
             {
-                lblShutterd.Text = String.Format("1/{0:F0}s", cpFrameRate.absValue * shutter_div);
+                lblShutterd.Text = String.Format("1/{0:F0}s", 1000.0F / cpShutter.absValue);
             }
 
             // Fire histogram.
@@ -1004,7 +1008,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             }
             else if (shutter_mode == SHUTTER_TIME)
             {
-                lblShutterd.Text = String.Format("1/{0:F0}s", cpFrameRate.absValue * shutter_div);
+                lblShutterd.Text = String.Format("1/{0:F0}s", cpShutter.absValue);
             }
 
             // Fire histogram.
@@ -1069,28 +1073,20 @@ namespace FlyCapture2SimpleGUI_CSharp
 
         private void btnShutterUp_Click(object sender, EventArgs e)
         {
-            if (shutter_div > 2.0F)
+            if (shutter_angle > SHUTTER_ANGLE_MIN)
             {
-                shutter_div -= 1.0F;
+                shutter_angle--;
             }
-            else
-            {
-                shutter_div = 1.0F;
-            }
-            setShutter(shutter_div);
+            setShutter(shutter_angle);
         }
 
         private void btnShutterDown_Click(object sender, EventArgs e)
         {
-            if (shutter_div < 99.0F)
+            if (shutter_angle < SHUTTER_ANGLE_MAX)
             {
-                shutter_div += 1.0F;
+                shutter_angle++;
             }
-            else
-            {
-                shutter_div = 100.0F;
-            }
-            setShutter(shutter_div);
+            setShutter(shutter_angle);
         }
 
         private void rdoShutterTime_CheckedChanged(object sender, EventArgs e)
@@ -1099,7 +1095,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             {
                 shutter_mode = SHUTTER_TIME;
             }
-            setShutter(shutter_div);
+            setShutter(shutter_angle);
         }
 
         private void rdoShutterAngle_CheckedChanged(object sender, EventArgs e)
@@ -1108,7 +1104,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             {
                 shutter_mode = SHUTTER_ANGLE;
             }
-            setShutter(shutter_div);
+            setShutter(shutter_angle);
         }
 
         private void btnBlueUp_Click(object sender, EventArgs e)
