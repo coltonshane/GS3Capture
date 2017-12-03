@@ -28,6 +28,7 @@ namespace FlyCapture2SimpleGUI_CSharp
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.toolStripButtonStart = new System.Windows.Forms.ToolStripButton();
@@ -157,6 +158,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.chkFrameCount = new System.Windows.Forms.CheckBox();
             this.chkHistLog = new System.Windows.Forms.CheckBox();
             this.lblXY = new System.Windows.Forms.Label();
+            this.serialPort1 = new System.IO.Ports.SerialPort(this.components);
             this.toolStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
@@ -2253,6 +2255,7 @@ namespace FlyCapture2SimpleGUI_CSharp
         private System.Windows.Forms.CheckBox chkFrameCount;
         private System.Windows.Forms.CheckBox chkHistLog;
         private System.Windows.Forms.Label lblXY;
+        private System.IO.Ports.SerialPort serialPort1;
     }
 }
 

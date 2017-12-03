@@ -538,13 +538,24 @@ namespace FlyCapture2SimpleGUI_CSharp
             Show();
 
             CameraSelectionDialog camSlnDlg = new CameraSelectionDialog();
-            bool retVal = camSlnDlg.ShowModal();
+            // bool retVal = camSlnDlg.ShowModal();
+
+            bool retVal = true;
+            ManagedPGRGuid guidHardCoded;
+            guidHardCoded = new ManagedPGRGuid();
+            guidHardCoded.value0 = 3504385266;
+            guidHardCoded.value1 = 4043402098;
+            guidHardCoded.value2 = 1419318652;
+            guidHardCoded.value3 = 2761177860;
+
             if (retVal)
             {
                 try
                 {
-                    ManagedPGRGuid[] selectedGuids = camSlnDlg.GetSelectedCameraGuids();
-                    ManagedPGRGuid guidToUse = selectedGuids[0];
+                    // ManagedPGRGuid[] selectedGuids = camSlnDlg.GetSelectedCameraGuids();
+                    // ManagedPGRGuid guidToUse = selectedGuids[0];
+
+                    ManagedPGRGuid guidToUse = guidHardCoded;
 
                     ManagedBusManager busMgr = new ManagedBusManager();
                     InterfaceType ifType = busMgr.GetInterfaceTypeFromGuid(guidToUse);
