@@ -155,7 +155,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.rdo8bit = new System.Windows.Forms.RadioButton();
             this.chkTimestamp = new System.Windows.Forms.CheckBox();
             this.chkFrameCount = new System.Windows.Forms.CheckBox();
-            this.chkHistLow = new System.Windows.Forms.CheckBox();
+            this.chkHistLog = new System.Windows.Forms.CheckBox();
             this.lblXY = new System.Windows.Forms.Label();
             this.toolStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
@@ -363,7 +363,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.nudBufferFrames.TabIndex = 7;
             this.nudBufferFrames.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.nudBufferFrames.Value = new decimal(new int[] {
-            1000,
+            100,
             0,
             0,
             0});
@@ -1933,20 +1933,20 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.chkFrameCount.UseVisualStyleBackColor = false;
             this.chkFrameCount.CheckedChanged += new System.EventHandler(this.chkFrameCount_CheckedChanged);
             // 
-            // chkHistLow
+            // chkHistLog
             // 
-            this.chkHistLow.AutoSize = true;
-            this.chkHistLow.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(64)))));
-            this.chkHistLow.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.chkHistLow.ForeColor = System.Drawing.Color.White;
-            this.chkHistLow.Location = new System.Drawing.Point(2152, 746);
-            this.chkHistLow.Margin = new System.Windows.Forms.Padding(6);
-            this.chkHistLow.Name = "chkHistLow";
-            this.chkHistLow.Size = new System.Drawing.Size(128, 52);
-            this.chkHistLow.TabIndex = 150;
-            this.chkHistLow.Text = "Low";
-            this.chkHistLow.UseVisualStyleBackColor = false;
-            this.chkHistLow.CheckedChanged += new System.EventHandler(this.chkHistLow_CheckedChanged);
+            this.chkHistLog.AutoSize = true;
+            this.chkHistLog.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(64)))));
+            this.chkHistLog.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.chkHistLog.ForeColor = System.Drawing.Color.White;
+            this.chkHistLog.Location = new System.Drawing.Point(2152, 746);
+            this.chkHistLog.Margin = new System.Windows.Forms.Padding(6);
+            this.chkHistLog.Name = "chkHistLog";
+            this.chkHistLog.Size = new System.Drawing.Size(121, 52);
+            this.chkHistLog.TabIndex = 150;
+            this.chkHistLog.Text = "Log";
+            this.chkHistLog.UseVisualStyleBackColor = false;
+            this.chkHistLog.CheckedChanged += new System.EventHandler(this.chkHistLow_CheckedChanged);
             // 
             // lblXY
             // 
@@ -1970,7 +1970,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.ClientSize = new System.Drawing.Size(3028, 1540);
             this.Controls.Add(this.lblXY);
             this.Controls.Add(this.pictureBox1);
-            this.Controls.Add(this.chkHistLow);
+            this.Controls.Add(this.chkHistLog);
             this.Controls.Add(this.chkFrameCount);
             this.Controls.Add(this.chkTimestamp);
             this.Controls.Add(this.pnlBit);
@@ -2254,7 +2254,7 @@ namespace FlyCapture2SimpleGUI_CSharp
         private System.Windows.Forms.RadioButton rdo8bit;
         private System.Windows.Forms.CheckBox chkTimestamp;
         private System.Windows.Forms.CheckBox chkFrameCount;
-        private System.Windows.Forms.CheckBox chkHistLow;
+        private System.Windows.Forms.CheckBox chkHistLog;
         private System.Windows.Forms.Label lblXY;
     }
 }

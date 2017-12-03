@@ -59,7 +59,7 @@ namespace FlyCapture2SimpleGUI_CSharp
 
         // Image Buffer
         ManagedImage[] framebuffer = new ManagedImage[5000];
-        int buffersize = 1000;
+        int buffersize = 100;
         int buffer_in_framectr = 0;
         int buffer_out_framectr = 0;
         int diff = 0;
@@ -349,6 +349,8 @@ namespace FlyCapture2SimpleGUI_CSharp
             Graphics buffergfx;
             Graphics histgfx;
             int hx = 0;
+            float hx1 = 0.0F;
+            float hx2 = 0.0F;
 
             int[] hist = new int[256];
             int[] histR = new int[256];
@@ -443,11 +445,18 @@ namespace FlyCapture2SimpleGUI_CSharp
                 }
                 for(hx = 0; hx <= 254; hx++)
                 {
-                    if (chkHistLow.Checked)
+                    if (chkHistLog.Checked)
                     {
-                        histgfx.DrawLine(Pens.Red, 4 * hx, 99 - (histR[hx] * 99 / hist_max), 4 * hx + 4, 99 - (histR[hx + 1] * 99 / hist_max));
-                        histgfx.DrawLine(Pens.Green, 4 * hx, 99 - (histG[hx] * 99 / hist_max), 4 * hx + 4, 99 - (histG[hx + 1] * 99 / hist_max));
-                        histgfx.DrawLine(Pens.Blue, 4 * hx, 99 - (histB[hx] * 99 / hist_max), 4 * hx + 4, 99 - (histB[hx + 1] * 99 / hist_max));
+                        hx1 = (float)hx / 255.0F - (float)nudBlackLevel.Value / 4095.0F;
+                        if(hx1 < 0.0f) { hx1 = 0.0f;  }
+                        hx1 = (float)Math.Pow(hx1, 1.0F / (float)nudGamma.Value) * 255.0F;
+                        hx2 = (float)(hx + 1) / 255.0F - (float)nudBlackLevel.Value / 4095.0F;
+                        if (hx2 < 0.0f) { hx2 = 0.0f; }
+                        hx2 = (float)Math.Pow(hx2, 1.0F / (float)nudGamma.Value) * 255.0F;
+
+                        histgfx.DrawLine(Pens.Red, hx1, 99 - (histR[hx] * 99 / hist_max), hx2, 99 - (histR[hx + 1] * 99 / hist_max));
+                        histgfx.DrawLine(Pens.Green, hx1, 99 - (histG[hx] * 99 / hist_max), hx2, 99 - (histG[hx + 1] * 99 / hist_max));
+                        histgfx.DrawLine(Pens.Blue, hx1, 99 - (histB[hx] * 99 / hist_max), hx2, 99 - (histB[hx + 1] * 99 / hist_max));
                     }
                     else
                     {
