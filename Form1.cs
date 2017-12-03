@@ -100,9 +100,13 @@ namespace FlyCapture2SimpleGUI_CSharp
         const int SHUTTER_ANGLE_MAX = 15;
         const int SHUTTER_ANGLE_MIN = 0;
 
+        // Measured at 3000K.
+        uint wb_red = 450;
+        uint wb_blue = 1023;
+
         // Measured at 4700K.
-        uint wb_red = 650;
-        uint wb_blue = 906;
+        // uint wb_red = 650;
+        // uint wb_blue = 906;
 
         // DirectX Variables, Raw Debayer and Color Processing:
         SlimDX.DXGI.SwapChainDescription description;

@@ -366,9 +366,9 @@ float4 ps_debayer(PS_IN input) : SV_Target
 	}
 	else
 	{
-		if(pxcoord_int.x % 2 == 0)
+		if (pxcoord_int.x % 2 == 0)
 		{
-			
+
 			// tempcolor.r += xTexture.Sample(TextureSampler, pxcoord + float2(-2.0f * dxy.x, -2.0f * dxy.y));
 			// tempcolor.r += xTexture.Sample(TextureSampler, pxcoord + float2(-dxy.x, -2.0f * dxy.y));
 			tempcolor.r += -2.0f * xTexture.Sample(TextureSampler, pxcoord + float2(0.0f, -2.0f * dxy.y));
@@ -398,11 +398,11 @@ float4 ps_debayer(PS_IN input) : SV_Target
 			tempcolor.r += -2.0f * xTexture.Sample(TextureSampler, pxcoord + float2(0.0f, 2.0f * dxy.y));
 			// tempcolor.r += xTexture.Sample(TextureSampler, pxcoord + float2(dxy.x, 2.0f * dxy.y));
 			// tempcolor.r += xTexture.Sample(TextureSampler, pxcoord + float2(2.0f * dxy.x, 2.0f * dxy.y));
-			
+
 			tempcolor.r /= 16.0f;
-			
+
 			tempcolor.g = sample;
-			
+
 			// tempcolor.b += xTexture.Sample(TextureSampler, pxcoord + float2(-2.0f * dxy.x, -2.0f * dxy.y));
 			// tempcolor.b += xTexture.Sample(TextureSampler, pxcoord + float2(-dxy.x, -2.0f * dxy.y));
 			tempcolor.b += xTexture.Sample(TextureSampler, pxcoord + float2(0.0f, -2.0f * dxy.y));
@@ -432,7 +432,7 @@ float4 ps_debayer(PS_IN input) : SV_Target
 			tempcolor.b += xTexture.Sample(TextureSampler, pxcoord + float2(0.0f, 2.0f * dxy.y));
 			// tempcolor.b += xTexture.Sample(TextureSampler, pxcoord + float2(dxy.x, 2.0f * dxy.y));
 			// tempcolor.b += xTexture.Sample(TextureSampler, pxcoord + float2(2.0f * dxy.x, 2.0f * dxy.y));
-			
+
 			tempcolor.b /= 16.0f;
 		}
 		else
@@ -467,49 +467,52 @@ float4 ps_debayer(PS_IN input) : SV_Target
 			tempcolor.r += -3.0f * xTexture.Sample(TextureSampler, pxcoord + float2(0.0f, 2.0f * dxy.y));
 			// tempcolor.r += xTexture.Sample(TextureSampler, pxcoord + float2(dxy.x, 2.0f * dxy.y));
 			// tempcolor.r += xTexture.Sample(TextureSampler, pxcoord + float2(2.0f * dxy.x, 2.0f * dxy.y));
-			
+
 			tempcolor.r /= 16.0f;
 			// === RED AT BLUE LOCATION or BLUE AT RED LOCATION //
-			
+
 			// === GREEN AT RED OR BLUE LOCATION === //
 			// tempcolor.g += xTexture.Sample(TextureSampler, pxcoord + float2(-2.0f * dxy.x, -2.0f * dxy.y));
 			// tempcolor.g += xTexture.Sample(TextureSampler, pxcoord + float2(-dxy.x, -2.0f * dxy.y));
 			tempcolor.g += -2.0f * xTexture.Sample(TextureSampler, pxcoord + float2(0.0f, -2.0f * dxy.y));
 			// tempcolor.g += xTexture.Sample(TextureSampler, pxcoord + float2(dxy.x, -2.0f * dxy.y));
 			// tempcolor.g += xTexture.Sample(TextureSampler, pxcoord + float2(2.0f * dxy.x, -2.0f * dxy.y));
-			
+
 			// tempcolor.g += xTexture.Sample(TextureSampler, pxcoord + float2(-2.0f * dxy.x, -dxy.y));
 			// tempcolor.g += xTexture.Sample(TextureSampler, pxcoord + float2(-dxy.x, -dxy.y));
 			tempcolor.g += 4.0f * xTexture.Sample(TextureSampler, pxcoord + float2(0.0f, -dxy.y));
 			// tempcolor.g += xTexture.Sample(TextureSampler, pxcoord + float2(dxy.x, -dxy.y));
 			// tempcolor.g += xTexture.Sample(TextureSampler, pxcoord + float2(2.0f * dxy.x, -dxy.y));
-			
+
 			tempcolor.g += -2.0f * xTexture.Sample(TextureSampler, pxcoord + float2(-2.0f * dxy.x, 0.0f));
 			tempcolor.g += 4.0f * xTexture.Sample(TextureSampler, pxcoord + float2(-dxy.x, 0.0f));
 			tempcolor.g += 8.0f * xTexture.Sample(TextureSampler, pxcoord + float2(0.0f, 0.0f));
 			tempcolor.g += 4.0f * xTexture.Sample(TextureSampler, pxcoord + float2(dxy.x, 0.0f));
 			tempcolor.g += -2.0f * xTexture.Sample(TextureSampler, pxcoord + float2(2.0f * dxy.x, 0.0f));
-			
+
 			// tempcolor.g += xTexture.Sample(TextureSampler, pxcoord + float2(-2.0f * dxy.x, dxy.y));
 			// tempcolor.g += xTexture.Sample(TextureSampler, pxcoord + float2(-dxy.x, dxy.y));
 			tempcolor.g += 4.0f * xTexture.Sample(TextureSampler, pxcoord + float2(0.0f, dxy.y));
 			// tempcolor.g += xTexture.Sample(TextureSampler, pxcoord + float2(dxy.x, dxy.y));
 			// tempcolor.g += xTexture.Sample(TextureSampler, pxcoord + float2(2.0f * dxy.x, dxy.y));
-			
+
 			// tempcolor.g += xTexture.Sample(TextureSampler, pxcoord + float2(-2.0f * dxy.x, 2.0f * dxy.y));
 			// tempcolor.g += xTexture.Sample(TextureSampler, pxcoord + float2(-dxy.x, 2.0f * dxy.y));
 			tempcolor.g += -2.0f * xTexture.Sample(TextureSampler, pxcoord + float2(0.0f, 2.0f * dxy.y));
 			// tempcolor.g += xTexture.Sample(TextureSampler, pxcoord + float2(dxy.x, 2.0f * dxy.y));
 			// tempcolor.g += xTexture.Sample(TextureSampler, pxcoord + float2(2.0f * dxy.x, 2.0f * dxy.y));
-			
+
 			tempcolor.g /= 16.0f;
 			// === GREEN AT RED OR BLUE LOCATION === //
-			
+
 			tempcolor.b = sample;
 		}
 	}
 
 	// Gamma
+	if (tempcolor.r < 0.0f) { tempcolor.r = 0.0f; }
+	if (tempcolor.g < 0.0f) { tempcolor.g = 0.0f; }
+	if (tempcolor.b < 0.0f) { tempcolor.b = 0.0f; }
 	tempcolor.r = pow(tempcolor.r, 1.0f / gamma);
 	tempcolor.g = pow(tempcolor.g, 1.0f / gamma);
 	tempcolor.b = pow(tempcolor.b, 1.0f / gamma);
@@ -556,7 +559,7 @@ float4 ps_debayer(PS_IN input) : SV_Target
 			tempcolor.b = 1.0f - tempcolor.b;
 		}
 	}
-	
+
 	outputcolor.r = tempcolor.r;
 	outputcolor.g = tempcolor.g;
 	outputcolor.b = tempcolor.b;

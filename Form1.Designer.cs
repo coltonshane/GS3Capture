@@ -513,6 +513,8 @@ namespace FlyCapture2SimpleGUI_CSharp
             // 
             this.chkContSave.AutoSize = true;
             this.chkContSave.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.chkContSave.Checked = true;
+            this.chkContSave.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkContSave.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.chkContSave.ForeColor = System.Drawing.Color.White;
             this.chkContSave.Location = new System.Drawing.Point(2370, 996);
@@ -584,7 +586,6 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.lblFPSd.Name = "lblFPSd";
             this.lblFPSd.Size = new System.Drawing.Size(230, 42);
             this.lblFPSd.TabIndex = 53;
-            this.lblFPSd.Text = "150FPS";
             this.lblFPSd.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // lblPXd
@@ -598,7 +599,6 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.lblPXd.Name = "lblPXd";
             this.lblPXd.Size = new System.Drawing.Size(282, 42);
             this.lblPXd.TabIndex = 54;
-            this.lblPXd.Text = "1920x1200";
             this.lblPXd.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // lblBITd
@@ -612,7 +612,6 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.lblBITd.Name = "lblBITd";
             this.lblBITd.Size = new System.Drawing.Size(230, 42);
             this.lblBITd.TabIndex = 55;
-            this.lblBITd.Text = "8-bit";
             this.lblBITd.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // lblShutterd
@@ -626,7 +625,6 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.lblShutterd.Name = "lblShutterd";
             this.lblShutterd.Size = new System.Drawing.Size(250, 42);
             this.lblShutterd.TabIndex = 56;
-            this.lblShutterd.Text = "180º";
             this.lblShutterd.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // lblGaind
@@ -640,7 +638,6 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.lblGaind.Name = "lblGaind";
             this.lblGaind.Size = new System.Drawing.Size(232, 42);
             this.lblGaind.TabIndex = 57;
-            this.lblGaind.Text = "+0dB";
             this.lblGaind.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // btnShutterDown
@@ -1258,8 +1255,6 @@ namespace FlyCapture2SimpleGUI_CSharp
             // 
             this.chkClip.AutoSize = true;
             this.chkClip.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(64)))));
-            this.chkClip.Checked = true;
-            this.chkClip.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkClip.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.chkClip.ForeColor = System.Drawing.Color.White;
             this.chkClip.Location = new System.Drawing.Point(1950, 975);
@@ -1409,7 +1404,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.nudContrast.TabIndex = 113;
             this.nudContrast.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.nudContrast.Value = new decimal(new int[] {
-            100,
+            150,
             0,
             0,
             131072});
@@ -1481,7 +1476,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.nudSaturation.TabIndex = 117;
             this.nudSaturation.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.nudSaturation.Value = new decimal(new int[] {
-            100,
+            150,
             0,
             0,
             131072});
@@ -1937,6 +1932,8 @@ namespace FlyCapture2SimpleGUI_CSharp
             // 
             this.chkHistLog.AutoSize = true;
             this.chkHistLog.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(64)))));
+            this.chkHistLog.Checked = true;
+            this.chkHistLog.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkHistLog.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.chkHistLog.ForeColor = System.Drawing.Color.White;
             this.chkHistLog.Location = new System.Drawing.Point(2152, 746);
