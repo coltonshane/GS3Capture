@@ -555,20 +555,20 @@ namespace FlyCapture2SimpleGUI_CSharp
 
                     if (camInfo.modelName == "Grasshopper3 GS3-U3-89S6C")
                     {
-                        cmbResolution.SelectedIndex = 1; // UHD 3840x2160 (16:9)
+                        cmbResolution.SelectedIndex = 0; // UHD 3840x2160 (16:9)
                         sensor_x = 4096;
                         sensor_y = 2160;
                         
                     }
                     else if (camInfo.modelName == "Grasshopper3 GS3-U3-23S6C")
                     {
-                        cmbResolution.SelectedIndex = 3; // HD 1920x1080 (16:9)
+                        cmbResolution.SelectedIndex = 2; // HD 1920x1080 (16:9)
                         sensor_x = 1920;
                         sensor_y = 1200;
                     }
                     else
                     {
-                        cmbResolution.SelectedIndex = 3; // HD 1920x1080 (16:9)
+                        cmbResolution.SelectedIndex = 2; // HD 1920x1080 (16:9)
                         sensor_x = 1920;
                         sensor_y = 1200;
                         MessageBox.Show("Camera model not supported by GS3Capture.");
@@ -920,17 +920,25 @@ namespace FlyCapture2SimpleGUI_CSharp
 
         private void changeFormat()
         {
-            string strRes = cmbResolution.SelectedItem.ToString();
-            string[] strRes_split = new string[3];
-            char[] char_delim = { 'x', ' ' };
-
             uint selectedWidth = 0;
             uint selectedHeight = 0;
 
-            strRes_split = strRes.Split(char_delim, 3);
+            // Width is set based on sensor width.
+            if(sensor_x == 4096)
+            {
+                selectedWidth = 3840;
+            }
+            else
+            {
+                selectedWidth = 1900;
+            }
 
-            uint.TryParse(strRes_split[0], out selectedWidth);
-            uint.TryParse(strRes_split[1], out selectedHeight);
+            // Height is set based on user selection, max at sensor height.
+            uint.TryParse(cmbResolution.SelectedItem.ToString(), out selectedHeight);
+            if(selectedHeight > sensor_y)
+            {
+                selectedHeight = sensor_y;
+            }
 
             ManagedCamera local_m_camera = (ManagedCamera)m_camera;
             Format7ImageSettings f7Settings;

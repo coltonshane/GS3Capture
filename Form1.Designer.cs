@@ -1752,22 +1752,15 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.cmbResolution.ForeColor = System.Drawing.Color.White;
             this.cmbResolution.FormattingEnabled = true;
             this.cmbResolution.Items.AddRange(new object[] {
-            "4096x2160 (1.90:1)",
-            "3840x2160 (16:9)",
-            "1920x1200 (1.60:1)",
-            "1920x1080 (16:9)",
-            "1920x1038 (1.85:1)",
-            "1920x800 (2.40:1)",
-            "1920x480",
-            "1920x360",
-            "1920x240",
-            "1280x720 (16:9)",
-            "1280x534 (2.40:1)",
-            "864x480 (1.80:1)",
-            "864x360 (2.40:1)",
-            "864x240",
-            "864x160",
-            "864x120"});
+            "2160",
+            "1600",
+            "1080",
+            "800",
+            "720",
+            "480",
+            "360",
+            "240",
+            "120"});
             this.cmbResolution.Location = new System.Drawing.Point(60, 1229);
             this.cmbResolution.Margin = new System.Windows.Forms.Padding(6);
             this.cmbResolution.Name = "cmbResolution";
