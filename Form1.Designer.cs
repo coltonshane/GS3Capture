@@ -158,7 +158,8 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.chkFrameCount = new System.Windows.Forms.CheckBox();
             this.chkHistLog = new System.Windows.Forms.CheckBox();
             this.lblXY = new System.Windows.Forms.Label();
-            this.serialPort1 = new System.IO.Ports.SerialPort(this.components);
+            this.serQX = new System.IO.Ports.SerialPort(this.components);
+            this.btnTestQX = new System.Windows.Forms.Button();
             this.toolStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
@@ -732,6 +733,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.pictureBox2.Size = new System.Drawing.Size(664, 1435);
             this.pictureBox2.TabIndex = 65;
             this.pictureBox2.TabStop = false;
+            this.pictureBox2.Click += new System.EventHandler(this.pictureBox2_Click);
             // 
             // lblRecording
             // 
@@ -1583,6 +1585,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.btnBufferUp.TabIndex = 127;
             this.btnBufferUp.Text = "+";
             this.btnBufferUp.UseVisualStyleBackColor = false;
+            this.btnBufferUp.Click += new System.EventHandler(this.btnBufferUp_Click);
             // 
             // btnBufferDown
             // 
@@ -1595,6 +1598,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.btnBufferDown.TabIndex = 126;
             this.btnBufferDown.Text = "-";
             this.btnBufferDown.UseVisualStyleBackColor = false;
+            this.btnBufferDown.Click += new System.EventHandler(this.btnBufferDown_Click);
             // 
             // label1
             // 
@@ -1961,14 +1965,33 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.lblXY.Text = "0,0";
             this.lblXY.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
+            // serQX
+            // 
+            this.serQX.BaudRate = 115200;
+            // 
+            // btnTestQX
+            // 
+            this.btnTestQX.BackColor = System.Drawing.Color.LightGray;
+            this.btnTestQX.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnTestQX.Location = new System.Drawing.Point(1188, 1144);
+            this.btnTestQX.Margin = new System.Windows.Forms.Padding(6);
+            this.btnTestQX.Name = "btnTestQX";
+            this.btnTestQX.Size = new System.Drawing.Size(256, 81);
+            this.btnTestQX.TabIndex = 152;
+            this.btnTestQX.Text = "Test QX";
+            this.btnTestQX.UseVisualStyleBackColor = false;
+            this.btnTestQX.Click += new System.EventHandler(this.btnTestQX_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Black;
             this.ClientSize = new System.Drawing.Size(3028, 1540);
-            this.Controls.Add(this.lblXY);
+            this.Controls.Add(this.picHist);
             this.Controls.Add(this.pictureBox1);
+            this.Controls.Add(this.btnTestQX);
+            this.Controls.Add(this.lblXY);
             this.Controls.Add(this.chkHistLog);
             this.Controls.Add(this.chkFrameCount);
             this.Controls.Add(this.chkTimestamp);
@@ -2027,7 +2050,6 @@ namespace FlyCapture2SimpleGUI_CSharp
             this.Controls.Add(this.btnBusUp);
             this.Controls.Add(this.chkHistOn);
             this.Controls.Add(this.lblHistl);
-            this.Controls.Add(this.picHist);
             this.Controls.Add(this.picHistFrame);
             this.Controls.Add(this.chkWBSpot);
             this.Controls.Add(this.lblColorTempd);
@@ -2255,7 +2277,8 @@ namespace FlyCapture2SimpleGUI_CSharp
         private System.Windows.Forms.CheckBox chkFrameCount;
         private System.Windows.Forms.CheckBox chkHistLog;
         private System.Windows.Forms.Label lblXY;
-        private System.IO.Ports.SerialPort serialPort1;
+        private System.IO.Ports.SerialPort serQX;
+        private System.Windows.Forms.Button btnTestQX;
     }
 }
 

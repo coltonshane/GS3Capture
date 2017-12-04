@@ -142,7 +142,6 @@ namespace FlyCapture2SimpleGUI_CSharp
         bool bigPreview = true;
         float[,] conv = new float[5,5];
         bool renderBusy = false;
-        bool reconfig = false;
 
         // Thread Timing Diagnostics
         Stopwatch swDiagnostic = new Stopwatch();
@@ -168,6 +167,26 @@ namespace FlyCapture2SimpleGUI_CSharp
         SlimDX.Direct3D11.Buffer constantBuffer;
         DataBox constantBufferData;
 
+        // QX290 serial port.
+        const UInt16 RX_START_STOP = 0x0001;
+        const UInt16 RX_TRIGGER = 0x0002;
+        const UInt16 RX_CLEAR = 0x0004;
+        const UInt16 RX_SAVE = 0x0008;
+        const UInt16 RX_BG_SAVE = 0x0010;
+        const UInt16 RX_WB_SPOT = 0x0020;
+        const UInt16 RX_CHANGE_FORMAT = 0x0040;
+        const UInt16 RX_BIG_PREV = 0x0080;
+        const UInt16 RX_FIRE_HIST = 0x0100;
+        const UInt16 RX_ENTER = 0x0400;
+        const UInt16 RX_TAB = 0x0800;
+        const UInt16 RX_UP = 0x1000;
+        const UInt16 RX_RIGHT = 0x2000;
+        const UInt16 RX_DOWN = 0x4000;
+        const UInt16 RX_LEFT = 0x8000;
+        UInt16 rx_digital = 0x0000;
+        byte[] rx_buffer = new byte[50];
+        int rx_i = 0;
+
         public Form1()
         {
             InitializeComponent();
@@ -180,6 +199,189 @@ namespace FlyCapture2SimpleGUI_CSharp
 
             m_grabThreadExited = new AutoResetEvent(false);
             m_saveThreadExited = new AutoResetEvent(false);
+        }
+
+        private void rx()
+        {
+            int payload_offset = 0;
+            sbyte temp_sbyte = 0;
+            UInt16 temp_uint16 = 0;
+            Int16 temp_int16 = 0;
+
+            // Vertical resolution (requires format update).
+            temp_sbyte = (sbyte)rx_buffer[payload_offset + 0];
+            if(temp_sbyte > 0) { btnResUp_Click(null, null);  }
+            else if(temp_sbyte < 0) { btnResDown_Click(null, null); }
+
+            // Bit depth (requires format update).
+            temp_sbyte = (sbyte)rx_buffer[payload_offset + 1];
+            if (temp_sbyte > 0) { rdo12bit.Checked = true; rdo8bit.Checked = false; }
+            else if (temp_sbyte < 0) { rdo12bit.Checked = false; rdo8bit.Checked = true; }
+
+            // FPS base.
+            temp_sbyte = (sbyte)rx_buffer[payload_offset + 2];
+            if (temp_sbyte > 0) { rdo30fps.Checked = true; rdo24fps.Checked = false; }
+            else if (temp_sbyte < 0) { rdo30fps.Checked = false; rdo24fps.Checked = true; }
+
+            // FPS multiplier.
+            temp_sbyte = (sbyte)rx_buffer[payload_offset + 3];
+            if (temp_sbyte > 0) { btnFRUp_Click(null, null); }
+            else if (temp_sbyte < 0) { btnFRDown_Click(null, null); }
+
+            // Shutter angle.
+            temp_sbyte = (sbyte)rx_buffer[payload_offset + 4];
+            if (temp_sbyte > 0) { btnShutterUp_Click(null, null); }
+            else if (temp_sbyte < 0) { btnShutterDown_Click(null, null); }
+
+            // Gain.
+            temp_sbyte = (sbyte)rx_buffer[payload_offset + 5];
+            if (temp_sbyte > 0) { btnGainUp_Click(null, null); }
+            else if (temp_sbyte < 0) { btnGainDown_Click(null, null); }
+
+            // Sensor white balance, blue.
+            temp_int16 = (Int16)(((UInt16)rx_buffer[payload_offset + 6] << 8) + (UInt16)rx_buffer[payload_offset + 7]);
+            if(temp_int16 > 9) { btnBlueUpUp_Click(null, null); }
+            else if(temp_int16 > 0) { btnBlueUp_Click(null, null); }
+            else if(temp_int16 < -9) { btnBlueDownDown_Click(null, null); }
+            else if(temp_int16 < 0) { btnBlueDown_Click(null, null);  }
+
+            // Sensor white balance, red.
+            temp_int16 = (Int16)(((UInt16)rx_buffer[payload_offset + 8] << 8) + (UInt16)rx_buffer[payload_offset + 9]);
+            if (temp_int16 > 9) { btnRedUpUp_Click(null, null); }
+            else if (temp_int16 > 0) { btnRedUp_Click(null, null); }
+            else if (temp_int16 < -9) { btnRedDownDown_Click(null, null); }
+            else if (temp_int16 < 0) { btnRedDown_Click(null, null); }
+
+            // Preview black level.
+            temp_int16 = (Int16)(((UInt16)rx_buffer[payload_offset + 10] << 8) + (UInt16)rx_buffer[payload_offset + 11]);
+            if (temp_int16 > 0) { btnBlackLevelUp_Click(null, null); }
+            else if (temp_int16 < 0) { btnBlackLevelDown_Click(null, null); }
+
+            // Preview gamma.
+            temp_int16 = (Int16)(((UInt16)rx_buffer[payload_offset + 12] << 8) + (UInt16)rx_buffer[payload_offset + 13]);
+            if (temp_int16 > 0) { btnGammaUp_Click(null, null); }
+            else if (temp_int16 < 0) { btnGammaDown_Click(null, null); }
+
+            // Preview brightness.
+            temp_int16 = (Int16)(((UInt16)rx_buffer[payload_offset + 14] << 8) + (UInt16)rx_buffer[payload_offset + 15]);
+            if (temp_int16 > 0) { btnBrightnessUp_Click(null, null); }
+            else if (temp_int16 < 0) { btnBrightnessDown_Click(null, null); }
+
+            // Preview contrast.
+            temp_int16 = (Int16)(((UInt16)rx_buffer[payload_offset + 16] << 8) + (UInt16)rx_buffer[payload_offset + 17]);
+            if (temp_int16 > 0) { btnContrastUp_Click(null, null); }
+            else if (temp_int16 < 0) { btnContrastDown_Click(null, null); }
+
+            // Preview saturation.
+            temp_int16 = (Int16)(((UInt16)rx_buffer[payload_offset + 18] << 8) + (UInt16)rx_buffer[payload_offset + 19]);
+            if (temp_int16 > 0) { btnSaturationUp_Click(null, null); }
+            else if (temp_int16 < 0) { btnSaturationDown_Click(null, null); }
+
+            // Buffer size.
+            temp_int16 = (Int16)(((UInt16)rx_buffer[payload_offset + 20] << 8) + (UInt16)rx_buffer[payload_offset + 21]);
+            if (temp_int16 > 0) { btnBufferUp_Click(null, null); }
+            else if (temp_int16 < 0) { btnBufferDown_Click(null, null); }
+
+            // Trigger position.
+            temp_int16 = (Int16)(((UInt16)rx_buffer[payload_offset + 22] << 8) + (UInt16)rx_buffer[payload_offset + 23]);
+            if (temp_int16 > 0)
+            {
+                try { trkTrigger.Value = trkTrigger.Value + 1; } catch { }
+            }
+            else if (temp_int16 < 0)
+            {
+                try { trkTrigger.Value = trkTrigger.Value - 1; } catch { }
+            }
+
+            // Rising edge detectors for Rx digital flags.
+            temp_uint16 = (UInt16)(((UInt16)rx_buffer[payload_offset + 24] << 8) + (UInt16)rx_buffer[payload_offset + 25]);
+
+            // Record toggle.
+            if (((temp_uint16 & RX_START_STOP) != 0) && ((rx_digital & RX_START_STOP) == 0))
+            { btnRec_Click(null, null);  }
+
+            // Trigger.
+            if (((temp_uint16 & RX_TRIGGER) != 0) && ((rx_digital & RX_TRIGGER) == 0))
+            { btnTrig_Click(null, null); }
+
+            // Clear.
+            if (((temp_uint16 & RX_CLEAR) != 0) && ((rx_digital & RX_CLEAR) == 0))
+            { btnClear_Click(null, null); }
+
+            // Save.
+            if (((temp_uint16 & RX_SAVE) != 0) && ((rx_digital & RX_SAVE) == 0))
+            { btnSave_Click(null, null); }
+
+            // Toggle background saving.
+            if (((temp_uint16 & RX_BG_SAVE) != 0) && ((rx_digital & RX_BG_SAVE) == 0))
+            {
+                chkContSave.Checked = !chkContSave.Checked;
+            }
+
+            // Spot white balance.
+            if (((temp_uint16 & RX_WB_SPOT) != 0) && ((rx_digital & RX_WB_SPOT) == 0))
+            {
+                chkContSave.Checked = !chkContSave.Checked;
+            }
+
+            // Apply new format.
+            if (((temp_uint16 & RX_CHANGE_FORMAT) != 0) && ((rx_digital & RX_CHANGE_FORMAT) == 0))
+            {
+                changeFormat();
+            }
+
+            // Toggle big preview.
+            if (((temp_uint16 & RX_BIG_PREV) != 0) && ((rx_digital & RX_BIG_PREV) == 0))
+            {
+                bigPreview = !bigPreview;
+                configRawInDevice((int)m_processedImage.cols, (int)m_processedImage.rows);
+            }
+
+            // Fire histogram.
+            if (((temp_uint16 & RX_FIRE_HIST) != 0) && ((rx_digital & RX_FIRE_HIST) == 0))
+            {
+                chkHistOn.Checked = true;
+            }
+
+            // Send Enter key.
+            if (((temp_uint16 & RX_ENTER) != 0) && ((rx_digital & RX_ENTER) == 0))
+            {
+                SendKeys.Send("{ENTER}");
+            }
+
+            // Send Tab key.
+            if (((temp_uint16 & RX_TAB) != 0) && ((rx_digital & RX_TAB) == 0))
+            {
+                SendKeys.Send("{TAB}");
+            }
+
+            // Send Up key.
+            if (((temp_uint16 & RX_UP) != 0) && ((rx_digital & RX_UP) == 0))
+            {
+                SendKeys.Send("{UP}");
+            }
+
+            // Send Right key.
+            if (((temp_uint16 & RX_RIGHT) != 0) && ((rx_digital & RX_RIGHT) == 0))
+            {
+                SendKeys.Send("{RIGHT}");
+            }
+
+            // Send Down key.
+            if (((temp_uint16 & RX_DOWN) != 0) && ((rx_digital & RX_DOWN) == 0))
+            {
+                SendKeys.Send("{DOWN}");
+            }
+
+            // Send Left key.
+            if (((temp_uint16 & RX_LEFT) != 0) && ((rx_digital & RX_LEFT) == 0))
+            {
+                SendKeys.Send("{LEFT}");
+            }
+
+            rx_digital = temp_uint16;
+
+            rx_i = 0;
         }
 
         private void GrabLoop(object sender, DoWorkEventArgs e)
@@ -284,13 +486,12 @@ namespace FlyCapture2SimpleGUI_CSharp
 
             while (true)
             {
-                if(save_continuous == true)
+                diff = buffer_in_framectr - buffer_out_framectr;
+                if((save_continuous == true) && (diff > 0))
                 { saving_buffer = true; }
 
                 if (saving_buffer)
                 {
-                    diff = buffer_in_framectr - buffer_out_framectr;
-
                     // Allow the buffer to slip.
                     if (diff > (buffersize - 1))
                     {
@@ -332,8 +533,7 @@ namespace FlyCapture2SimpleGUI_CSharp
                     }
                     else
                     {
-                        if (save_continuous == false)
-                        { saving_buffer = false; }
+                        saving_buffer = false;
                         // Not saving, give the other threads some time back.
                         Thread.Sleep(10);
                     }
@@ -473,6 +673,9 @@ namespace FlyCapture2SimpleGUI_CSharp
                 chkHistOn.Checked = false;
                 histgfx.Dispose();
             }
+
+            // Handle QX commands from serial port.
+            if(rx_i != 0) { rx(); }
 
             UIEnd = swDiagnostic.Elapsed;
             UITime = (float)(UIEnd - UIStart).TotalMilliseconds;
@@ -624,6 +827,7 @@ namespace FlyCapture2SimpleGUI_CSharp
 
                     Thread.Sleep(250);
 
+                    chkContSave_CheckedChanged(null, null);
                     setWB();
                     setFrameRate(24.0F);       // also sets shutter to 180deg.
                     setGain(0.0F);
@@ -1824,52 +2028,52 @@ namespace FlyCapture2SimpleGUI_CSharp
 
         private void btnGammaDown_Click(object sender, EventArgs e)
         {
-            nudGamma.Value = nudGamma.Value - nudGamma.Increment;
+            nudGamma.DownButton();
         }
 
         private void btnGammaUp_Click(object sender, EventArgs e)
         {
-            nudGamma.Value = nudGamma.Value + nudGamma.Increment;
+            nudGamma.UpButton();
         }
 
         private void btnBrightnessDown_Click(object sender, EventArgs e)
         {
-            nudBrightness.Value = nudBrightness.Value - nudBrightness.Increment;
+            nudBrightness.DownButton();
         }
 
         private void btnBrightnessUp_Click(object sender, EventArgs e)
         {
-            nudBrightness.Value = nudBrightness.Value + nudBrightness.Increment;
+            nudBrightness.UpButton();
         }
 
         private void btnContrastDown_Click(object sender, EventArgs e)
         {
-            nudContrast.Value = nudContrast.Value - nudContrast.Increment;
+            nudContrast.DownButton();
         }
 
         private void btnContrastUp_Click(object sender, EventArgs e)
         {
-            nudContrast.Value = nudContrast.Value + nudContrast.Increment;
+            nudContrast.UpButton();
         }
 
         private void btnSaturationDown_Click(object sender, EventArgs e)
         {
-            nudSaturation.Value = nudSaturation.Value - nudSaturation.Increment;
+            nudSaturation.DownButton();
         }
 
         private void btnSaturationUp_Click(object sender, EventArgs e)
         {
-            nudSaturation.Value = nudSaturation.Value + nudSaturation.Increment;
+            nudSaturation.UpButton();
         }
 
         private void btnBlackLevelDown_Click(object sender, EventArgs e)
         {
-            nudBlackLevel.Value = nudBlackLevel.Value - nudBlackLevel.Increment;
+            nudBlackLevel.DownButton();
         }
 
         private void btnBlackLevelUp_Click(object sender, EventArgs e)
         {
-            nudBlackLevel.Value = nudBlackLevel.Value + nudBlackLevel.Increment;
+            nudBlackLevel.UpButton();
         }
 
         private void pictureBox1_Click(object sender, EventArgs e)
@@ -2010,6 +2214,53 @@ namespace FlyCapture2SimpleGUI_CSharp
         {
             setFrameRate(30.0f * (float)nudFR.Value);
             lblFPS.Text = String.Format("= {0:F0}fps", 24.0f * (float)nudFR.Value);
+        }
+
+        private void btnBufferUp_Click(object sender, EventArgs e)
+        {
+            try { nudBufferFrames.Value += nudBufferFrames.Increment; } catch { }
+        }
+
+        private void pictureBox2_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnBufferDown_Click(object sender, EventArgs e)
+        {
+            try { nudBufferFrames.Value -= nudBufferFrames.Increment;  } catch { }
+        }
+
+        private void btnTestQX_Click(object sender, EventArgs e)
+        {
+            // Put a dummy QX290 in the rx buffer.
+            rx_buffer[0] = 0;       // Vertical resolution (requires format update).
+            rx_buffer[1] = 0;       // Bit depth (requires format update).
+            rx_buffer[2] = 0;       // FPS base.
+            rx_buffer[3] = 0;       // FPS multiplier.
+            rx_buffer[4] = 0;       // Shutter angle.
+            rx_buffer[5] = 0;       // Gain.
+            rx_buffer[6] = 0;       // Sensor white balance, blue, MSB.
+            rx_buffer[7] = 0;       // Sensor white balance, blue, LSB.
+            rx_buffer[8] = 0;       // Sensor white balance, red, MSB.
+            rx_buffer[9] = 0;       // Sensor white balance, red, LSB.
+            rx_buffer[10] = 0;      // Preview black level, MSB.
+            rx_buffer[11] = 0;      // Preview black level, LSB.
+            rx_buffer[12] = 0;      // Preview gamma, MSB.
+            rx_buffer[13] = 0;      // Preview gamma, LSB.
+            rx_buffer[14] = 0;      // Preview brightness, MSB.
+            rx_buffer[15] = 0;      // Preview brightness, LSB.
+            rx_buffer[16] = 0;      // Preview contrast, MSB.
+            rx_buffer[17] = 0;      // Preview contrast, LSB.
+            rx_buffer[18] = 0;      // Preview saturation, MSB.
+            rx_buffer[19] = 0;      // Preview saturation, LSB.
+            rx_buffer[20] = 0;      // Buffer size, MSB.
+            rx_buffer[21] = 0;      // Buffer size, LSB.
+            rx_buffer[22] = 0;      // Trigger position, MSB.
+            rx_buffer[23] = 1;      // Trigger position, LSB.
+            rx_buffer[24] = 0;
+            rx_buffer[25] = 0;
+            rx_i = 1;
         }
     }
 }
