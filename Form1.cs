@@ -187,6 +187,12 @@ namespace FlyCapture2SimpleGUI_CSharp
         byte[] rx_buffer = new byte[50];
         int rx_i = 0;
 
+        // QX Receiver
+        const int QX_WAIT4Q = 0;
+        const int QX_WAIT4X = 1;
+        const int QX_DATA = 2;
+        int qx_state = QX_WAIT4Q;
+
         public Form1()
         {
             InitializeComponent();
@@ -203,7 +209,7 @@ namespace FlyCapture2SimpleGUI_CSharp
 
         private void rx()
         {
-            int payload_offset = 0;
+            int payload_offset = 10;
             sbyte temp_sbyte = 0;
             UInt16 temp_uint16 = 0;
             Int16 temp_int16 = 0;
@@ -675,7 +681,7 @@ namespace FlyCapture2SimpleGUI_CSharp
             }
 
             // Handle QX commands from serial port.
-            if(rx_i != 0) { rx(); }
+            if(rx_i == 36) { rx(); qx_state = QX_WAIT4Q; }
 
             UIEnd = swDiagnostic.Elapsed;
             UITime = (float)(UIEnd - UIStart).TotalMilliseconds;
@@ -2233,6 +2239,8 @@ namespace FlyCapture2SimpleGUI_CSharp
 
         private void btnTestQX_Click(object sender, EventArgs e)
         {
+            serQX.Open();
+            /*
             // Put a dummy QX290 in the rx buffer.
             rx_buffer[0] = 0;       // Vertical resolution (requires format update).
             rx_buffer[1] = 0;       // Bit depth (requires format update).
@@ -2261,6 +2269,63 @@ namespace FlyCapture2SimpleGUI_CSharp
             rx_buffer[24] = 0;
             rx_buffer[25] = 0;
             rx_i = 1;
+            */
+        }
+
+
+
+        private void serQX_DataReceived(object sender, System.IO.Ports.SerialDataReceivedEventArgs e)
+        {
+            int i = 0;
+            int rx_byte;
+
+            if (serQX.BytesToRead == 0) { return; }
+
+            for (i = 1; i < serQX.BytesToRead; i++)
+            {
+
+                try
+                {
+                    rx_byte = serQX.ReadByte();
+                }
+                catch
+                {
+                    // COM port is probably closed.
+                    qx_state = QX_WAIT4Q;
+                    return;
+                }
+
+                switch (qx_state)
+                {
+                    case QX_WAIT4Q:
+                        if (rx_byte == 0x51)
+                        {
+                            rx_buffer[0] = 0x51;
+                            qx_state = QX_WAIT4X;
+                        }
+                        break;
+                    case QX_WAIT4X:
+                        if (rx_byte == 0x58)
+                        {
+                            rx_buffer[1] = 0x58;
+                            rx_i = 2;
+                            qx_state = QX_DATA;
+                        }
+                        break;
+                    case QX_DATA:
+                        if (rx_i < 36)
+                        {
+                            rx_buffer[rx_i] = (byte)rx_byte;
+                            rx_i++;
+                        }
+                        break;
+                    default:
+                        // Go home, parser, you're drunnk.
+                        qx_state = QX_WAIT4Q;
+                        break;
+                }
+    
+            }
         }
     }
 }

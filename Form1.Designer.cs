@@ -1968,6 +1968,8 @@ namespace FlyCapture2SimpleGUI_CSharp
             // serQX
             // 
             this.serQX.BaudRate = 115200;
+            this.serQX.PortName = "COM8";
+            this.serQX.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(this.serQX_DataReceived);
             // 
             // btnTestQX
             // 
