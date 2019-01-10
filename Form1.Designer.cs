@@ -1807,8 +1807,8 @@ namespace FlyCapture2SimpleGUI_CSharp
             // 
             this.chkTimestamp.AutoSize = true;
             this.chkTimestamp.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(64)))));
-            this.chkTimestamp.Checked = true;
-            this.chkTimestamp.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkTimestamp.Checked = false;
+            this.chkTimestamp.CheckState = System.Windows.Forms.CheckState.Unchecked;
             this.chkTimestamp.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.chkTimestamp.ForeColor = System.Drawing.Color.White;
             this.chkTimestamp.Location = new System.Drawing.Point(19, 728);
@@ -1823,8 +1823,8 @@ namespace FlyCapture2SimpleGUI_CSharp
             // 
             this.chkFrameCount.AutoSize = true;
             this.chkFrameCount.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(64)))));
-            this.chkFrameCount.Checked = true;
-            this.chkFrameCount.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkFrameCount.Checked = false;
+            this.chkFrameCount.CheckState = System.Windows.Forms.CheckState.Unchecked;
             this.chkFrameCount.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.chkFrameCount.ForeColor = System.Drawing.Color.White;
             this.chkFrameCount.Location = new System.Drawing.Point(155, 728);
